@@ -1,0 +1,456 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/maddada/Ghostex-extensions/main/schemas/ghostex-extension.schema.json",
+  "title": "Ghostex extension manifest",
+  "description": "Manifest for one reviewed Ghostex extension. The name must equal the containing extension folder name.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "#/$defs/commonManifest"
+    },
+    {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/webExtension"
+        },
+        {
+          "$ref": "#/$defs/terminalExtension"
+        }
+      ]
+    }
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "commonManifest": {
+      "type": "object",
+      "required": [
+        "name",
+        "title",
+        "description",
+        "version",
+        "author",
+        "icon",
+        "categories"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "description": "Path or URL to the Ghostex extension manifest schema."
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "description": "Kebab-case extension id; must exactly match the containing folder name."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
+          "description": "Semantic Versioning 2.0.0 version."
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1
+        },
+        "icon": {
+          "type": "string",
+          "minLength": 5,
+          "pattern": "\\.svg$",
+          "description": "Relative path to the author-provided SVG icon."
+        },
+        "categories": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "preferences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/preference"
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "exec",
+              "cli",
+              "ssh",
+              "network",
+              "clipboard"
+            ]
+          },
+          "description": "Host capabilities requested by the extension and shown for install consent."
+        }
+      }
+    },
+    "webExtension": {
+      "type": "object",
+      "required": [
+        "placements",
+        "defaultPlacement",
+        "server"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "defaultPlacement": {
+                "const": "view"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "placements": {
+                "contains": {
+                  "const": "view"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "defaultPlacement": {
+                "const": "chat-bar"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "placements": {
+                "contains": {
+                  "const": "chat-bar"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "defaultPlacement": {
+                "const": "popup"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "placements": {
+                "contains": {
+                  "const": "popup"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "defaultPlacement": {
+                "const": "modal"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "placements": {
+                "contains": {
+                  "const": "modal"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "placements": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "view",
+              "chat-bar",
+              "popup",
+              "modal"
+            ]
+          },
+          "description": "Responsive web placements supported by this extension."
+        },
+        "defaultPlacement": {
+          "enum": [
+            "view",
+            "chat-bar",
+            "popup",
+            "modal"
+          ],
+          "description": "Initial placement; must also occur in placements."
+        },
+        "server": {
+          "$ref": "#/$defs/server"
+        },
+        "modal": {
+          "$ref": "#/$defs/modalSize"
+        },
+        "popup": {
+          "$ref": "#/$defs/popupSize"
+        }
+      }
+    },
+    "terminalExtension": {
+      "type": "object",
+      "required": [
+        "kind",
+        "terminal"
+      ],
+      "properties": {
+        "kind": {
+          "const": "terminal-pane"
+        },
+        "terminal": {
+          "$ref": "#/$defs/terminal"
+        }
+      }
+    },
+    "server": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "static"
+          ],
+          "properties": {
+            "static": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Relative directory containing the self-contained web bundle Ghostex serves."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "command",
+            "readiness"
+          ],
+          "properties": {
+            "command": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Server launch command. Ghostex substitutes {port}, {projectPath}, {projectName}, {sessionId}, {worktree}, and {worktreeBranch}."
+            },
+            "cwd": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Optional working directory. Supports {projectPath}, {projectName}, {sessionId}, {worktree}, and {worktreeBranch}."
+            },
+            "readiness": {
+              "$ref": "#/$defs/readiness"
+            },
+            "install": {
+              "$ref": "#/$defs/platformInstalls"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "readiness": {
+      "type": "object",
+      "required": [
+        "httpGet"
+      ],
+      "properties": {
+        "httpGet": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "HTTP path Ghostex polls on the allocated loopback port until it returns 200."
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "platformInstalls": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[A-Za-z0-9][A-Za-z0-9._-]*$": {
+          "type": "object",
+          "required": [
+            "url",
+            "sha256"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[A-Fa-f0-9]{64}$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Hash-pinned binary downloads keyed by platform name. Runtime code downloads are forbidden."
+    },
+    "terminal": {
+      "type": "object",
+      "required": [
+        "command"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Command run in a Ghostex terminal. Supports {projectPath}, {projectName}, {sessionId}, {worktree}, and {worktreeBranch}."
+        },
+        "cwd": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional terminal working directory with the same context placeholders as command."
+        },
+        "requires": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Executable names Ghostex checks before launch."
+        }
+      },
+      "additionalProperties": false
+    },
+    "preference": {
+      "type": "object",
+      "required": [
+        "name",
+        "title",
+        "description",
+        "type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "textfield",
+            "password",
+            "checkbox",
+            "dropdown",
+            "file",
+            "directory"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "default": {
+          "type": [
+            "string",
+            "boolean",
+            "number"
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "title",
+              "value"
+            ],
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "modalSize": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1400
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 900
+        }
+      },
+      "additionalProperties": false
+    },
+    "popupSize": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 420
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 640
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

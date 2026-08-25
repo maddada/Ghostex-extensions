@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "command-server-extension",
+  "title": "Command Server Extension",
+  "description": "A minimal Ghostex view backed by a host-managed Node HTTP server.",
+  "version": "0.1.0",
+  "author": "Your Name",
+  "icon": "icon.svg",
+  "categories": ["Developer Tools"],
+  "placements": ["view", "modal"],
+  "defaultPlacement": "view",
+  "server": {
+    "command": "node dist/server.mjs {port}",
+    "cwd": ".",
+    "readiness": {
+      "httpGet": "/",
+      "timeoutSeconds": 30
+    }
+  },
+  "modal": {
+    "width": 960,
+    "height": 700
+  },
+  "permissions": []
+}

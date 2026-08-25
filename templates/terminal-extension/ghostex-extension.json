@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "terminal-extension",
+  "title": "Terminal Extension",
+  "description": "A minimal command launched in a real Ghostex terminal pane.",
+  "version": "0.1.0",
+  "author": "Your Name",
+  "icon": "icon.svg",
+  "categories": ["Developer Tools"],
+  "kind": "terminal-pane",
+  "terminal": {
+    "command": "printf 'Hello from a Ghostex terminal extension\\n'",
+    "cwd": "{projectPath}"
+  },
+  "permissions": ["exec"]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "static-extension",
+  "title": "Static Extension",
+  "description": "A minimal self-contained Ghostex popup served by the built-in static server.",
+  "version": "0.1.0",
+  "author": "Your Name",
+  "icon": "icon.svg",
+  "categories": ["Developer Tools"],
+  "placements": ["popup"],
+  "defaultPlacement": "popup",
+  "server": {
+    "static": "dist/"
+  },
+  "popup": {
+    "width": 360,
+    "height": 240
+  },
+  "preferences": [
+    {
+      "name": "greeting",
+      "title": "Greeting",
+      "description": "Text shown by the example interface.",
+      "type": "textfield",
+      "required": false,
+      "default": "Hello from Ghostex",
+      "placeholder": "Enter a greeting"
+    }
+  ],
+  "permissions": []
+}
