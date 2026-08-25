@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -336,7 +336,11 @@ export function validateManifest(manifest, options = {}) {
 }
 
 export function validateManifestFile(manifestPath) {
-  const absolutePath = resolve(manifestPath);
+  const inputPath = resolve(manifestPath);
+  const absolutePath =
+    existsSync(inputPath) && statSync(inputPath).isDirectory()
+      ? join(inputPath, "ghostex-extension.json")
+      : inputPath;
   let manifest;
   try {
     manifest = JSON.parse(readFileSync(absolutePath, "utf8"));
