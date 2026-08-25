@@ -6,8 +6,9 @@ open, polls `/` for readiness, and owns process shutdown.
 
 ## Start a new extension
 
-1. Copy this folder to `extensions/<your-kebab-case-id>`.
-2. Set manifest `name` to that exact folder name and replace the metadata.
+1. From the repository root, run
+   `node tooling/new-extension.mjs command-server <your-kebab-case-id>`.
+2. Replace the generated manifest metadata.
 3. Replace `icon.svg`, then develop the server in `src/server.mjs`.
 4. Reproduce `dist/` with `cp src/server.mjs dist/server.mjs`.
 5. Keep `{port}` in the launch command, document each permission, and run the

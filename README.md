@@ -26,6 +26,8 @@ extensions/<extension-id>/
 - `schemas/ghostex-extension.schema.json` is the canonical manifest schema.
 - `templates/` contains complete starting points for static web, command-server,
   and terminal-pane extensions.
+- `tooling/new-extension.mjs` creates an extension from a template and sets its
+  folder and manifest id together.
 - `tooling/validate.mjs` validates manifests without third-party dependencies.
 - `extensions/` contains published extensions, one kebab-case folder per id.
 
@@ -33,6 +35,23 @@ The manifest `name` must exactly match its folder name. Extension icons are
 author-provided SVG files. Store screenshots belong in `metadata/`; audited
 source belongs in `src/`; the self-contained runnable output belongs in
 `dist/`.
+
+## Create an extension
+
+Use the scaffolder so the extension folder and manifest `name` are created with
+the same id:
+
+```sh
+node tooling/new-extension.mjs static my-extension
+```
+
+The available templates are `static`, `command-server`, and `terminal`. The
+command refuses invalid ids and existing destination folders. After creation,
+replace the template metadata and implementation, then validate the manifest:
+
+```sh
+node tooling/validate.mjs extensions/my-extension/ghostex-extension.json
+```
 
 ## Validate an extension
 

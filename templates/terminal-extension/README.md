@@ -5,8 +5,9 @@ choose whether terminal extensions open as a split to the right or a new tab.
 
 ## Start a new extension
 
-1. Copy this folder to `extensions/<your-kebab-case-id>`.
-2. Set manifest `name` to that exact folder name and replace the metadata.
+1. From the repository root, run
+   `node tooling/new-extension.mjs terminal <your-kebab-case-id>`.
+2. Replace the generated manifest metadata.
 3. Replace `icon.svg` and set `terminal.command`.
 4. Add executable names to `terminal.requires` so Ghostex can report missing
    dependencies before launch.

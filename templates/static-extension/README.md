@@ -5,8 +5,9 @@ background process and requests no host capabilities.
 
 ## Start a new extension
 
-1. Copy this folder to `extensions/<your-kebab-case-id>`.
-2. Set manifest `name` to that exact folder name and replace the metadata.
+1. From the repository root, run
+   `node tooling/new-extension.mjs static <your-kebab-case-id>`.
+2. Replace the generated manifest metadata.
 3. Replace `icon.svg`, then edit `src/index.html`.
 4. Reproduce `dist/` with `cp src/index.html dist/index.html`.
 5. Document every preference and permission, then run
