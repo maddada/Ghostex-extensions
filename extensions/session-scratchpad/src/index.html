@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Session Scratchpad</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+        background: #0e0e0e;
+        color: #e4e4e7;
+      }
+
+      button,
+      textarea {
+        font: inherit;
+      }
+
+      .scratchpad {
+        display: grid;
+        grid-template-rows: 36px minmax(0, 1fr);
+        height: 100%;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        padding: 5px 8px;
+        border-bottom: 1px solid #27272a;
+        background: #111113;
+      }
+
+      .session {
+        min-width: 0;
+        overflow: hidden;
+        color: #a1a1aa;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .status {
+        flex: 0 0 auto;
+        margin-left: auto;
+        color: #71717a;
+        font-size: 11px;
+      }
+
+      .status[data-error="true"] {
+        color: #fca5a5;
+      }
+
+      .mode-switch {
+        display: inline-flex;
+        flex: 0 0 auto;
+        overflow: hidden;
+        border: 1px solid #3f3f46;
+        border-radius: 6px;
+      }
+
+      .mode-switch button {
+        height: 24px;
+        padding: 0 9px;
+        border: 0;
+        border-right: 1px solid #3f3f46;
+        background: transparent;
+        color: #a1a1aa;
+        cursor: pointer;
+      }
+
+      .mode-switch button:last-child {
+        border-right: 0;
+      }
+
+      .mode-switch button[aria-pressed="true"] {
+        background: #27272a;
+        color: #fafafa;
+      }
+
+      .mode-switch button:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid rgb(113 113 122 / 20%);
+        outline-offset: -3px;
+      }
+
+      .content {
+        min-height: 0;
+      }
+
+      textarea,
+      .preview {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #0e0e0e;
+        color: #e4e4e7;
+      }
+
+      textarea {
+        display: block;
+        resize: none;
+        padding: 12px 14px;
+        line-height: 1.55;
+      }
+
+      textarea::placeholder {
+        color: #52525b;
+      }
+
+      textarea:disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+      }
+
+      .preview {
+        overflow: auto;
+        padding: 12px 16px 20px;
+        line-height: 1.6;
+      }
+
+      .preview[hidden],
+      textarea[hidden] {
+        display: none;
+      }
+
+      .preview > :first-child {
+        margin-top: 0;
+      }
+
+      .preview > :last-child {
+        margin-bottom: 0;
+      }
+
+      .preview h1,
+      .preview h2,
+      .preview h3,
+      .preview h4 {
+        margin: 1em 0 0.45em;
+        color: #fafafa;
+        line-height: 1.25;
+      }
+
+      .preview h1 {
+        font-size: 1.45rem;
+      }
+
+      .preview h2 {
+        font-size: 1.25rem;
+      }
+
+      .preview h3,
+      .preview h4 {
+        font-size: 1.08rem;
+      }
+
+      .preview p,
+      .preview ul,
+      .preview ol,
+      .preview blockquote,
+      .preview pre {
+        margin: 0.7em 0;
+      }
+
+      .preview ul,
+      .preview ol {
+        padding-left: 1.6em;
+      }
+
+      .preview blockquote {
+        padding-left: 10px;
+        border-left: 2px solid #52525b;
+        color: #a1a1aa;
+      }
+
+      .preview code {
+        padding: 0.12em 0.32em;
+        border-radius: 4px;
+        background: #27272a;
+        color: #f4f4f5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92em;
+      }
+
+      .preview pre {
+        overflow: auto;
+        padding: 10px 12px;
+        border: 1px solid #27272a;
+        border-radius: 6px;
+        background: #09090b;
+      }
+
+      .preview pre code {
+        padding: 0;
+        background: transparent;
+      }
+
+      .empty {
+        color: #52525b;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="scratchpad">
+      <div class="toolbar">
+        <span class="session" id="session">Finding the active session…</span>
+        <span class="status" id="status" role="status" aria-live="polite"></span>
+        <span class="mode-switch" aria-label="Scratchpad mode">
+          <button id="edit-mode" type="button" aria-pressed="true">Edit</button>
+          <button id="preview-mode" type="button" aria-pressed="false">Preview</button>
+        </span>
+      </div>
+      <div class="content">
+        <textarea
+          id="editor"
+          aria-label="Session scratchpad Markdown"
+          disabled
+          placeholder="Write a note for this session…"
+          spellcheck="true"
+        ></textarea>
+        <article class="preview" id="preview" aria-label="Markdown preview" hidden></article>
+      </div>
+    </main>
+
+    <script>
+      (() => {
+        if (window.ghostex?.__bridgeVersion === 1 || window.parent === window) return;
+
+        const bridgeVersion = 1;
+        let ready = false;
+        let sequence = 0;
+        const queued = [];
+        const pending = new Map();
+        const contextListeners = new Set();
+
+        const call = (method, params = {}, onChunk) =>
+          new Promise((resolve, reject) => {
+            const requestId = `${Date.now().toString(36)}-${(++sequence).toString(36)}`;
+            pending.set(requestId, { resolve, reject, onChunk });
+            const send = () => {
+              try {
+                window.parent.postMessage(
+                  {
+                    type: "ghostexChatBarBridgeRequest",
+                    bridgeVersion,
+                    requestId,
+                    method,
+                    params,
+                  },
+                  "*",
+                );
+              } catch (error) {
+                pending.delete(requestId);
+                reject(
+                  Object.assign(new Error("Ghostex could not send the extension call."), {
+                    code: "operationFailed",
+                    cause: error,
+                  }),
+                );
+              }
+            };
+            if (ready) send();
+            else queued.push(send);
+          });
+
+        window.addEventListener("message", (event) => {
+          if (event.source !== window.parent || !event.data || typeof event.data !== "object") return;
+          const message = event.data;
+          if (message.bridgeVersion !== bridgeVersion) return;
+          if (message.type === "ghostexChatBarBridgeReady") {
+            if (!ready) {
+              ready = true;
+              for (const send of queued.splice(0)) send();
+            }
+            return;
+          }
+          if (message.type === "ghostexChatBarBridgeContextChanged") {
+            for (const listener of contextListeners) listener(message.context);
+            return;
+          }
+
+          const request = pending.get(typeof message.requestId === "string" ? message.requestId : "");
+          if (!request) return;
+          if (message.type === "ghostexChatBarBridgeChunk") {
+            request.onChunk?.(message.chunk);
+            return;
+          }
+          if (message.type !== "ghostexChatBarBridgeResponse") return;
+          pending.delete(message.requestId);
+          if (message.ok) request.resolve(message.result);
+          else {
+            const error = message.error ?? {};
+            request.reject(
+              Object.assign(new Error(error.message || "Ghostex extension call failed."), error),
+            );
+          }
+        });
+
+        const api = {
+          __bridgeVersion: 1,
+          context: () => call("context"),
+          onContextChange(callback) {
+            contextListeners.add(callback);
+            return () => contextListeners.delete(callback);
+          },
+          cli: (verb, args = []) => call("cli", { verb, args }),
+          exec(command, options = {}) {
+            const { stream, ...params } = options;
+            return call("exec", { command, ...params }, typeof stream === "function" ? stream : undefined);
+          },
+          settings: Object.freeze({
+            get: () => call("settings.get"),
+            set: (values) => call("settings.set", { values }),
+          }),
+          storage: Object.freeze({
+            get: (key) => call("storage.get", { key }),
+            set: (key, value) => call("storage.set", { key, value }),
+          }),
+          ui: Object.freeze({
+            toast: (message) => call("ui.toast", { message }),
+            close: () => call("ui.close"),
+            setBadge: (lines) => call("ui.setBadge", { lines }),
+          }),
+        };
+        Object.defineProperty(window, "ghostex", {
+          configurable: false,
+          enumerable: true,
+          value: Object.freeze(api),
+        });
+      })();
+
+      (() => {
+        const editor = document.getElementById("editor");
+        const preview = document.getElementById("preview");
+        const sessionLabel = document.getElementById("session");
+        const status = document.getElementById("status");
+        const editMode = document.getElementById("edit-mode");
+        const previewMode = document.getElementById("preview-mode");
+        const ghostex = window.ghostex;
+        let activeSessionId = null;
+        let pendingSave = null;
+        let saveTimer = null;
+        let saveChain = Promise.resolve();
+        let contextGeneration = 0;
+
+        const setStatus = (message, isError = false) => {
+          status.textContent = message;
+          status.dataset.error = isError ? "true" : "false";
+        };
+
+        const escapeHtml = (value) =>
+          value
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+        const renderInline = (source) => {
+          const codeSpans = [];
+          let html = source.replace(/`([^`]+)`/g, (_match, code) => {
+            const index = codeSpans.push(escapeHtml(code)) - 1;
+            return `\uE000${index}\uE001`;
+          });
+          html = escapeHtml(html);
+          html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+          html = html.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+          html = html.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+          html = html.replace(/(^|[^_])_([^_]+)_/g, "$1<em>$2</em>");
+          return html.replace(/\uE000(\d+)\uE001/g, (_match, index) => `<code>${codeSpans[index]}</code>`);
+        };
+
+        const renderMarkdown = (source) => {
+          if (!source.trim()) return '<p class="empty">Nothing to preview yet.</p>';
+
+          const output = [];
+          const paragraph = [];
+          let listType = null;
+          let codeLines = null;
+          const flushParagraph = () => {
+            if (paragraph.length) {
+              output.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
+              paragraph.length = 0;
+            }
+          };
+          const closeList = () => {
+            if (listType) {
+              output.push(`</${listType}>`);
+              listType = null;
+            }
+          };
+
+          for (const line of source.replaceAll("\r\n", "\n").split("\n")) {
+            if (line.trim().startsWith("```")) {
+              flushParagraph();
+              closeList();
+              if (codeLines) {
+                output.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+                codeLines = null;
+              } else {
+                codeLines = [];
+              }
+              continue;
+            }
+            if (codeLines) {
+              codeLines.push(line);
+              continue;
+            }
+            if (!line.trim()) {
+              flushParagraph();
+              closeList();
+              continue;
+            }
+
+            const heading = line.match(/^(#{1,4})\s+(.+)$/);
+            if (heading) {
+              flushParagraph();
+              closeList();
+              const level = heading[1].length;
+              output.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+              continue;
+            }
+
+            const unordered = line.match(/^\s*[-+*]\s+(.+)$/);
+            const ordered = line.match(/^\s*\d+\.\s+(.+)$/);
+            if (unordered || ordered) {
+              flushParagraph();
+              const nextListType = unordered ? "ul" : "ol";
+              if (listType !== nextListType) {
+                closeList();
+                listType = nextListType;
+                output.push(`<${listType}>`);
+              }
+              output.push(`<li>${renderInline((unordered || ordered)[1])}</li>`);
+              continue;
+            }
+
+            const quote = line.match(/^>\s?(.*)$/);
+            if (quote) {
+              flushParagraph();
+              closeList();
+              output.push(`<blockquote>${renderInline(quote[1])}</blockquote>`);
+              continue;
+            }
+
+            closeList();
+            paragraph.push(line.trim());
+          }
+
+          if (codeLines) output.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+          flushParagraph();
+          closeList();
+          return output.join("\n");
+        };
+
+        const showMode = (mode) => {
+          const showingPreview = mode === "preview";
+          editor.hidden = showingPreview;
+          preview.hidden = !showingPreview;
+          editMode.setAttribute("aria-pressed", String(!showingPreview));
+          previewMode.setAttribute("aria-pressed", String(showingPreview));
+          if (showingPreview) preview.innerHTML = renderMarkdown(editor.value);
+          else editor.focus();
+        };
+
+        const persist = (save) => {
+          if (!ghostex) return Promise.resolve();
+          if (activeSessionId === save.sessionId) setStatus("Saving…");
+          const operation = saveChain.then(() =>
+            ghostex.storage.set(`notes:${save.sessionId}`, save.text),
+          );
+          saveChain = operation.catch(() => undefined);
+          return operation.then(
+            () => {
+              if (activeSessionId === save.sessionId) setStatus("Saved");
+            },
+            (error) => {
+              if (activeSessionId === save.sessionId) {
+                setStatus(error instanceof Error ? error.message : "Could not save", true);
+              }
+            },
+          );
+        };
+
+        const commitPendingSave = () => {
+          if (saveTimer !== null) {
+            window.clearTimeout(saveTimer);
+            saveTimer = null;
+          }
+          const save = pendingSave;
+          pendingSave = null;
+          return save ? persist(save) : saveChain;
+        };
+
+        const scheduleSave = () => {
+          if (!activeSessionId) return;
+          pendingSave = { sessionId: activeSessionId, text: editor.value };
+          setStatus("Unsaved");
+          if (saveTimer !== null) window.clearTimeout(saveTimer);
+          saveTimer = window.setTimeout(() => {
+            saveTimer = null;
+            void commitPendingSave();
+          }, 450);
+        };
+
+        const applyContext = async (context) => {
+          const generation = ++contextGeneration;
+          await commitPendingSave();
+          if (generation !== contextGeneration) return;
+
+          const session = context?.activeSession;
+          const sessionId = typeof session?.sessionId === "string" ? session.sessionId : "";
+          activeSessionId = sessionId || null;
+          editor.value = "";
+          editor.disabled = true;
+          preview.innerHTML = renderMarkdown("");
+
+          if (!activeSessionId) {
+            sessionLabel.textContent = "No active session";
+            setStatus("");
+            return;
+          }
+
+          sessionLabel.textContent = session.title || session.alias || `Session ${activeSessionId}`;
+          setStatus("Loading…");
+          try {
+            const note = await ghostex.storage.get(`notes:${activeSessionId}`);
+            if (generation !== contextGeneration) return;
+            editor.value = typeof note === "string" ? note : "";
+            editor.disabled = false;
+            preview.innerHTML = renderMarkdown(editor.value);
+            setStatus("Saved");
+          } catch (error) {
+            if (generation !== contextGeneration) return;
+            setStatus(error instanceof Error ? error.message : "Could not load note", true);
+          }
+        };
+
+        editor.addEventListener("input", scheduleSave);
+        editMode.addEventListener("click", () => showMode("edit"));
+        previewMode.addEventListener("click", () => showMode("preview"));
+
+        if (!ghostex) {
+          sessionLabel.textContent = "Ghostex bridge unavailable";
+          setStatus("Open this extension inside Ghostex", true);
+          return;
+        }
+
+        ghostex.onContextChange((context) => void applyContext(context));
+        ghostex.context().then(applyContext, (error) => {
+          sessionLabel.textContent = "Could not read session context";
+          setStatus(error instanceof Error ? error.message : "Context unavailable", true);
+        });
+      })();
+    </script>
+  </body>
+</html>
