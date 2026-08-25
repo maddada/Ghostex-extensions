@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "storybook",
+  "title": "Storybook",
+  "description": "Open the current project's Storybook component workshop in a Ghostex view.",
+  "version": "0.1.0",
+  "author": "Mohamad Yahia",
+  "icon": "icon.svg",
+  "categories": ["Dev Tools"],
+  "placements": ["view"],
+  "defaultPlacement": "view",
+  "server": {
+    "command": "bun storybook --port {port}",
+    "cwd": "{projectPath}",
+    "readiness": {
+      "httpGet": "/"
+    }
+  },
+  "permissions": ["exec"]
+}
