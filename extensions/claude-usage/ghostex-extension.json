@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "claude-usage",
+  "title": "Claude Usage",
+  "description": "Live Claude Code limits, local token totals, and pinned weekly usage badges.",
+  "version": "0.1.0",
+  "author": "Ghostex",
+  "icon": "icon.svg",
+  "categories": [
+    "Developer Tools",
+    "Productivity"
+  ],
+  "placements": [
+    "popup"
+  ],
+  "defaultPlacement": "popup",
+  "server": {
+    "command": "node server.mjs --port {port}",
+    "cwd": ".",
+    "readiness": {
+      "httpGet": "/",
+      "timeoutSeconds": 30
+    }
+  },
+  "popup": {
+    "width": 380,
+    "height": 560
+  },
+  "permissions": [
+    "network"
+  ]
+}
