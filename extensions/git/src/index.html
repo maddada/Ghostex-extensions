@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Git</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="6" cy="6" r="2" />
+              <circle cx="18" cy="6" r="2" />
+              <circle cx="12" cy="18" r="2" />
+              <path d="M6 8v3a7 7 0 0 0 6 7M18 8v1a5 5 0 0 1-5 5h-1" />
+            </svg>
+          </span>
+          <div class="brand-copy">
+            <strong>Git</strong>
+            <span id="project-name">Connecting…</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="placement-badge" id="placement-badge">modal</span>
+          <button
+            class="button icon-button"
+            id="refresh-button"
+            type="button"
+            title="Refresh repository"
+            aria-label="Refresh repository"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+      <main class="workspace-grid" id="workspace" hidden>
+        <aside class="panel branches-pane" aria-label="Branches">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">Repository</span>
+              <h2>Branches</h2>
+            </div>
+            <span class="count" id="branch-count">0</span>
+          </div>
+          <form class="branch-form" id="branch-form">
+            <label class="sr-only" for="new-branch-wide">New branch name</label>
+            <input id="new-branch-wide" name="branch" autocomplete="off" placeholder="New branch" />
+            <button class="button" type="submit">Create</button>
+          </form>
+          <div class="branch-list" id="branch-list"></div>
+        </aside>
+
+        <section class="panel files-pane" aria-label="Working tree changes">
+          <div class="branch-inline">
+            <div class="branch-current-row">
+              <div>
+                <span class="eyebrow">Current branch</span>
+                <h2 id="current-branch">—</h2>
+              </div>
+              <span class="sync-state" id="sync-state"></span>
+            </div>
+            <details class="branch-disclosure">
+              <summary>Switch or create branch</summary>
+              <form class="branch-form" id="branch-form-compact">
+                <label class="sr-only" for="new-branch-compact">New branch name</label>
+                <input id="new-branch-compact" name="branch" autocomplete="off" placeholder="New branch" />
+                <button class="button" type="submit">Create</button>
+              </form>
+              <div class="branch-list" id="branch-list-compact"></div>
+            </details>
+          </div>
+
+          <div class="panel-heading files-heading">
+            <div>
+              <span class="eyebrow">Working tree</span>
+              <h2>Changes</h2>
+            </div>
+            <span class="count" id="file-count">0</span>
+          </div>
+          <div class="file-list" id="file-list"></div>
+
+          <form class="commit-form" id="commit-form">
+            <label for="commit-message">Commit message</label>
+            <textarea id="commit-message" rows="3" placeholder="Describe this change" required></textarea>
+            <div class="commit-actions">
+              <button class="button primary" id="commit-button" type="submit">Commit</button>
+              <button class="button" id="amend-button" type="button">Amend</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel diff-pane" aria-label="Diff and history">
+          <div class="diff-toolbar">
+            <div class="diff-title">
+              <span class="eyebrow" id="diff-kicker">Selected change</span>
+              <h2 id="diff-file">Choose a file</h2>
+            </div>
+            <div class="view-tabs" role="tablist" aria-label="Repository details">
+              <button class="tab active" id="diff-tab" type="button" role="tab" aria-selected="true">Diff</button>
+              <button class="tab" id="history-tab" type="button" role="tab" aria-selected="false">History</button>
+            </div>
+          </div>
+          <div class="diff-summary" id="diff-summary"></div>
+          <div class="diff-view" id="diff-view" role="tabpanel"></div>
+          <div class="history-view" id="history-view" role="tabpanel" hidden></div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

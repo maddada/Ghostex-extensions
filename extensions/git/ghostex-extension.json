@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "git",
+  "title": "Git",
+  "description": "Review changes, stage files, commit work, inspect history, and manage branches without leaving Ghostex.",
+  "version": "0.1.0",
+  "author": "Ghostex",
+  "icon": "icon.svg",
+  "categories": ["Developer Tools", "Productivity"],
+  "placements": ["modal", "view", "popup"],
+  "defaultPlacement": "modal",
+  "server": {
+    "static": "dist/"
+  },
+  "modal": {
+    "width": 1200,
+    "height": 800
+  },
+  "popup": {
+    "width": 420,
+    "height": 640
+  },
+  "permissions": ["exec"]
+}

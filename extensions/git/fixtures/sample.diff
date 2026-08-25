@@ -1,0 +1,21 @@
+diff --git a/src/app.js b/src/app.js
+index 2345678..abcdef0 100644
+--- a/src/app.js
++++ b/src/app.js
+@@ -1,4 +1,5 @@
+ export function boot() {
+-  const theme = "light";
++  const theme = "dark";
++
+   mount(theme);
+ }
+diff --git a/README.md b/README.md
+index 3456789..bcdef01 100644
+--- a/README.md
++++ b/README.md
+@@ -2,3 +2,3 @@
+ 
+-A tiny workspace.
++A focused Git workspace.
+ 
+\ No newline at end of file
