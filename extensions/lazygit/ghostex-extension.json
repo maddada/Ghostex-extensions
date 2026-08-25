@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "lazygit",
+  "title": "Lazygit",
+  "description": "Manage the active project's Git repository with Lazygit in a terminal pane.",
+  "version": "0.1.0",
+  "author": "Ghostex",
+  "icon": "icon.svg",
+  "categories": [
+    "Developer Tools"
+  ],
+  "kind": "terminal-pane",
+  "terminal": {
+    "command": "lazygit",
+    "cwd": "{projectPath}",
+    "requires": [
+      "lazygit"
+    ]
+  },
+  "permissions": [
+    "exec"
+  ]
+}

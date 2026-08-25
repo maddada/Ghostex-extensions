@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "btop",
+  "title": "System Monitor",
+  "description": "Monitor system resources and processes with btop in a terminal pane.",
+  "version": "0.1.0",
+  "author": "Ghostex",
+  "icon": "icon.svg",
+  "categories": [
+    "Developer Tools"
+  ],
+  "kind": "terminal-pane",
+  "terminal": {
+    "command": "btop",
+    "requires": [
+      "btop"
+    ]
+  },
+  "permissions": [
+    "exec"
+  ]
+}
