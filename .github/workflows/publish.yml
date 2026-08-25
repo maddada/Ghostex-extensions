@@ -1,0 +1,40 @@
+name: Publish extension store
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: extension-store-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: oven-sh/setup-bun@v2
+      - name: Validate manifests
+        run: node tooling/validate.mjs
+      - name: Verify reproducible distributions
+        run: node tooling/verify-dist.mjs
+      - name: Build catalog and archives
+        run: node tooling/build-catalog.mjs
+      - name: Publish rolling store release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view store >/dev/null 2>&1; then
+            gh release create store --target "$GITHUB_SHA" --title "Ghostex Extension Store" --notes "Rolling Ghostex extension catalog."
+          fi
+          gh release view store --json assets --jq '.assets[].id' | while read -r asset_id; do
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id"
+          done
+          gh release upload store dist-store/* --clobber

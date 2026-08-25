@@ -1,0 +1,25 @@
+name: Validate extensions
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: oven-sh/setup-bun@v2
+      - name: Validate manifests
+        run: node tooling/validate.mjs
+      - name: Verify reproducible distributions
+        run: node tooling/verify-dist.mjs
+      - name: Require version bumps for added permissions
+        run: node tooling/check-permission-bump.mjs "${{ github.event.pull_request.base.sha }}"
