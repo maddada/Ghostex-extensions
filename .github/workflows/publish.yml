@@ -34,7 +34,7 @@ jobs:
           if ! gh release view store >/dev/null 2>&1; then
             gh release create store --target "$GITHUB_SHA" --title "Ghostex Extension Store" --notes "Rolling Ghostex extension catalog."
           fi
-          gh release view store --json assets --jq '.assets[].id' | while read -r asset_id; do
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/store" --jq '.assets[].id' | while read -r asset_id; do
             gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id"
           done
           gh release upload store dist-store/* --clobber
