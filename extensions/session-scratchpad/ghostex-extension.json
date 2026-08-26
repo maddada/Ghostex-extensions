@@ -3,7 +3,7 @@
   "name": "session-scratchpad",
   "title": "Session Scratchpad",
   "description": "Keep lightweight Markdown notes that follow the active Ghostex session.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Ghostex",
   "icon": "icon.svg",
   "categories": ["Productivity"],

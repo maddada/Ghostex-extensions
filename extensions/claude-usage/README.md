@@ -28,7 +28,7 @@ tables.
 
 The Status and Dashboard buttons are ordinary HTTPS links. The popup contains
 no external scripts, styles, fonts, remote imports, or downloaded executable
-code.
+code. The last-updated time appears in the top-right of the popup header.
 
 ## Development
 
