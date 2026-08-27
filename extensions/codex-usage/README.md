@@ -1,8 +1,11 @@
 # Codex Usage
 
-Codex Usage adds a compact popup to Ghostex for the live Codex five-hour and
-weekly limits. When pinned, the titlebar button shows both percentages beside
-the Codex icon.
+Codex Usage adds an OpenUsage-inspired popup to Ghostex for the live Codex
+five-hour, weekly, Spark, and Spark Weekly limits. It also shows flex credits,
+rate-limit resets, a 30-day token trend, and Today, Yesterday, and Last 30 Days
+token and estimated-cost totals. When pinned, the titlebar button shows the
+five-hour and weekly percentages compactly on its first line (for example,
+`12/34%`) and the available reset count on its second (`2rs`).
 
 ## Setup
 
@@ -15,6 +18,13 @@ The extension refreshes OAuth credentials shortly before expiry and writes the
 rotated tokens back to the same auth file. It never prints or serves tokens.
 Live usage refreshes every 60 seconds from the Codex usage endpoint, and HTTP
 429 responses honor `Retry-After`.
+
+Local usage is scanned incrementally from the Codex CLI's `sessions/` and
+`archived_sessions/` JSONL rollouts. Replayed child-session history and repeated
+cumulative token snapshots are excluded before daily totals are calculated.
+Dollar values are local estimates using the Codex-relevant OpenUsage pricing
+snapshot recorded in `THIRD_PARTY_NOTICES.md`; token counts come directly from
+the rollout logs.
 
 ## Permissions
 

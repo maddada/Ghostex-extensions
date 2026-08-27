@@ -2,8 +2,8 @@
   "$schema": "../../schemas/ghostex-extension.schema.json",
   "name": "codex-usage",
   "title": "Codex Usage",
-  "description": "Live Codex five-hour and weekly limits with pinned usage badges.",
-  "version": "0.1.0",
+  "description": "Live Codex limits, credits, reset balance, usage trend, and local spend estimates.",
+  "version": "0.1.1",
   "author": "Ghostex",
   "icon": "icon.svg",
   "categories": [
@@ -24,7 +24,7 @@
   },
   "popup": {
     "width": 380,
-    "height": 300
+    "height": 560
   },
   "permissions": [
     "network"
