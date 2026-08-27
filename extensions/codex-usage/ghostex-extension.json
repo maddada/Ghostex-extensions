@@ -3,7 +3,7 @@
   "name": "codex-usage",
   "title": "Codex Usage",
   "description": "Live Codex limits, credits, reset balance, usage trend, and local spend estimates.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Ghostex",
   "icon": "icon.svg",
   "categories": [

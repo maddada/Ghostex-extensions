@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.2] - {PR_MERGE_DATE}
+
+- Hide the empty status row so the footer stays at the bottom without making the popup scroll.
+- Add a space before the `rs` reset-count suffix in the pinned titlebar badge.
+
 ## [0.1.1] - {PR_MERGE_DATE}
 
 - Add Spark and Spark Weekly limits, flex credits, and rate-limit reset balance.

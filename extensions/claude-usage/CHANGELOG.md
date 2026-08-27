@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.2] - {PR_MERGE_DATE}
+
+- Hide the empty status row so the footer remains bottom-aligned without unnecessary scrolling.
+- Keep the last-updated time in the top-right header position without the redundant `LIVE` label.
+
 ## [0.1.1] - {PR_MERGE_DATE}
 
 - Show live percentage values beside the pinned Claude icon.

@@ -5,7 +5,7 @@ five-hour, weekly, Spark, and Spark Weekly limits. It also shows flex credits,
 rate-limit resets, a 30-day token trend, and Today, Yesterday, and Last 30 Days
 token and estimated-cost totals. When pinned, the titlebar button shows the
 five-hour and weekly percentages compactly on its first line (for example,
-`12/34%`) and the available reset count on its second (`2rs`).
+`12/34%`) and the available reset count on its second (`2 rs`).
 
 ## Setup
 
