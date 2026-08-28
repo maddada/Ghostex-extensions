@@ -198,18 +198,58 @@ function validateInstall(install, errors) {
   }
 }
 
+function isLoopbackHostname(hostname) {
+  const host = hostname.toLowerCase();
+  if (host === "localhost" || host.endsWith(".localhost")) return true;
+  if (host === "[::1]" || host === "::1") return true;
+  if (!/^127(?:\.\d{1,3}){3}$/.test(host)) return false;
+  return host
+    .split(".")
+    .slice(1)
+    .every((octet) => Number(octet) <= 255);
+}
+
+function validateServerUrl(value, errors) {
+  const at = "manifest.server.url";
+  if (!requireNonEmptyString(value, at, errors)) return;
+
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    errors.push(`${at} must be an absolute http or https URL`);
+    return;
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    errors.push(`${at} must use the http or https scheme`);
+    return;
+  }
+  if (url.hostname.length === 0) {
+    errors.push(`${at} must include a host`);
+    return;
+  }
+  if (url.protocol === "http:" && !isLoopbackHostname(url.hostname)) {
+    errors.push(`${at} must use https unless the host is loopback`);
+  }
+}
+
 function validateServer(server, errors) {
   if (!requireObject(server, "manifest.server", errors)) return;
-  const hasStatic = Object.hasOwn(server, "static");
-  const hasCommand = Object.hasOwn(server, "command");
-  if (hasStatic === hasCommand) {
-    errors.push("manifest.server must contain exactly one of static or command");
+  const variants = ["static", "command", "url"].filter((key) => Object.hasOwn(server, key));
+  if (variants.length !== 1) {
+    errors.push("manifest.server must contain exactly one of static, command, or url");
     return;
   }
 
-  if (hasStatic) {
+  if (variants[0] === "static") {
     hasOnlyKeys(server, new Set(["static"]), "manifest.server", errors);
     requireNonEmptyString(server.static, "manifest.server.static", errors);
+    return;
+  }
+
+  if (variants[0] === "url") {
+    hasOnlyKeys(server, new Set(["url"]), "manifest.server", errors);
+    validateServerUrl(server.url, errors);
     return;
   }
 

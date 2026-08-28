@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "tower",
+  "title": "Tower",
+  "description": "Open the Tower planning app (tower.wecourts.com) in a Ghostex view.",
+  "version": "0.1.0",
+  "author": "Mohamad Yahia",
+  "icon": "icon.svg",
+  "categories": ["Productivity"],
+  "placements": ["view"],
+  "defaultPlacement": "view",
+  "server": {
+    "url": "https://tower.wecourts.com/"
+  },
+  "permissions": ["network"]
+}

@@ -38,6 +38,13 @@ they need, explain why each permission is necessary, and treat source review as
 the primary security boundary. Bridge permissions are enforced by Ghostex; the
 review still covers everything a spawned process can do directly.
 
+URL extensions declare `server.url` and ship no code of their own; Ghostex loads
+that fixed remote page in the view. The URL must be absolute and use `https`
+unless its host is loopback, and `url` may not be combined with `cwd`,
+`readiness`, or `install`. Review covers the destination site itself, since
+everything the extension runs is served from there rather than from this
+repository.
+
 ## Supply-chain rules
 
 These rules are mandatory for every extension:

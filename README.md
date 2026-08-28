@@ -7,8 +7,11 @@ exact code Ghostex will run.
 
 Extensions can provide responsive web interfaces in one or more placements
 (`view`, `chat-bar`, `popup`, or `modal`) or run a command in a real Ghostex
-terminal pane. Web interfaces use either Ghostex's built-in static file server
-or an extension-owned command server.
+terminal pane. Web interfaces are backed by one of three server declarations:
+Ghostex's built-in static file server (`server.static`), an extension-owned
+command server (`server.command`), or a fixed remote URL Ghostex opens directly
+in the view (`server.url`). A `server.url` must be absolute and use `https`
+unless its host is loopback, and it carries no `cwd`, `readiness`, or `install`.
 
 ## Repository layout
 
@@ -34,7 +37,8 @@ extensions/<extension-id>/
 The manifest `name` must exactly match its folder name. Extension icons are
 author-provided SVG files. Store screenshots belong in `metadata/`; audited
 source belongs in `src/`; the self-contained runnable output belongs in
-`dist/`.
+`dist/`. A `server.url` extension ships no code, so it has neither `src/` nor
+`dist/` — only the manifest, icon, README, and changelog.
 
 ## Create an extension
 
