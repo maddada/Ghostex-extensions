@@ -1,12 +1,18 @@
 /**
  * Named boards, driven the way a user drives them: through the switcher in the
  * corner, asserting on what is on screen and what is left in host storage.
+ *
+ * Excalidraw itself is stood in for — see `fake-excalidraw.tsx` — because none
+ * of this is about how a rectangle is drawn, and all of it is about what
+ * happens around the drawing.
  */
 
-import { afterEach, describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
+
+vi.mock('@excalidraw/excalidraw', () => import('./fake-excalidraw.js'));
 
 import { mountCanvas, type CanvasHandle } from '../src/app.js';
-import { boardStorageKey, createBoard, createNote, type BoardDocument } from '../src/board.js';
+import { boardStorageKey, createBoard, type BoardDocument, type StoredElement } from '../src/board.js';
 import {
   BOARDS_STORAGE_KEY,
   DEFAULT_BOARD_NAME,
@@ -15,16 +21,17 @@ import {
   setBoardProject,
   type BoardsIndex,
 } from '../src/boards.js';
+import { excalidraw } from './fake-excalidraw.js';
 import { createFakeBridge, type FakeBridge } from './fake-bridge.js';
 
 const GHOSTEX = { name: 'Ghostex', path: '/Users/sven/code/oss/Ghostex' };
-const SURFACE_RECT = { left: 0, top: 0, width: 1000, height: 800 };
 
 let open: CanvasHandle[] = [];
 
 afterEach(() => {
   for (const handle of open) handle.unmount();
   open = [];
+  excalidraw.reset();
   delete (globalThis.navigator as { clipboard?: unknown }).clipboard;
   document.body.innerHTML = '';
 });
@@ -35,7 +42,8 @@ interface Harness {
   surface: HTMLElement;
   /** The name on the switcher button: the board that is open. */
   openBoard(): string;
-  noteText(): string[];
+  /** The writing on every element Excalidraw was handed to draw. */
+  sceneText(): string[];
   /** Opens the menu, or closes it again. */
   toggleMenu(): Promise<void>;
   /** Every board the menu lists, in order, with a ✓ on the open one. */
@@ -56,16 +64,11 @@ async function mount(bridge: FakeBridge | null): Promise<Harness> {
   const handle = mountCanvas(container, bridge);
   open.push(handle);
 
-  const surface = container.querySelector<HTMLElement>('.canvas');
-  if (!surface) throw new Error('Canvas surface did not render.');
-  // jsdom does no layout, so the surface is told how big and where it is.
-  Object.defineProperty(surface, 'clientWidth', { value: SURFACE_RECT.width, configurable: true });
-  Object.defineProperty(surface, 'clientHeight', { value: SURFACE_RECT.height, configurable: true });
-  surface.getBoundingClientRect = () =>
-    ({ ...SURFACE_RECT, right: 1000, bottom: 800, x: 0, y: 0, toJSON: () => SURFACE_RECT }) as DOMRect;
-
   await handle.ready;
   await tick();
+
+  const surface = container.querySelector<HTMLElement>('.canvas');
+  if (!surface) throw new Error('Canvas surface did not render.');
 
   const items = (): HTMLElement[] =>
     Array.from(container.querySelectorAll<HTMLElement>('.boards__item, .boards__button'));
@@ -75,10 +78,9 @@ async function mount(bridge: FakeBridge | null): Promise<Harness> {
     container,
     surface,
     openBoard: () => container.querySelector('.boards__name')?.textContent ?? '',
-    // Note text is rendered markdown now, so a paragraph brings a trailing newline.
-    noteText: () =>
-      Array.from(container.querySelectorAll('.note__text')).map((note) =>
-        (note.textContent ?? '').trim(),
+    sceneText: () =>
+      Array.from(container.querySelectorAll('.scene__element')).map((element) =>
+        (element.textContent ?? '').trim(),
       ),
     toggleMenu: () => click(query<HTMLButtonElement>(container, 'button[aria-label="Boards"]')),
     listed: () =>
@@ -121,7 +123,7 @@ async function click(element: HTMLElement): Promise<void> {
   await tick();
 }
 
-/** Preact batches state updates onto a microtask; storage settles on a promise. */
+/** React flushes a click synchronously; storage settles on a promise. */
 function tick(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
@@ -134,13 +136,17 @@ function storedBoard(bridge: FakeBridge, id: string): BoardDocument | null {
   return bridge.read(boardStorageKey(id)) as BoardDocument | null;
 }
 
-/** A board holding one note, so switching to it is visible. */
-function boardWith(id: string, text: string): BoardDocument {
-  const note = { ...createNote({ x: 0, y: 0 }, `${id}-note`), text };
-  return { ...createBoard(id), items: [note] };
+/** A scene holding one line of writing, so switching to it is visible. */
+function textElement(id: string, text: string): StoredElement {
+  return { id, type: 'text', text, x: 0, y: 0, width: 100, height: 24, version: 1 };
 }
 
-/** Two boards: the default one, and "Roadmap" (open) with a note on it. */
+/** A board holding one line of writing. */
+function boardWith(id: string, text: string): BoardDocument {
+  return { ...createBoard(id), elements: [textElement(`${id}-text`, text)] };
+}
+
+/** Two boards: the default one, and "Roadmap" (open) with writing on it. */
 function twoBoards(): { index: BoardsIndex; store: Record<string, unknown> } {
   const { index } = addBoard(createIndex(), 'Roadmap', null, 'b2');
   return {
@@ -166,12 +172,12 @@ describe('the switcher', () => {
     const bridge = createFakeBridge(twoBoards().store);
     const canvas = await mount(bridge);
 
-    expect(canvas.noteText()).toEqual(['on the roadmap']);
+    expect(canvas.sceneText()).toEqual(['on the roadmap']);
     await canvas.toggleMenu();
     await canvas.choose('Canvas');
 
     expect(canvas.openBoard()).toBe('Canvas');
-    expect(canvas.noteText()).toEqual(['on the first board']);
+    expect(canvas.sceneText()).toEqual(['on the first board']);
     await canvas.handle.flush();
     expect(storedIndex(bridge).lastOpen).toBe('default');
   });
@@ -186,7 +192,7 @@ describe('the switcher', () => {
 
     const reopened = await mount(bridge);
     expect(reopened.openBoard()).toBe('Canvas');
-    expect(reopened.noteText()).toEqual(['on the first board']);
+    expect(reopened.sceneText()).toEqual(['on the first board']);
   });
 
   test('adopts the board of an install that predates the index', async () => {
@@ -198,7 +204,7 @@ describe('the switcher', () => {
     await canvas.handle.flush();
 
     expect(canvas.openBoard()).toBe(DEFAULT_BOARD_NAME);
-    expect(canvas.noteText()).toEqual(['written before boards existed']);
+    expect(canvas.sceneText()).toEqual(['written before boards existed']);
     expect(storedIndex(bridge)).toEqual(createIndex());
   });
 
@@ -225,30 +231,44 @@ describe('creating a board', () => {
     await canvas.handle.flush();
 
     expect(canvas.openBoard()).toBe('Sketches');
-    expect(canvas.noteText()).toEqual([]);
+    expect(canvas.sceneText()).toEqual([]);
 
     const index = storedIndex(bridge);
     expect(index.boards.map((board) => board.name)).toEqual(['Canvas', 'Roadmap', 'Sketches']);
     expect(index.lastOpen).toBe(index.boards[2]?.id);
     // The board it was created from is untouched, and the new one is stored.
-    expect(storedBoard(bridge, 'b2')?.items).toHaveLength(1);
+    expect(storedBoard(bridge, 'b2')?.elements).toHaveLength(1);
     expect(storedBoard(bridge, index.lastOpen)).toEqual(createBoard(index.lastOpen));
   });
 
-  test('a note written on a new board stays on it', async () => {
+  test('what is drawn on a new board stays on it', async () => {
     const bridge = createFakeBridge(twoBoards().store);
     const canvas = await mount(bridge);
 
     await canvas.toggleMenu();
     await canvas.choose('New board…');
     await canvas.submitName('Sketches');
-    await click(query<HTMLButtonElement>(canvas.container, 'button[aria-label="Add note"]'));
+    excalidraw.change([textElement('drawn', 'a fresh idea')]);
     await canvas.handle.flush();
 
     const sketches = storedIndex(bridge).lastOpen;
-    expect(storedBoard(bridge, sketches)?.items).toHaveLength(1);
-    expect(storedBoard(bridge, 'b2')?.items).toHaveLength(1);
-    expect(storedBoard(bridge, 'default')?.items).toHaveLength(1);
+    expect(storedBoard(bridge, sketches)?.elements).toHaveLength(1);
+    expect(storedBoard(bridge, 'b2')?.elements).toHaveLength(1);
+    expect(storedBoard(bridge, 'default')?.elements).toHaveLength(1);
+  });
+
+  test('a scene that changed nothing is never written', async () => {
+    const bridge = createFakeBridge(twoBoards().store);
+    const canvas = await mount(bridge);
+    await canvas.handle.flush();
+    const before = bridge.writes.length;
+
+    // Excalidraw reports a change for a selection or a pointer move too, so
+    // the same scene arriving again must not queue a save.
+    excalidraw.change(storedBoard(bridge, 'b2')?.elements ?? []);
+    await canvas.handle.flush();
+
+    expect(bridge.writes.length).toBe(before);
   });
 });
 
@@ -263,7 +283,7 @@ describe('renaming a board', () => {
     await canvas.handle.flush();
 
     expect(canvas.openBoard()).toBe('Q4 plan');
-    expect(canvas.noteText()).toEqual(['on the roadmap']);
+    expect(canvas.sceneText()).toEqual(['on the roadmap']);
     expect(storedIndex(bridge).boards.map((board) => board.name)).toEqual(['Canvas', 'Q4 plan']);
   });
 });
@@ -282,7 +302,7 @@ describe('deleting a board', () => {
 
     expect(canvas.openBoard()).toBe('Roadmap');
     expect(storedIndex(bridge).boards).toHaveLength(2);
-    expect(storedBoard(bridge, 'b2')?.items).toHaveLength(1);
+    expect(storedBoard(bridge, 'b2')?.elements).toHaveLength(1);
   });
 
   test('deletes it, empties its key, and opens the neighbour', async () => {
@@ -295,7 +315,7 @@ describe('deleting a board', () => {
     await canvas.handle.flush();
 
     expect(canvas.openBoard()).toBe('Canvas');
-    expect(canvas.noteText()).toEqual(['on the first board']);
+    expect(canvas.sceneText()).toEqual(['on the first board']);
     expect(storedIndex(bridge).boards.map((board) => board.id)).toEqual(['default']);
     // The host store has no delete, so the key stays behind holding null.
     expect(bridge.entries.has(boardStorageKey('b2'))).toBe(true);
@@ -315,7 +335,7 @@ describe('deleting a board', () => {
     await canvas.handle.flush();
 
     expect(canvas.openBoard()).toBe(DEFAULT_BOARD_NAME);
-    expect(canvas.noteText()).toEqual([]);
+    expect(canvas.sceneText()).toEqual([]);
     expect(storedBoard(bridge, 'default')).toBeNull();
 
     const index = storedIndex(bridge);
@@ -419,7 +439,7 @@ describe('copying a board as JSON', () => {
     expect(copied).toHaveLength(1);
   });
 
-  test('the copied text carries the board name, its items and its version', async () => {
+  test('the copied text is an Excalidraw file carrying the board name', async () => {
     const copied: string[] = [];
     clipboard(async (text) => void copied.push(text));
     const canvas = await mount(createFakeBridge(twoBoards().store));
@@ -428,15 +448,15 @@ describe('copying a board as JSON', () => {
     await canvas.choose('Copy this board as JSON');
 
     const parsed = JSON.parse(copied[0] ?? '{}') as {
+      type: string;
+      version: number;
       name: string;
-      id: string;
-      schemaVersion: number;
-      items: { text: string }[];
+      elements: { text: string }[];
     };
+    expect(parsed.type).toBe('excalidraw');
+    expect(parsed.version).toBe(2);
     expect(parsed.name).toBe('Roadmap');
-    expect(parsed.id).toBe('b2');
-    expect(parsed.schemaVersion).toBe(createBoard('b2').schemaVersion);
-    expect(parsed.items.map((item) => item.text)).toEqual(['on the roadmap']);
+    expect(parsed.elements.map((element) => element.text)).toEqual(['on the roadmap']);
   });
 
   test('says so when the clipboard will not take it', async () => {
