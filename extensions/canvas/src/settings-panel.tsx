@@ -1,6 +1,6 @@
 /**
- * The background panel: a picture of your own behind the board, and the four
- * sliders that keep what is drawn on top of it readable.
+ * The background panel: the colour the board sits on, a picture of your own in
+ * front of it, and the four sliders that keep what is drawn readable.
  *
  * It owns nothing — the open board's background comes in as a prop and every
  * change goes straight back out — and it closes the way the board switcher
@@ -12,6 +12,8 @@
 import { useRef } from 'react';
 
 import {
+  BACKDROP_SWATCHES,
+  DEFAULT_BACKDROP,
   IMAGE_TYPES,
   LOOK_CONTROLS,
   NEUTRAL_LOOK,
@@ -28,6 +30,8 @@ export interface SettingsPanelProps {
   /** Why the last import failed, or null. */
   importError: string | null;
   onImport(file: File): void;
+  /** Repaints what the board sits on. */
+  onBackdrop(color: string): void;
   onAdjust(key: LookKey, value: number): void;
   onResetLook(): void;
   onRemoveBackground(): void;
@@ -46,6 +50,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
   useDismiss(root, props.onClose, { ignore: '[data-settings-toggle]' });
 
   const look = background ?? NEUTRAL_LOOK;
+  const backdrop = background?.color ?? DEFAULT_BACKDROP;
 
   return (
     <div
@@ -72,9 +77,41 @@ export function SettingsPanel(props: SettingsPanelProps) {
       </div>
 
       <section className="settings__section">
+        <p className="settings__note">
+          The colour the board sits on. A picture with transparency shows it through.
+        </p>
+        <div className="settings__swatches" role="group" aria-label="Board colour">
+          {BACKDROP_SWATCHES.map((swatch) => (
+            <button
+              key={swatch.color}
+              type="button"
+              className={`settings__swatch${swatch.color === backdrop ? ' settings__swatch--on' : ''}`}
+              style={{ background: swatch.color }}
+              aria-label={swatch.label}
+              aria-pressed={swatch.color === backdrop}
+              title={swatch.label}
+              onClick={() => props.onBackdrop(swatch.color)}
+            />
+          ))}
+          <label
+            className="settings__swatch settings__swatch--custom"
+            style={{ background: backdrop }}
+            title="Any other colour"
+          >
+            <span aria-hidden="true">+</span>
+            <input
+              type="color"
+              className="settings__color"
+              value={backdrop}
+              aria-label="Any other board colour"
+              onChange={(event) => props.onBackdrop(event.currentTarget.value)}
+            />
+          </label>
+        </div>
+
         <div className="settings__row">
           <label className="settings__button settings__button--primary">
-            {background ? 'Change picture…' : 'Choose picture…'}
+            {background?.image ? 'Change picture…' : 'Choose picture…'}
             <input
               type="file"
               className="settings__file"
@@ -89,7 +126,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
               }}
             />
           </label>
-          {background ? (
+          {background?.image ? (
             <button type="button" className="settings__button" onClick={props.onRemoveBackground}>
               Remove
             </button>
@@ -115,7 +152,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
                 max={control.max}
                 step={1}
                 value={look[control.key]}
-                disabled={!background}
+                disabled={!background?.image}
                 aria-label={control.label}
                 onChange={(event) => props.onAdjust(control.key, Number(event.currentTarget.value))}
               />
@@ -123,7 +160,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
             </label>
           ))}
         </div>
-        {background ? (
+        {background?.image ? (
           <button
             type="button"
             className="settings__button settings__reset"

@@ -17,11 +17,14 @@ import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'rea
 import { createRoot, type Root } from 'react-dom/client';
 
 import {
+  DEFAULT_BACKDROP,
   adjustBackground,
   backgroundStyle,
   createBackground,
+  isDefaultBackground,
   isImageFile,
   resetLook,
+  setBackdropColor,
   shrinkImage,
   type BoardBackground,
   type LookKey,
@@ -391,9 +394,12 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
       try {
         const image = await shrinkImage(file);
         if (indexRef.current?.lastOpen !== id) return;
-        // A new picture keeps the sliders: they were set for this board, not the old picture.
+        // A new picture keeps the sliders and the colour behind it: both were
+        // set for this board, not for the picture being replaced.
         const previous = backgroundRef.current;
-        const next = previous ? createBackground(image, previous) : createBackground(image);
+        const next = previous
+          ? createBackground(image, previous, previous.color)
+          : createBackground(image);
         showBackground(next);
         autosave.writeBackground(id, next);
         setImportError(null);
@@ -429,13 +435,39 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
     autosave.writeBackground(id, next);
   }, [autosave, showBackground]);
 
+  /**
+   * Takes the picture away and keeps the colour: they are two separate
+   * choices, and losing a chosen backdrop because a picture was removed would
+   * be a surprise. A board back on the default keeps no record at all.
+   */
   const removeBackground = useCallback(() => {
+    const current = backgroundRef.current;
     const id = indexRef.current?.lastOpen;
-    if (!id || !backgroundRef.current) return;
-    showBackground(null);
+    if (!id || !current?.image) return;
+    const next = createBackground(null, current, current.color);
+    const kept = isDefaultBackground(next) ? null : next;
+    showBackground(kept);
     setImportError(null);
-    autosave.writeBackground(id, null);
+    autosave.writeBackground(id, kept);
   }, [autosave, showBackground]);
+
+  /**
+   * Repaints what the board sits on. Written straight away rather than
+   * debounced: picking a colour is one deliberate act, not a drag.
+   */
+  const chooseBackdrop = useCallback(
+    (color: string) => {
+      const id = indexRef.current?.lastOpen;
+      if (!id) return;
+      const current = backgroundRef.current ?? createBackground(null);
+      const next = setBackdropColor(current, color);
+      if (next === current && backgroundRef.current !== null) return;
+      const kept = isDefaultBackground(next) ? null : next;
+      showBackground(kept);
+      autosave.writeBackground(id, kept);
+    },
+    [autosave, showBackground],
+  );
 
   /**
    * The board's own chrome, rendered inside Excalidraw's top-right island so
@@ -504,6 +536,8 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
   return (
     <div
       className={`canvas${dropping ? ' canvas--dropping' : ''}`}
+      // What the board sits on, and what shows through a picture's transparency.
+      style={{ background: background?.color ?? DEFAULT_BACKDROP }}
       onDragEnter={(event) => {
         if (!hasFiles(event.nativeEvent)) return;
         event.preventDefault();
@@ -531,7 +565,7 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
         if (file) void importBackground(file);
       }}
     >
-      {background ? (
+      {background?.image ? (
         <img
           className="canvas__backdrop"
           data-testid="canvas-backdrop"
@@ -610,6 +644,7 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
           boardName={index ? currentBoard(index).name : ''}
           importError={importError}
           onImport={(file) => void importBackground(file)}
+          onBackdrop={chooseBackdrop}
           onAdjust={adjustLook}
           onResetLook={resetBackgroundLook}
           onRemoveBackground={removeBackground}

@@ -42,7 +42,7 @@ cannot honestly offer them:
 | Text to diagram, and the Mermaid converter | Both sit behind Excalidraw's AI features, which call a server. |
 | Live embedded links (YouTube, Figma, and the rest) | An embed is a frame fetched over the network. |
 | Open, Save to file, Export to file | Files are Ghostex's business; a board saves itself into the host store. |
-| Canvas background colour | Canvas paints the board transparent so a background picture can sit behind it. |
+| Excalidraw's canvas background picker | Canvas paints that canvas transparent so a picture can sit behind it, and offers the colour in its own Background panel instead. |
 
 Everything else is there, including **Export image**, which hands you a PNG or
 SVG through the browser, and the shape library, which is stored locally.
@@ -86,9 +86,16 @@ other one.
 ## The background picture
 
 The **Background** button, beside the board name, opens the panel for the open
-board's picture.
+board's backdrop.
 
-Choose a PNG, JPEG or WebP, or drop one anywhere on the board. It is scaled down
+**The colour** at the top is what the board sits on. Six are a click away —
+black, Ghostex's own near-black, slate, sepia, paper and white — and the `+`
+opens a picker for any other. It matters most with a cut-out: a PNG with
+transparency shows this colour through its holes, so a logo on a transparent
+background sits on the colour you chose rather than on whatever was there.
+
+**The picture** goes in front of it. Choose a PNG, JPEG or WebP, or drop one
+anywhere on the board. It is scaled down
 to fit and compressed, then drawn behind Excalidraw's canvas — behind everything,
 not on it: nothing can select it, nothing can move it, and it is never part of
 what you draw or export.
@@ -97,9 +104,10 @@ Four sliders — contrast, brightness, saturation and opacity — keep the drawi
 readable over it. They are filters applied when the picture is drawn, so the
 picture itself is never changed and every adjustment undoes by moving the slider
 back. **Reset sliders** returns all four to neutral, and **Remove** takes the
-picture away.
+picture away while keeping the colour — they are two separate choices.
 
-A picture belongs to one board. Each board can have its own, or none.
+A backdrop belongs to one board. Each board can have its own colour, its own
+picture, both, or neither.
 
 ## Copying a board out
 
@@ -166,10 +174,11 @@ settings the next shape is drawn with. What is selected, what dialog is open and
 where the pointer is are about this moment rather than about the board, and are
 deliberately dropped.
 
-`background:<id>` is a board's background picture — the picture as a compressed
-data URL and the four slider values — in a key of its own, so the board document
-that saves on every drag never carries the picture. A board with no picture has
-no such key.
+`background:<id>` is a board's backdrop — the colour, the picture as a
+compressed data URL, and the four slider values — in a key of its own, so the
+board document that saves on every drag never carries the picture. A board on
+the default colour with no picture has no such key at all, and a board saved
+before colours existed reads back on the default it was already drawn on.
 
 Writes are debounced, so a whole drag is one save, while creating, renaming,
 switching or deleting a board is written straight away. Excalidraw reports a

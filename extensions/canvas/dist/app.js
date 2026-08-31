@@ -27345,7 +27345,20 @@ function isRecord(value) {
 }
 
 // src/background.ts
-var BACKGROUND_SCHEMA_VERSION = 1;
+var BACKGROUND_SCHEMA_VERSION = 2;
+var DEFAULT_BACKDROP = "#121212";
+var BACKDROP_SWATCHES = [
+  { color: "#000000", label: "Black" },
+  { color: DEFAULT_BACKDROP, label: "Ghostex" },
+  { color: "#1e2430", label: "Slate" },
+  { color: "#3d3428", label: "Sepia" },
+  { color: "#f5f2e8", label: "Paper" },
+  { color: "#ffffff", label: "White" }
+];
+var HEX_COLOR = /^#[0-9a-f]{6}$/i;
+function isBackdropColor(value) {
+  return typeof value === "string" && HEX_COLOR.test(value);
+}
 function backgroundStorageKey(boardId) {
   return `background:${boardId}`;
 }
@@ -27362,15 +27375,24 @@ var LOOK_CONTROLS = [
 var NEUTRAL_LOOK = Object.fromEntries(
   LOOK_CONTROLS.map((control) => [control.key, control.neutral])
 );
-function createBackground(image, look = NEUTRAL_LOOK) {
+function createBackground(image, look = NEUTRAL_LOOK, color = DEFAULT_BACKDROP) {
   return {
     schemaVersion: BACKGROUND_SCHEMA_VERSION,
+    color: isBackdropColor(color) ? color.toLowerCase() : DEFAULT_BACKDROP,
     image,
     contrast: look.contrast,
     brightness: look.brightness,
     saturation: look.saturation,
     opacity: look.opacity
   };
+}
+function setBackdropColor(background, color) {
+  if (!isBackdropColor(color)) return background;
+  const next = color.toLowerCase();
+  return background.color === next ? background : { ...background, color: next };
+}
+function isDefaultBackground(background) {
+  return background.image === null && background.color === DEFAULT_BACKDROP && LOOK_CONTROLS.every((control) => background[control.key] === control.neutral);
 }
 function adjustBackground(background, key, value) {
   const control = LOOK_CONTROLS.find((entry) => entry.key === key);
@@ -27391,9 +27413,11 @@ function readBackground(raw) {
   if (!isRecord(raw)) return null;
   const version = typeof raw["schemaVersion"] === "number" ? raw["schemaVersion"] : 0;
   if (version < 1) return null;
-  const image = raw["image"];
-  if (typeof image !== "string" || !isImageFile({ type: dataUrlType(image) })) return null;
-  const background = createBackground(image);
+  const stored = raw["image"];
+  const image = typeof stored === "string" && isImageFile({ type: dataUrlType(stored) }) ? stored : null;
+  const color = isBackdropColor(raw["color"]) ? raw["color"] : DEFAULT_BACKDROP;
+  if (image === null && color === DEFAULT_BACKDROP) return null;
+  const background = createBackground(image, NEUTRAL_LOOK, color);
   for (const control of LOOK_CONTROLS) {
     const value = raw[control.key];
     background[control.key] = typeof value === "number" && Number.isFinite(value) ? clamp2(Math.round(value), control.min, control.max) : control.neutral;
@@ -28131,6 +28155,7 @@ function SettingsPanel(props) {
   const root2 = (0, import_react119.useRef)(null);
   useDismiss(root2, props.onClose, { ignore: "[data-settings-toggle]" });
   const look = background ?? NEUTRAL_LOOK;
+  const backdrop = background?.color ?? DEFAULT_BACKDROP;
   return /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)(
     "div",
     {
@@ -28159,9 +28184,46 @@ function SettingsPanel(props) {
           )
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("section", { className: "settings__section", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("p", { className: "settings__note", children: "The colour the board sits on. A picture with transparency shows it through." }),
+          /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("div", { className: "settings__swatches", role: "group", "aria-label": "Board colour", children: [
+            BACKDROP_SWATCHES.map((swatch) => /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+              "button",
+              {
+                type: "button",
+                className: `settings__swatch${swatch.color === backdrop ? " settings__swatch--on" : ""}`,
+                style: { background: swatch.color },
+                "aria-label": swatch.label,
+                "aria-pressed": swatch.color === backdrop,
+                title: swatch.label,
+                onClick: () => props.onBackdrop(swatch.color)
+              },
+              swatch.color
+            )),
+            /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)(
+              "label",
+              {
+                className: "settings__swatch settings__swatch--custom",
+                style: { background: backdrop },
+                title: "Any other colour",
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("span", { "aria-hidden": "true", children: "+" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+                    "input",
+                    {
+                      type: "color",
+                      className: "settings__color",
+                      value: backdrop,
+                      "aria-label": "Any other board colour",
+                      onChange: (event) => props.onBackdrop(event.currentTarget.value)
+                    }
+                  )
+                ]
+              }
+            )
+          ] }),
           /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("div", { className: "settings__row", children: [
             /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("label", { className: "settings__button settings__button--primary", children: [
-              background ? "Change picture…" : "Choose picture…",
+              background?.image ? "Change picture…" : "Choose picture…",
               /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
                 "input",
                 {
@@ -28178,7 +28240,7 @@ function SettingsPanel(props) {
                 }
               )
             ] }),
-            background ? /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("button", { type: "button", className: "settings__button", onClick: props.onRemoveBackground, children: "Remove" }) : null
+            background?.image ? /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("button", { type: "button", className: "settings__button", onClick: props.onRemoveBackground, children: "Remove" }) : null
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("p", { className: "settings__note", children: "PNG, JPEG or WebP — or drop one onto the board. It is shrunk to fit and kept with this board only." }),
           importError ? /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("p", { className: "settings__error", role: "alert", children: importError }) : null,
@@ -28192,7 +28254,7 @@ function SettingsPanel(props) {
                 max: control.max,
                 step: 1,
                 value: look[control.key],
-                disabled: !background,
+                disabled: !background?.image,
                 "aria-label": control.label,
                 onChange: (event) => props.onAdjust(control.key, Number(event.currentTarget.value))
               }
@@ -28202,7 +28264,7 @@ function SettingsPanel(props) {
               "%"
             ] })
           ] }, control.key)) }),
-          background ? /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+          background?.image ? /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
             "button",
             {
               type: "button",
@@ -28721,7 +28783,7 @@ function CanvasApp({ bridge, bindings }) {
         const image = await shrinkImage(file);
         if (indexRef.current?.lastOpen !== id2) return;
         const previous = backgroundRef.current;
-        const next = previous ? createBackground(image, previous) : createBackground(image);
+        const next = previous ? createBackground(image, previous, previous.color) : createBackground(image);
         showBackground(next);
         autosave.writeBackground(id2, next);
         setImportError(null);
@@ -28754,12 +28816,28 @@ function CanvasApp({ bridge, bindings }) {
     autosave.writeBackground(id2, next);
   }, [autosave, showBackground]);
   const removeBackground = (0, import_react121.useCallback)(() => {
+    const current = backgroundRef.current;
     const id2 = indexRef.current?.lastOpen;
-    if (!id2 || !backgroundRef.current) return;
-    showBackground(null);
+    if (!id2 || !current?.image) return;
+    const next = createBackground(null, current, current.color);
+    const kept = isDefaultBackground(next) ? null : next;
+    showBackground(kept);
     setImportError(null);
-    autosave.writeBackground(id2, null);
+    autosave.writeBackground(id2, kept);
   }, [autosave, showBackground]);
+  const chooseBackdrop = (0, import_react121.useCallback)(
+    (color) => {
+      const id2 = indexRef.current?.lastOpen;
+      if (!id2) return;
+      const current = backgroundRef.current ?? createBackground(null);
+      const next = setBackdropColor(current, color);
+      if (next === current && backgroundRef.current !== null) return;
+      const kept = isDefaultBackground(next) ? null : next;
+      showBackground(kept);
+      autosave.writeBackground(id2, kept);
+    },
+    [autosave, showBackground]
+  );
   const renderChrome = (0, import_react121.useCallback)(
     () => index2 ? /* @__PURE__ */ (0, import_jsx_runtime170.jsxs)(import_jsx_runtime170.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
@@ -28821,6 +28899,7 @@ function CanvasApp({ bridge, bindings }) {
     "div",
     {
       className: `canvas${dropping ? " canvas--dropping" : ""}`,
+      style: { background: background?.color ?? DEFAULT_BACKDROP },
       onDragEnter: (event) => {
         if (!hasFiles(event.nativeEvent)) return;
         event.preventDefault();
@@ -28847,7 +28926,7 @@ function CanvasApp({ bridge, bindings }) {
         if (file) void importBackground(file);
       },
       children: [
-        background ? /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
+        background?.image ? /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
           "img",
           {
             className: "canvas__backdrop",
@@ -28905,6 +28984,7 @@ function CanvasApp({ bridge, bindings }) {
             boardName: index2 ? currentBoard(index2).name : "",
             importError,
             onImport: (file) => void importBackground(file),
+            onBackdrop: chooseBackdrop,
             onAdjust: adjustLook,
             onResetLook: resetBackgroundLook,
             onRemoveBackground: removeBackground,

@@ -407,6 +407,52 @@ body {
   align-self: flex-start;
 }
 
+/* The colour the board sits on: six a click away, and a picker for the rest. */
+.settings__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.settings__swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--default-border-color, #3a3a44);
+  border-radius: 0.375rem;
+  color: transparent;
+  cursor: pointer;
+}
+
+.settings__swatch:hover {
+  border-color: var(--color-primary, #6965db);
+}
+
+/* An outline rather than a border, so the swatch never changes size. */
+.settings__swatch--on {
+  outline: 2px solid var(--color-primary, #6965db);
+  outline-offset: 1px;
+}
+
+/* The one that opens the picker says so, in whatever colour is current. */
+.settings__swatch--custom {
+  color: #fff;
+  font-size: 0.875rem;
+  line-height: 1;
+  mix-blend-mode: normal;
+  text-shadow: 0 0 3px rgb(0 0 0 / 0.9);
+}
+
+.settings__color {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
 /* The picker is the label around it; the field itself never shows. */
 .settings__file {
   position: absolute;

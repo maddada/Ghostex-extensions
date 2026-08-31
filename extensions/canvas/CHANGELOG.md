@@ -26,6 +26,13 @@
   not reversible. Coloured paper survives as a rectangle's fill; the per-note
   format bar, the live task-list checkboxes, and the note and label fonts do
   not: Excalidraw brings its own fonts and its own way of choosing them.
+- A board's background is now a colour as well as a picture. Six colours are a
+  click away in the Background panel and the `+` opens a picker for any other.
+  It is what a picture's transparency shows through, so a cut-out sits on the
+  colour you chose rather than on whatever happened to be behind it. Removing a
+  picture keeps the colour. Excalidraw's own canvas-background picker is hidden,
+  because Canvas paints that canvas transparent to put the picture behind it —
+  this is what replaces it.
 - **Copy this board as JSON** now copies an `.excalidraw` file, so a copied
   board pastes into excalidraw.com, into a Ghostex drawing, or into a file.
 - The dotted grid is off unless you turn it on, in Excalidraw's own context
