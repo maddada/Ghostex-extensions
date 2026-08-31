@@ -33,6 +33,9 @@
   picture keeps the colour. Excalidraw's own canvas-background picker is hidden,
   because Canvas paints that canvas transparent to put the picture behind it —
   this is what replaces it.
+- A background picture now lies over the board the way a wallpaper does, with
+  the same five choices a desktop gives: Fill, Fit, Stretch, Centre and Tile.
+  Fill is the default and is what every picture did before.
 - **Copy this board as JSON** now copies an `.excalidraw` file, so a copied
   board pastes into excalidraw.com, into a Ghostex drawing, or into a file.
 - The dotted grid is off unless you turn it on, in Excalidraw's own context

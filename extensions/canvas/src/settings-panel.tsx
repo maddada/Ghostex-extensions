@@ -13,10 +13,13 @@ import { useRef } from 'react';
 
 import {
   BACKDROP_SWATCHES,
+  BACKGROUND_FITS,
   DEFAULT_BACKDROP,
+  DEFAULT_FIT,
   IMAGE_TYPES,
   LOOK_CONTROLS,
   NEUTRAL_LOOK,
+  type BackgroundFit,
   type BoardBackground,
   type LookKey,
 } from './background.js';
@@ -32,6 +35,8 @@ export interface SettingsPanelProps {
   onImport(file: File): void;
   /** Repaints what the board sits on. */
   onBackdrop(color: string): void;
+  /** Lays the picture out over the board. */
+  onFit(fit: BackgroundFit): void;
   onAdjust(key: LookKey, value: number): void;
   onResetLook(): void;
   onRemoveBackground(): void;
@@ -51,6 +56,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
 
   const look = background ?? NEUTRAL_LOOK;
   const backdrop = background?.color ?? DEFAULT_BACKDROP;
+  const fit = background?.fit ?? DEFAULT_FIT;
 
   return (
     <div
@@ -140,6 +146,24 @@ export function SettingsPanel(props: SettingsPanelProps) {
           <p className="settings__error" role="alert">
             {importError}
           </p>
+        ) : null}
+
+        {background?.image ? (
+          <div className="settings__fits" role="radiogroup" aria-label="How the picture fits">
+            {BACKGROUND_FITS.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                role="radio"
+                className={`settings__fit${option.key === fit ? ' settings__fit--on' : ''}`}
+                aria-checked={option.key === fit}
+                title={option.hint}
+                onClick={() => props.onFit(option.key)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         ) : null}
 
         <div className="settings__sliders">

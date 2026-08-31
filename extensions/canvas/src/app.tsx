@@ -25,7 +25,9 @@ import {
   isImageFile,
   resetLook,
   setBackdropColor,
+  setBackgroundFit,
   shrinkImage,
+  type BackgroundFit,
   type BoardBackground,
   type LookKey,
 } from './background.js';
@@ -451,6 +453,20 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
     autosave.writeBackground(id, kept);
   }, [autosave, showBackground]);
 
+  /** Lays the picture out differently: one deliberate act, written at once. */
+  const chooseFit = useCallback(
+    (fit: BackgroundFit) => {
+      const current = backgroundRef.current;
+      const id = indexRef.current?.lastOpen;
+      if (!current || !id) return;
+      const next = setBackgroundFit(current, fit);
+      if (next === current) return;
+      showBackground(next);
+      autosave.writeBackground(id, next);
+    },
+    [autosave, showBackground],
+  );
+
   /**
    * Repaints what the board sits on. Written straight away rather than
    * debounced: picking a colour is one deliberate act, not a drag.
@@ -566,13 +582,10 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
       }}
     >
       {background?.image ? (
-        <img
+        <div
           className="canvas__backdrop"
           data-testid="canvas-backdrop"
-          src={background.image}
-          alt=""
           aria-hidden="true"
-          draggable={false}
           style={backgroundStyle(background)}
         />
       ) : null}
@@ -645,6 +658,7 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
           importError={importError}
           onImport={(file) => void importBackground(file)}
           onBackdrop={chooseBackdrop}
+          onFit={chooseFit}
           onAdjust={adjustLook}
           onResetLook={resetBackgroundLook}
           onRemoveBackground={removeBackground}

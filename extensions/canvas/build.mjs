@@ -16,7 +16,7 @@
 
 import { build } from 'esbuild';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -107,17 +107,49 @@ const SKIPPED_FONT_FAMILIES = ['Xiaolai'];
 const stubDiagramFromText = {
   name: 'stub-diagram-from-text',
   setup(esbuild) {
-    esbuild.onResolve({ filter: /^@excalidraw\/mermaid-to-excalidraw/ }, (args) => ({
-      path: args.path,
+    esbuild.onResolve({ filter: /^@excalidraw\/mermaid-to-excalidraw/ }, () => ({
+      path: 'mermaid-to-excalidraw',
       namespace: 'canvas-stub',
     }));
-    esbuild.onLoad({ filter: /.*/, namespace: 'canvas-stub' }, () => ({
+    esbuild.onLoad({ filter: /^mermaid/, namespace: 'canvas-stub' }, () => ({
       loader: 'js',
       contents:
         'export const parseMermaidToExcalidraw = () => {\n' +
         "  throw new Error('Canvas ships without the Mermaid converter.');\n" +
         '};\n',
     }));
+    // Every language that does not ship: empty, so Excalidraw falls back per key.
+    esbuild.onLoad({ filter: /^dropped-language$/, namespace: 'canvas-stub' }, () => ({
+      loader: 'js',
+      contents: 'export default {};\n',
+    }));
+  },
+};
+
+/**
+ * The one translation that ships.
+ *
+ * Excalidraw lazily imports a chunk per language and picks one from its
+ * `langCode` prop, which Canvas never sets — so it stays on its own default,
+ * English, and the other fifty-three chunks are 1.3MB and half the file count
+ * of `dist/` that nothing can ever reach. They are stubbed rather than
+ * bundled. If `langCode` is ever passed, a stubbed language reads as English
+ * rather than as blank text, because Excalidraw falls back per key.
+ */
+const SHIPPED_LOCALE = /[\\/]locales[\\/]en-[A-Z0-9]+\.js$/;
+
+const dropUnreachableLocales = {
+  name: 'drop-unreachable-locales',
+  setup(esbuild) {
+    // Every dropped language resolves to the *same* module, so esbuild emits
+    // one shared chunk for all fifty-three rather than fifty-three stubs.
+    esbuild.onResolve(
+      { filter: /[\\/]locales[\\/][a-zA-Z-]+-[A-Z0-9]+\.js$/ },
+      (args) =>
+        SHIPPED_LOCALE.test(args.path) || !args.importer.includes(`${sep}@excalidraw${sep}`)
+          ? null
+          : { path: 'dropped-language', namespace: 'canvas-stub' },
+    );
   },
 };
 
@@ -178,7 +210,7 @@ await build({
   sourcemap: false,
   charset: 'utf8',
   logLevel: 'warning',
-  plugins: [stubDiagramFromText, patchUpstream],
+  plugins: [stubDiagramFromText, dropUnreachableLocales, patchUpstream],
 });
 
 for (const file of ['index.html', 'styles.css']) {

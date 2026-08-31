@@ -1,10 +1,4 @@
 import {
-  N
-} from "./chunk-B5SUEEHS.js";
-import {
-  B
-} from "./chunk-DM6ZMB2R.js";
-import {
   $2,
   $Y,
   $e,
@@ -616,6 +610,9 @@ import {
   zp,
   zs
 } from "./chunk-XRBWTDVX.js";
+import {
+  B
+} from "./chunk-DM6ZMB2R.js";
 import {
   c
 } from "./chunk-4JKWZG2U.js";
@@ -13209,6 +13206,11 @@ var require_client = __commonJS({
   }
 });
 
+// node_modules/@excalidraw/excalidraw/dist/prod/chunk-Z3N5DIM6.js
+var R = 100;
+var k2 = 36;
+var N = { "ar-SA": 94, "az-AZ": 17, "bg-BG": 71, "bn-BD": 52, "ca-ES": 83, "cs-CZ": 86, "da-DK": 61, "de-DE": 100, "el-GR": 80, en: R, "es-ES": 96, "eu-ES": 97, "fa-IR": 84, "fi-FI": 76, "fr-FR": 99, "gl-ES": 86, "he-IL": 77, "hi-IN": 76, "hu-HU": 76, "id-ID": 91, "it-IT": 98, "ja-JP": 90, kaa: k2, "kab-KAB": 76, "kk-KZ": 18, "km-KH": 83, "ko-KR": 100, "ku-TR": 87, "lt-LT": 48, "lv-LV": 77, "mr-IN": 98, "my-MM": 35, "nb-NO": 93, "nl-NL": 75, "nn-NO": 67, "oc-FR": 92, "pa-IN": 78, "pl-PL": 99, "pt-BR": 91, "pt-PT": 83, "ro-RO": 99, "ru-RU": 92, "si-LK": 7, "sk-SK": 100, "sl-SI": 100, "sv-SE": 100, "ta-IN": 81, "th-TH": 44, "tr-TR": 87, "uk-UA": 93, "vi-VN": 49, "zh-CN": 100, "zh-HK": 22, "zh-TW": 100 };
+
 // node_modules/@excalidraw/excalidraw/dist/prod/index.js
 var import_react27 = __toESM(require_react(), 1);
 var import_react28 = __toESM(require_react(), 1);
@@ -20030,7 +20032,7 @@ var YE2 = createIsolation();
 var { useAtom: ce, useSetAtom: Tr, useAtomValue: Ws2, useStore: LM } = YE2;
 var VE = YE2.Provider;
 var st = createStore();
-var YT = g({ "./locales/ar-SA.json": () => import("./ar-SA-G6X2FPQ2-AGDUSRJQ.js"), "./locales/az-AZ.json": () => import("./az-AZ-76LH7QW2-QDLOYLVE.js"), "./locales/bg-BG.json": () => import("./bg-BG-XCXSNQG7-OBZPPDXI.js"), "./locales/bn-BD.json": () => import("./bn-BD-2XOGV67Q-RTH2XEAJ.js"), "./locales/ca-ES.json": () => import("./ca-ES-6MX7JW3Y-GDXWU46F.js"), "./locales/cs-CZ.json": () => import("./cs-CZ-2BRQDIVT-CI27QEZE.js"), "./locales/da-DK.json": () => import("./da-DK-5WZEPLOC-U5GLKW7M.js"), "./locales/de-DE.json": () => import("./de-DE-XR44H4JA-CLSKIQP2.js"), "./locales/el-GR.json": () => import("./el-GR-BZB4AONW-OCCTMDL2.js"), "./locales/en.json": () => import("./en-B4ZKOASM-PXP3KJIN.js"), "./locales/es-ES.json": () => import("./es-ES-U4NZUMDT-QNL6JTYF.js"), "./locales/eu-ES.json": () => import("./eu-ES-A7QVB2H4-GOXCVRLR.js"), "./locales/fa-IR.json": () => import("./fa-IR-HGAKTJCU-5SCHTVJY.js"), "./locales/fi-FI.json": () => import("./fi-FI-Z5N7JZ37-3UJEOQVW.js"), "./locales/fr-FR.json": () => import("./fr-FR-RHASNOE6-4VMTGPVH.js"), "./locales/gl-ES.json": () => import("./gl-ES-HMX3MZ6V-VJUQXX3R.js"), "./locales/he-IL.json": () => import("./he-IL-6SHJWFNN-SFZOVI33.js"), "./locales/hi-IN.json": () => import("./hi-IN-IWLTKZ5I-FIAQXHFH.js"), "./locales/hu-HU.json": () => import("./hu-HU-A5ZG7DT2-LQCULOUZ.js"), "./locales/id-ID.json": () => import("./id-ID-SAP4L64H-4PRA3OIK.js"), "./locales/it-IT.json": () => import("./it-IT-JPQ66NNP-KMNAB4AX.js"), "./locales/ja-JP.json": () => import("./ja-JP-DBVTYXUO-U4RVSPBX.js"), "./locales/kaa.json": () => import("./kaa-6HZHGXH3-KHWN3IF2.js"), "./locales/kab-KAB.json": () => import("./kab-KAB-ZGHBKWFO-VDOKBVCS.js"), "./locales/kk-KZ.json": () => import("./kk-KZ-P5N5QNE5-H7YDMCZJ.js"), "./locales/km-KH.json": () => import("./km-KH-HSX4SM5Z-JOH2AIPY.js"), "./locales/ko-KR.json": () => import("./ko-KR-MTYHY66A-QCWIXR4U.js"), "./locales/ku-TR.json": () => import("./ku-TR-6OUDTVRD-SDC7RC5V.js"), "./locales/lt-LT.json": () => import("./lt-LT-XHIRWOB4-XEZYXTM7.js"), "./locales/lv-LV.json": () => import("./lv-LV-5QDEKY6T-CNCT2FGU.js"), "./locales/mr-IN.json": () => import("./mr-IN-CRQNXWMA-HANZ4PDP.js"), "./locales/my-MM.json": () => import("./my-MM-5M5IBNSE-2J5VZIJ2.js"), "./locales/nb-NO.json": () => import("./nb-NO-T6EIAALU-DJ5QOMYV.js"), "./locales/nl-NL.json": () => import("./nl-NL-IS3SIHDZ-UMGIVWAO.js"), "./locales/nn-NO.json": () => import("./nn-NO-6E72VCQL-4YJXZRXX.js"), "./locales/oc-FR.json": () => import("./oc-FR-POXYY2M6-XFSEHRVK.js"), "./locales/pa-IN.json": () => import("./pa-IN-N4M65BXN-BSWPK5SM.js"), "./locales/percentages.json": () => import("./percentages-BXMCSKIN-NHGDTYCQ.js"), "./locales/pl-PL.json": () => import("./pl-PL-T2D74RX3-46UTCQIK.js"), "./locales/pt-BR.json": () => import("./pt-BR-5N22H2LF-NSM5GKEL.js"), "./locales/pt-PT.json": () => import("./pt-PT-UZXXM6DQ-4IFPBRP3.js"), "./locales/ro-RO.json": () => import("./ro-RO-JPDTUUEW-EBQF75M6.js"), "./locales/ru-RU.json": () => import("./ru-RU-B4JR7IUQ-PG2QBSMU.js"), "./locales/si-LK.json": () => import("./si-LK-N5RQ5JYF-LVSU7GAK.js"), "./locales/sk-SK.json": () => import("./sk-SK-C5VTKIMK-5IM7QFOW.js"), "./locales/sl-SI.json": () => import("./sl-SI-NN7IZMDC-DSOCS75F.js"), "./locales/sv-SE.json": () => import("./sv-SE-XGPEYMSR-L7FD4NM7.js"), "./locales/ta-IN.json": () => import("./ta-IN-2NMHFXQM-DCGVQNYJ.js"), "./locales/th-TH.json": () => import("./th-TH-HPSO5L25-BKRQ75JL.js"), "./locales/tr-TR.json": () => import("./tr-TR-DEFEU3FU-DQJQO723.js"), "./locales/uk-UA.json": () => import("./uk-UA-QMV73CPH-4R5OMA6T.js"), "./locales/vi-VN.json": () => import("./vi-VN-M7AON7JQ-WLFXJ7ZJ.js"), "./locales/zh-CN.json": () => import("./zh-CN-LNUGB5OW-DWJ3SMFV.js"), "./locales/zh-HK.json": () => import("./zh-HK-E62DVLB3-QXIADQME.js"), "./locales/zh-TW.json": () => import("./zh-TW-RAJ6MFWO-RC67XS6Q.js") });
+var YT = g({ "./locales/ar-SA.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/az-AZ.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/bg-BG.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/bn-BD.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/ca-ES.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/cs-CZ.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/da-DK.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/de-DE.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/el-GR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/en.json": () => import("./en-B4ZKOASM-PXP3KJIN.js"), "./locales/es-ES.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/eu-ES.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/fa-IR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/fi-FI.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/fr-FR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/gl-ES.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/he-IL.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/hi-IN.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/hu-HU.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/id-ID.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/it-IT.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/ja-JP.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/kaa.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/kab-KAB.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/kk-KZ.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/km-KH.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/ko-KR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/ku-TR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/lt-LT.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/lv-LV.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/mr-IN.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/my-MM.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/nb-NO.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/nl-NL.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/nn-NO.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/oc-FR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/pa-IN.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/percentages.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/pl-PL.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/pt-BR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/pt-PT.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/ro-RO.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/ru-RU.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/si-LK.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/sk-SK.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/sl-SI.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/sv-SE.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/ta-IN.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/th-TH.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/tr-TR.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/uk-UA.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/vi-VN.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/zh-CN.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/zh-HK.json": () => import("./dropped-language-3RJOZS6S.js"), "./locales/zh-TW.json": () => import("./dropped-language-3RJOZS6S.js") });
 var VT = 85;
 var _o2 = { code: "en", label: "English" };
 var xi = [_o2, ...[{ code: "ar-SA", label: "العربية", rtl: true }, { code: "bg-BG", label: "Български" }, { code: "ca-ES", label: "Català" }, { code: "cs-CZ", label: "Česky" }, { code: "de-DE", label: "Deutsch" }, { code: "el-GR", label: "Ελληνικά" }, { code: "es-ES", label: "Español" }, { code: "eu-ES", label: "Euskara" }, { code: "fa-IR", label: "فارسی", rtl: true }, { code: "fi-FI", label: "Suomi" }, { code: "fr-FR", label: "Français" }, { code: "gl-ES", label: "Galego" }, { code: "he-IL", label: "עברית", rtl: true }, { code: "hi-IN", label: "हिन्दी" }, { code: "hu-HU", label: "Magyar" }, { code: "id-ID", label: "Bahasa Indonesia" }, { code: "it-IT", label: "Italiano" }, { code: "ja-JP", label: "日本語" }, { code: "kab-KAB", label: "Taqbaylit" }, { code: "kk-KZ", label: "Қазақ тілі" }, { code: "ko-KR", label: "한국어" }, { code: "ku-TR", label: "Kurdî" }, { code: "lt-LT", label: "Lietuvių" }, { code: "lv-LV", label: "Latviešu" }, { code: "my-MM", label: "Burmese" }, { code: "nb-NO", label: "Norsk bokmål" }, { code: "nl-NL", label: "Nederlands" }, { code: "nn-NO", label: "Norsk nynorsk" }, { code: "oc-FR", label: "Occitan" }, { code: "pa-IN", label: "ਪੰਜਾਬੀ" }, { code: "pl-PL", label: "Polski" }, { code: "pt-BR", label: "Português Brasileiro" }, { code: "pt-PT", label: "Português" }, { code: "ro-RO", label: "Română" }, { code: "ru-RU", label: "Русский" }, { code: "sk-SK", label: "Slovenčina" }, { code: "sv-SE", label: "Svenska" }, { code: "sl-SI", label: "Slovenščina" }, { code: "tr-TR", label: "Türkçe" }, { code: "uk-UA", label: "Українська" }, { code: "zh-CN", label: "简体中文" }, { code: "zh-TW", label: "繁體中文" }, { code: "vi-VN", label: "Tiếng Việt" }, { code: "mr-IN", label: "मराठी" }].filter((e7) => N[e7.code] >= VT).sort((e7, o) => e7.label > o.label ? 1 : -1)];
@@ -20609,8 +20611,8 @@ var wy = ({ onCancel: e7, onChange: o, onSelect: t, colorPickerType: r }) => {
       return tE(k3[0], k3[1], k3[2]);
     }, b = ({ clientX: I, clientY: _, altKey: k3 }) => {
       p.style.top = `${_ + 20}px`, p.style.left = `${I + 20}px`;
-      let R = f({ clientX: I, clientY: _ });
-      u3 && c3.onChange(r, R, c3.selectedElements, { altKey: k3 }), p.style.background = R;
+      let R3 = f({ clientX: I, clientY: _ });
+      u3 && c3.onChange(r, R3, c3.selectedElements, { altKey: k3 }), p.style.background = R3;
     }, x = () => {
       c3.onCancel();
     }, T3 = (I, _) => {
@@ -20804,24 +20806,24 @@ var Dy = ({ event: e7, inputRef: o, hoveredFont: t, filteredFonts: r, onClose: n
   if (e7.key === Q.ARROW_UP) return t?.prev ? a(t.prev.value) : r[r.length - 1]?.value && a(r[r.length - 1].value), true;
 };
 var Ry = import_react50.default.memo(({ selectedFontFamily: e7, hoveredFontFamily: o, onSelect: t, onHover: r, onLeave: n, onOpen: i3, onClose: a }) => {
-  let { container: l } = Ke(), { fonts: s } = He(), { showDeprecatedFonts: c3 } = Do(), [m, d] = (0, import_react50.useState)(""), p = (0, import_react50.useRef)(null), u3 = (0, import_react50.useMemo)(() => Array.from(Nn.registered.entries()).filter(([k3, { metadata: R }]) => !R.serverSide && !R.fallback).map(([k3, { metadata: R, fontFaces: M }]) => {
-    let N3 = { value: k3, icon: R.icon ?? la, text: M[0]?.fontFace?.family ?? "Unknown" };
-    return R.deprecated && Object.assign(N3, { deprecated: R.deprecated, badge: { type: Ci2.RED, placeholder: g3("fontList.badge.old") } }), N3;
-  }).sort((k3, R) => k3.text.toLowerCase() > R.text.toLowerCase() ? 1 : -1), []), h2 = (0, import_react50.useMemo)(() => new Set(s.getSceneFamilies()), [e7]), f = (0, import_react50.useMemo)(() => u3.filter((k3) => h2.has(k3.value)), [u3, h2]), b = (0, import_react50.useMemo)(() => u3.filter((k3) => !h2.has(k3.value) && (c3 || !k3.deprecated)), [u3, h2, c3]), x = (0, import_react50.useMemo)(() => xg([...f, ...b].filter((k3) => k3.text?.toLowerCase().includes(m))), [f, b, m]), T3 = (0, import_react50.useMemo)(() => {
+  let { container: l } = Ke(), { fonts: s } = He(), { showDeprecatedFonts: c3 } = Do(), [m, d] = (0, import_react50.useState)(""), p = (0, import_react50.useRef)(null), u3 = (0, import_react50.useMemo)(() => Array.from(Nn.registered.entries()).filter(([k3, { metadata: R3 }]) => !R3.serverSide && !R3.fallback).map(([k3, { metadata: R3, fontFaces: M }]) => {
+    let N3 = { value: k3, icon: R3.icon ?? la, text: M[0]?.fontFace?.family ?? "Unknown" };
+    return R3.deprecated && Object.assign(N3, { deprecated: R3.deprecated, badge: { type: Ci2.RED, placeholder: g3("fontList.badge.old") } }), N3;
+  }).sort((k3, R3) => k3.text.toLowerCase() > R3.text.toLowerCase() ? 1 : -1), []), h2 = (0, import_react50.useMemo)(() => new Set(s.getSceneFamilies()), [e7]), f = (0, import_react50.useMemo)(() => u3.filter((k3) => h2.has(k3.value)), [u3, h2]), b = (0, import_react50.useMemo)(() => u3.filter((k3) => !h2.has(k3.value) && (c3 || !k3.deprecated)), [u3, h2, c3]), x = (0, import_react50.useMemo)(() => xg([...f, ...b].filter((k3) => k3.text?.toLowerCase().includes(m))), [f, b, m]), T3 = (0, import_react50.useMemo)(() => {
     let k3;
-    return o ? k3 = x.find((R) => R.value === o) : e7 && (k3 = x.find((R) => R.value === e7)), !k3 && m && (x[0]?.value ? r(x[0].value) : n()), k3;
+    return o ? k3 = x.find((R3) => R3.value === o) : e7 && (k3 = x.find((R3) => R3.value === e7)), !k3 && m && (x[0]?.value ? r(x[0].value) : n()), k3;
   }, [o, e7, m, x, r, n]), E = (0, import_react50.useCallback)((k3) => {
     Dy({ event: k3, inputRef: p, hoveredFont: T3, filteredFonts: x, onSelect: t, onHover: r, onClose: a }) && (k3.preventDefault(), k3.stopPropagation());
   }, [T3, x, t, r, a]);
   (0, import_react50.useEffect)(() => (i3(), () => {
     a();
   }), []);
-  let w = (0, import_react50.useMemo)(() => x.filter((k3) => h2.has(k3.value)), [x, h2]), S = (0, import_react50.useMemo)(() => x.filter((k3) => !h2.has(k3.value)), [x, h2]), I = (k3, R) => (0, import_jsx_runtime41.jsxs)(vt2, { icon: k3.icon, value: k3.value, order: R, textStyle: { fontFamily: ea({ fontFamily: k3.value }) }, hovered: k3.value === T3?.value, selected: k3.value === e7, tabIndex: k3.value === e7 ? 0 : -1, onClick: (M) => {
+  let w = (0, import_react50.useMemo)(() => x.filter((k3) => h2.has(k3.value)), [x, h2]), S = (0, import_react50.useMemo)(() => x.filter((k3) => !h2.has(k3.value)), [x, h2]), I = (k3, R3) => (0, import_jsx_runtime41.jsxs)(vt2, { icon: k3.icon, value: k3.value, order: R3, textStyle: { fontFamily: ea({ fontFamily: k3.value }) }, hovered: k3.value === T3?.value, selected: k3.value === e7, tabIndex: k3.value === e7 ? 0 : -1, onClick: (M) => {
     t(Number(M.currentTarget.value));
   }, onMouseMove: () => {
     T3?.value !== k3.value && r(k3.value);
   }, children: [k3.text, k3.badge && (0, import_jsx_runtime41.jsx)(dc, { type: k3.badge.type, children: k3.badge.placeholder })] }, k3.value), _ = [];
-  return w.length && _.push((0, import_jsx_runtime41.jsx)(Na2, { title: g3("fontList.sceneFonts"), children: w.map(I) }, "group_1")), S.length && _.push((0, import_jsx_runtime41.jsx)(Na2, { title: g3("fontList.availableFonts"), children: S.map((k3, R) => I(k3, R + w.length)) }, "group_2")), (0, import_jsx_runtime41.jsxs)(oc, { className: "properties-content", container: l, style: { width: "15rem" }, onClose: a, onPointerLeave: n, onKeyDown: E, children: [(0, import_jsx_runtime41.jsx)(ic, { ref: p, placeholder: g3("quickSearch.placeholder"), onChange: $o(d, 20) }), (0, import_jsx_runtime41.jsx)(ac, { className: "dropdown-menu fonts manual-hover", placeholder: g3("fontList.empty"), children: _.length ? _ : null })] });
+  return w.length && _.push((0, import_jsx_runtime41.jsx)(Na2, { title: g3("fontList.sceneFonts"), children: w.map(I) }, "group_1")), S.length && _.push((0, import_jsx_runtime41.jsx)(Na2, { title: g3("fontList.availableFonts"), children: S.map((k3, R3) => I(k3, R3 + w.length)) }, "group_2")), (0, import_jsx_runtime41.jsxs)(oc, { className: "properties-content", container: l, style: { width: "15rem" }, onClose: a, onPointerLeave: n, onKeyDown: E, children: [(0, import_jsx_runtime41.jsx)(ic, { ref: p, placeholder: g3("quickSearch.placeholder"), onChange: $o(d, 20) }), (0, import_jsx_runtime41.jsx)(ac, { className: "dropdown-menu fonts manual-hover", placeholder: g3("fontList.empty"), children: _.length ? _ : null })] });
 }, (e7, o) => e7.selectedFontFamily === o.selectedFontFamily && e7.hoveredFontFamily === o.hoveredFontFamily);
 var Oy = ({ selectedFontFamily: e7 }) => {
   let o = (0, import_react55.useMemo)(() => !!(e7 && !Fy(e7)), [e7]);
@@ -20927,8 +20929,8 @@ var X22 = L2({ name: "changeFontFamily", label: "labels.fontFamily", trackEvent:
     if (b || window.document.fonts.check(E, w)) for (let [S, I] of h2) Xa(S, I, r.scene.getNonDeletedElementsMap(), false);
     else window.document.fonts.load(E, w).then((S) => {
       for (let [I, _] of h2) {
-        let k3 = r.scene.getElement(I.id), R = _ ? r.scene.getElement(_.id) : null;
-        k3 && Xa(k3, R, r.scene.getNonDeletedElementsMap(), false);
+        let k3 = r.scene.getElement(I.id), R3 = _ ? r.scene.getElement(_.id) : null;
+        k3 && Xa(k3, R3, r.scene.getNonDeletedElementsMap(), false);
       }
       r.fonts.onLoaded(S);
     });
@@ -21336,8 +21338,8 @@ var sv = ({ context: e7, renderConfig: o, appState: t, normalizedWidth: r, norma
     let T3 = o.remotePointerUsernames.get(i3) || "";
     if (!p && T3) {
       e7.font = "600 12px sans-serif";
-      let E = (x ? l + 0 : l) + m / 2, w = (x ? s + 0 : s) + d + 2, S = 5, I = 3, _ = e7.measureText(T3), k3 = _.actualBoundingBoxDescent + _.actualBoundingBoxAscent, R = Math.max(k3, 12), M = E - 1, N3 = w - 1, G = _.width + 2 + S * 2 + 2, H3 = R + 2 + I * 2 + 2;
-      if (e7.roundRect ? (e7.beginPath(), e7.roundRect(M, N3, G, H3, 8), e7.fillStyle = u3, e7.fill(), e7.strokeStyle = hE, e7.stroke(), x && (e7.beginPath(), e7.roundRect(M - 2, N3 - 2, G + 4, H3 + 4, 8), e7.strokeStyle = b, e7.stroke())) : xc(e7, M, N3, G, H3, 8, hE), e7.fillStyle = yE, e7.fillText(T3, E + S + 1, w + I + _.actualBoundingBoxAscent + Math.floor((R - k3) / 2) + 2), x) {
+      let E = (x ? l + 0 : l) + m / 2, w = (x ? s + 0 : s) + d + 2, S = 5, I = 3, _ = e7.measureText(T3), k3 = _.actualBoundingBoxDescent + _.actualBoundingBoxAscent, R3 = Math.max(k3, 12), M = E - 1, N3 = w - 1, G = _.width + 2 + S * 2 + 2, H3 = R3 + 2 + I * 2 + 2;
+      if (e7.roundRect ? (e7.beginPath(), e7.roundRect(M, N3, G, H3, 8), e7.fillStyle = u3, e7.fill(), e7.strokeStyle = hE, e7.stroke(), x && (e7.beginPath(), e7.roundRect(M - 2, N3 - 2, G + 4, H3 + 4, 8), e7.strokeStyle = b, e7.stroke())) : xc(e7, M, N3, G, H3, 8, hE), e7.fillStyle = yE, e7.fillText(T3, E + S + 1, w + I + _.actualBoundingBoxAscent + Math.floor((R3 - k3) / 2) + 2), x) {
         e7.fillStyle = b;
         let V = 8, F = 8, O3 = 5;
         e7.fillRect(M + G + F, N3 + (H3 / 2 - V / 2), 2, V), e7.fillRect(M + G + F + O3, N3 + (H3 / 2 - V * 2 / 2), 2, V * 2), e7.fillRect(M + G + F + O3 * 2, N3 + (H3 / 2 - V / 2), 2, V);
@@ -21965,8 +21967,8 @@ var bS = ({ onClose: e7, libraryItems: o, appState: t, onSuccess: r, onError: n,
       p(w), m(false);
       return;
     }
-    let I = await hS(d), _ = { type: Ze.excalidrawLibrary, version: qi.excalidrawLibrary, source: Ci, libraryItems: d }, k3 = JSON.stringify(_, null, 2), R = new Blob([k3], { type: "application/json" }), M = new FormData();
-    M.append("excalidrawLib", R), M.append("previewImage", I), M.append("previewImageType", I.type), M.append("title", l.name), M.append("authorName", l.authorName), M.append("githubHandle", l.githubHandle), M.append("name", l.name), M.append("description", l.description), M.append("twitterHandle", l.twitterHandle), M.append("website", l.website), fetch(`${c.VITE_APP_LIBRARY_BACKEND}/submit`, { method: "post", body: M }).then((N3) => N3.ok ? N3.json().then(({ url: G }) => {
+    let I = await hS(d), _ = { type: Ze.excalidrawLibrary, version: qi.excalidrawLibrary, source: Ci, libraryItems: d }, k3 = JSON.stringify(_, null, 2), R3 = new Blob([k3], { type: "application/json" }), M = new FormData();
+    M.append("excalidrawLib", R3), M.append("previewImage", I), M.append("previewImageType", I.type), M.append("title", l.name), M.append("authorName", l.authorName), M.append("githubHandle", l.githubHandle), M.append("name", l.name), M.append("description", l.description), M.append("twitterHandle", l.twitterHandle), M.append("website", l.website), fetch(`${c.VITE_APP_LIBRARY_BACKEND}/submit`, { method: "post", body: M }).then((N3) => N3.ok ? N3.json().then(({ url: G }) => {
       ro.delete(YE.PUBLISH_LIBRARY), r({ url: G, authorName: l.authorName, items: d });
     }) : N3.json().catch(() => {
       throw new Error(N3.statusText || "something went wrong");
@@ -22076,8 +22078,8 @@ var MS = ({ setAppState: e7, selectedItems: o, library: t, onRemoveFromLibrary: 
     IO(M).catch(Ug).catch((N3) => {
       e7({ errorMessage: N3.message });
     });
-  }, R = () => (0, import_jsx_runtime74.jsxs)(Ce, { open: c3, children: [(0, import_jsx_runtime74.jsx)(Ce.Trigger, { onToggle: () => m(!c3), children: px }), (0, import_jsx_runtime74.jsxs)(Ce.Content, { onClickOutside: () => m(false), onSelect: () => m(false), className: "library-menu", children: [!h2 && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: _, icon: Yx, "data-testid": "lib-dropdown--load", children: g3("buttons.load") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: k3, icon: $x, "data-testid": "lib-dropdown--export", children: g3("buttons.export") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: () => u3(true), icon: Tx, children: b }), h2 && (0, import_jsx_runtime74.jsx)(Ce.Item, { icon: p4, onSelect: () => T3(true), "data-testid": "lib-dropdown--remove", children: g3("buttons.publishLibrary") })] })] });
-  return (0, import_jsx_runtime74.jsxs)("div", { className: clsx_m_default("library-menu-dropdown-container", l), children: [R(), o.length > 0 && (0, import_jsx_runtime74.jsx)("div", { className: "library-actions-counter", children: o.length }), p && d(), x && (0, import_jsx_runtime74.jsx)(Wv, { onClose: () => T3(false), libraryItems: _S(s.libraryItems, o), appState: a, onSuccess: (M) => I(M, s.libraryItems), onError: (M) => window.alert(M), updateItemsInStorage: () => t.setLibrary(s.libraryItems), onRemove: (M) => i3(o.filter((N3) => N3 !== M)) }), E && S()] });
+  }, R3 = () => (0, import_jsx_runtime74.jsxs)(Ce, { open: c3, children: [(0, import_jsx_runtime74.jsx)(Ce.Trigger, { onToggle: () => m(!c3), children: px }), (0, import_jsx_runtime74.jsxs)(Ce.Content, { onClickOutside: () => m(false), onSelect: () => m(false), className: "library-menu", children: [!h2 && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: _, icon: Yx, "data-testid": "lib-dropdown--load", children: g3("buttons.load") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: k3, icon: $x, "data-testid": "lib-dropdown--export", children: g3("buttons.export") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: () => u3(true), icon: Tx, children: b }), h2 && (0, import_jsx_runtime74.jsx)(Ce.Item, { icon: p4, onSelect: () => T3(true), "data-testid": "lib-dropdown--remove", children: g3("buttons.publishLibrary") })] })] });
+  return (0, import_jsx_runtime74.jsxs)("div", { className: clsx_m_default("library-menu-dropdown-container", l), children: [R3(), o.length > 0 && (0, import_jsx_runtime74.jsx)("div", { className: "library-actions-counter", children: o.length }), p && d(), x && (0, import_jsx_runtime74.jsx)(Wv, { onClose: () => T3(false), libraryItems: _S(s.libraryItems, o), appState: a, onSuccess: (M) => I(M, s.libraryItems), onError: (M) => window.alert(M), updateItemsInStorage: () => t.setLibrary(s.libraryItems), onRemove: (M) => i3(o.filter((N3) => N3 !== M)) }), E && S()] });
 };
 var fu = ({ selectedItems: e7, onSelectItems: o, className: t }) => {
   let { library: r } = He(), { clearLibraryCache: n, deleteItemsFromLibraryCache: i3 } = Sc(), a = ve2(), l = pe(), [s] = ce(Cn), c3 = async (d) => {
@@ -22168,8 +22170,8 @@ function xu({ isLoading: e7, libraryItems: o, onAddToLibrary: t, onInsertLibrary
     t(n);
   }, [n, t]), k3 = (0, import_react68.useCallback)((M) => {
     M && r(w(M));
-  }, [w, r]), R = p.size >= o.length ? JS : jS;
-  return (0, import_jsx_runtime77.jsxs)("div", { className: "library-menu-items-container", style: n.length || u3.length || h2.length ? { justifyContent: "flex-start" } : { borderBottom: 0 }, children: [!b && (0, import_jsx_runtime77.jsx)(fu, { selectedItems: c3, onSelectItems: s, className: "library-menu-dropdown-container--in-heading" }), (0, import_jsx_runtime77.jsxs)(it2.Col, { className: "library-menu-items-container__items", align: "start", gap: 1, style: { flex: h2.length > 0 ? 1 : "0 1 auto", marginBottom: 0 }, ref: m, children: [(0, import_jsx_runtime77.jsxs)(import_jsx_runtime77.Fragment, { children: [!b && (0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items-container__header", children: g3("labels.personalLib") }), e7 && (0, import_jsx_runtime77.jsx)("div", { style: { position: "absolute", top: "var(--container-padding-y)", right: "var(--container-padding-x)", transform: "translateY(50%)" }, children: (0, import_jsx_runtime77.jsx)(ct, {}) }), !n.length && !u3.length ? (0, import_jsx_runtime77.jsxs)("div", { className: "library-menu-items__no-items", children: [(0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items__no-items__label", children: g3("library.noItems") }), (0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items__no-items__hint", children: h2.length > 0 ? g3("library.hint_emptyPrivateLibrary") : g3("library.hint_emptyLibrary") })] }) : (0, import_jsx_runtime77.jsxs)(bu, { children: [n.length > 0 && (0, import_jsx_runtime77.jsx)(Hc, { itemsRenderedPerBatch: R, items: [{ id: null, elements: n }], onItemSelectToggle: E, onItemDrag: S, onClick: _, isItemSelected: I, svgCache: p }), (0, import_jsx_runtime77.jsx)(Hc, { itemsRenderedPerBatch: R, items: u3, onItemSelectToggle: E, onItemDrag: S, onClick: k3, isItemSelected: I, svgCache: p })] })] }), (0, import_jsx_runtime77.jsxs)(import_jsx_runtime77.Fragment, { children: [(h2.length > 0 || n.length > 0 || u3.length > 0) && (0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items-container__header library-menu-items-container__header--excal", children: g3("labels.excalidrawLib") }), h2.length > 0 ? (0, import_jsx_runtime77.jsx)(bu, { children: (0, import_jsx_runtime77.jsx)(Hc, { itemsRenderedPerBatch: R, items: h2, onItemSelectToggle: E, onItemDrag: S, onClick: k3, isItemSelected: I, svgCache: p }) }) : u3.length > 0 ? (0, import_jsx_runtime77.jsx)("div", { style: { margin: "1rem 0", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", fontSize: ".9rem" }, children: g3("library.noItems") }) : null] }), f && (0, import_jsx_runtime77.jsx)(Mc, { style: { padding: "16px 0", width: "100%" }, id: a, libraryReturnUrl: l, theme: i3, children: (0, import_jsx_runtime77.jsx)(fu, { selectedItems: c3, onSelectItems: s }) })] })] });
+  }, [w, r]), R3 = p.size >= o.length ? JS : jS;
+  return (0, import_jsx_runtime77.jsxs)("div", { className: "library-menu-items-container", style: n.length || u3.length || h2.length ? { justifyContent: "flex-start" } : { borderBottom: 0 }, children: [!b && (0, import_jsx_runtime77.jsx)(fu, { selectedItems: c3, onSelectItems: s, className: "library-menu-dropdown-container--in-heading" }), (0, import_jsx_runtime77.jsxs)(it2.Col, { className: "library-menu-items-container__items", align: "start", gap: 1, style: { flex: h2.length > 0 ? 1 : "0 1 auto", marginBottom: 0 }, ref: m, children: [(0, import_jsx_runtime77.jsxs)(import_jsx_runtime77.Fragment, { children: [!b && (0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items-container__header", children: g3("labels.personalLib") }), e7 && (0, import_jsx_runtime77.jsx)("div", { style: { position: "absolute", top: "var(--container-padding-y)", right: "var(--container-padding-x)", transform: "translateY(50%)" }, children: (0, import_jsx_runtime77.jsx)(ct, {}) }), !n.length && !u3.length ? (0, import_jsx_runtime77.jsxs)("div", { className: "library-menu-items__no-items", children: [(0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items__no-items__label", children: g3("library.noItems") }), (0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items__no-items__hint", children: h2.length > 0 ? g3("library.hint_emptyPrivateLibrary") : g3("library.hint_emptyLibrary") })] }) : (0, import_jsx_runtime77.jsxs)(bu, { children: [n.length > 0 && (0, import_jsx_runtime77.jsx)(Hc, { itemsRenderedPerBatch: R3, items: [{ id: null, elements: n }], onItemSelectToggle: E, onItemDrag: S, onClick: _, isItemSelected: I, svgCache: p }), (0, import_jsx_runtime77.jsx)(Hc, { itemsRenderedPerBatch: R3, items: u3, onItemSelectToggle: E, onItemDrag: S, onClick: k3, isItemSelected: I, svgCache: p })] })] }), (0, import_jsx_runtime77.jsxs)(import_jsx_runtime77.Fragment, { children: [(h2.length > 0 || n.length > 0 || u3.length > 0) && (0, import_jsx_runtime77.jsx)("div", { className: "library-menu-items-container__header library-menu-items-container__header--excal", children: g3("labels.excalidrawLib") }), h2.length > 0 ? (0, import_jsx_runtime77.jsx)(bu, { children: (0, import_jsx_runtime77.jsx)(Hc, { itemsRenderedPerBatch: R3, items: h2, onItemSelectToggle: E, onItemDrag: S, onClick: k3, isItemSelected: I, svgCache: p }) }) : u3.length > 0 ? (0, import_jsx_runtime77.jsx)("div", { style: { margin: "1rem 0", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", fontSize: ".9rem" }, children: g3("library.noItems") }) : null] }), f && (0, import_jsx_runtime77.jsx)(Mc, { style: { padding: "16px 0", width: "100%" }, id: a, libraryReturnUrl: l, theme: i3, children: (0, import_jsx_runtime77.jsx)(fu, { selectedItems: c3, onSelectItems: s }) })] })] });
 }
 var Ni = atom(false);
 var mw = ({ children: e7 }) => (0, import_jsx_runtime78.jsx)("div", { className: "layer-ui__library", children: e7 });
@@ -22383,18 +22385,18 @@ var VK = Object.assign((e7) => {
 function Pk({ customCommandPaletteItems: e7 }) {
   let o = He(), t = ve2(), r = pe(), n = Do(), i3 = Xe(), [a, l] = ce(Mk), [s, c3] = (0, import_react61.useState)(null), m = (0, import_react61.useRef)(null), d = Ir({ uiAppState: t, customCommandPaletteItems: e7, appProps: n });
   (0, import_react61.useEffect)(() => {
-    let { uiAppState: I, customCommandPaletteItems: _, appProps: k3 } = d, R = (H3) => {
+    let { uiAppState: I, customCommandPaletteItems: _, appProps: k3 } = d, R3 = (H3) => {
       let V = "";
       return H3.label && (typeof H3.label == "function" ? V = g3(H3.label(o.scene.getNonDeletedElements(), I, o)) : V = g3(H3.label)), V;
     }, M = (H3) => typeof H3.icon == "function" ? H3.icon(I, o.scene.getNonDeletedElements()) : H3.icon, N3 = [], G = (H3, V, F) => {
-      let O3 = { label: R(H3), icon: M(H3), category: V, shortcut: Ye2(H3.name), keywords: H3.keywords, predicate: H3.predicate, viewMode: H3.viewMode, perform: () => {
+      let O3 = { label: R3(H3), icon: M(H3), category: V, shortcut: Ye2(H3.name), keywords: H3.keywords, predicate: H3.predicate, viewMode: H3.viewMode, perform: () => {
         i3.executeAction(H3, "commandPalette");
       } };
       return F ? F(O3, H3) : O3;
     };
     if (I && o.scene && i3) {
       let H3 = [i3.actions.group, i3.actions.ungroup, i3.actions.cut, i3.actions.copy, i3.actions.deleteSelectedElements, i3.actions.wrapSelectionInFrame, i3.actions.copyStyles, i3.actions.pasteStyles, i3.actions.bringToFront, i3.actions.bringForward, i3.actions.sendBackward, i3.actions.sendToBack, i3.actions.alignTop, i3.actions.alignBottom, i3.actions.alignLeft, i3.actions.alignRight, i3.actions.alignVerticallyCentered, i3.actions.alignHorizontallyCentered, i3.actions.duplicateSelection, i3.actions.flipHorizontal, i3.actions.flipVertical, i3.actions.zoomToFitSelection, i3.actions.zoomToFitSelectionInViewport, i3.actions.increaseFontSize, i3.actions.decreaseFontSize, i3.actions.toggleLinearEditor, i3.actions.cropEditor, Ga2, Vc, Cw].map((W) => G(W, ze2.elements, (ne, ge) => ({ ...ne, predicate: ge.predicate ? ge.predicate : (be, mt2, wo, Dn2) => at(be, mt2).length > 0 }))), V = [i3.actions.toggleHandTool, i3.actions.setFrameAsActiveTool].map((W) => G(W, ze2.tools)), F = [i3.actions.undo, i3.actions.redo, i3.actions.zoomIn, i3.actions.zoomOut, i3.actions.resetZoom, i3.actions.zoomToFit, i3.actions.zenMode, i3.actions.viewMode, i3.actions.gridMode, i3.actions.objectsSnapMode, i3.actions.toggleShortcuts, i3.actions.selectAll, i3.actions.toggleElementLock, i3.actions.unlockAllElements, i3.actions.stats].map((W) => G(W, ze2.editor)), O3 = [i3.actions.saveToActiveFile, i3.actions.saveFileToDisk, i3.actions.copyAsPng, i3.actions.copyAsSvg].map((W) => G(W, ze2.export));
-      N3 = [...H3, ...F, { label: R(er2), icon: M(er2), shortcut: Ye2(er2.name), category: ze2.editor, keywords: ["delete", "destroy"], viewMode: false, perform: () => {
+      N3 = [...H3, ...F, { label: R3(er2), icon: M(er2), shortcut: Ye2(er2.name), category: ze2.editor, keywords: ["delete", "destroy"], viewMode: false, perform: () => {
         st.set(In, "clearCanvas");
       } }, { label: g3("buttons.exportImage"), category: ze2.export, icon: Xx, shortcut: Ye2("imageExport"), keywords: ["export", "image", "png", "jpeg", "svg", "clipboard", "picture"], perform: () => {
         r({ openDialog: { name: "imageExport" } });
@@ -22443,11 +22445,11 @@ function Pk({ customCommandPaletteItems: e7 }) {
   }, w = Au((I) => I.viewMode === false && t.viewModeEnabled ? false : typeof I.predicate == "function" ? I.predicate(o.scene.getNonDeletedElements(), t, n, o) : I.predicate === void 0 || I.predicate), S = Au((I) => {
     let _ = ag(I.target) || kw(I) || I.key === Q.ESCAPE;
     if (_ && I.key !== Q.ARROW_UP && I.key !== Q.ARROW_DOWN && I.key !== Q.ENTER) return;
-    let k3 = Object.values(b).flat(), R = a && !p && w(a);
+    let k3 = Object.values(b).flat(), R3 = a && !p && w(a);
     if (I.key === Q.ARROW_UP) {
       I.preventDefault();
       let M = k3.findIndex((H3) => H3.label === h2?.label);
-      if (R) {
+      if (R3) {
         if (M === 0) {
           f(a);
           return;
@@ -22467,7 +22469,7 @@ function Pk({ customCommandPaletteItems: e7 }) {
     if (I.key === Q.ARROW_DOWN) {
       I.preventDefault();
       let M = k3.findIndex((H3) => H3.label === h2?.label);
-      if (R) {
+      if (R3) {
         if (!h2 || M === k3.length - 1) {
           f(a);
           return;
@@ -22503,11 +22505,11 @@ function Pk({ customCommandPaletteItems: e7 }) {
       x(I(k3 ? _.filter((M) => M.label !== a?.label) : _)), f(k3 ? a : _[0] || null);
       return;
     }
-    let R = Tu(p.toLocaleLowerCase().replace(/[<>_| -]/g, ""));
-    _ = import_fuzzy.default.filter(R, _, { extract: (M) => M.haystack }).sort((M, N3) => N3.score - M.score).map((M) => M.original), x(I(_)), f(_[0] ?? null);
+    let R3 = Tu(p.toLocaleLowerCase().replace(/[<>_| -]/g, ""));
+    _ = import_fuzzy.default.filter(R3, _, { extract: (M) => M.haystack }).sort((M, N3) => N3.score - M.score).map((M) => M.original), x(I(_)), f(_[0] ?? null);
   }, [p, s, w, a]), (0, import_jsx_runtime84.jsxs)(Ge2, { onCloseRequest: () => T3(), closeOnClickOutside: true, title: false, size: 720, autofocus: true, className: "command-palette-dialog", children: [(0, import_jsx_runtime84.jsx)(zi, { value: p, placeholder: g3("commandPalette.search.placeholder"), onChange: (I) => {
     u3(I);
-  }, selectOnRender: true, ref: m }), !o.device.viewport.isMobile && (0, import_jsx_runtime84.jsxs)("div", { className: "shortcuts-wrapper", children: [(0, import_jsx_runtime84.jsx)(Xc, { shortcut: "↑↓", children: g3("commandPalette.shortcuts.select") }), (0, import_jsx_runtime84.jsx)(Xc, { shortcut: "↵", children: g3("commandPalette.shortcuts.confirm") }), (0, import_jsx_runtime84.jsx)(Xc, { shortcut: cg("Esc"), children: g3("commandPalette.shortcuts.close") })] }), (0, import_jsx_runtime84.jsxs)("div", { className: "commands", children: [a && !p && (0, import_jsx_runtime84.jsxs)("div", { className: "command-category", children: [(0, import_jsx_runtime84.jsxs)("div", { className: "command-category-title", children: [g3("commandPalette.recents"), (0, import_jsx_runtime84.jsx)("div", { className: "icon", style: { marginLeft: "6px" }, children: K4 })] }), (0, import_jsx_runtime84.jsx)(Iw, { command: a, isSelected: a.label === h2?.label, onClick: (I) => E(a, I), disabled: !w(a), onMouseMove: () => f(a), showShortcut: !o.device.viewport.isMobile, appState: t })] }), Object.keys(b).length > 0 ? Object.keys(b).map((I, _) => (0, import_jsx_runtime84.jsxs)("div", { className: "command-category", children: [(0, import_jsx_runtime84.jsx)("div", { className: "command-category-title", children: I }), b[I].map((k3) => (0, import_jsx_runtime84.jsx)(Iw, { command: k3, isSelected: k3.label === h2?.label, onClick: (R) => E(k3, R), onMouseMove: () => f(k3), showShortcut: !o.device.viewport.isMobile, appState: t }, k3.label))] }, I)) : s ? (0, import_jsx_runtime84.jsxs)("div", { className: "no-match", children: [(0, import_jsx_runtime84.jsx)("div", { className: "icon", children: A4 }), " ", g3("commandPalette.search.noMatch")] }) : null] })] });
+  }, selectOnRender: true, ref: m }), !o.device.viewport.isMobile && (0, import_jsx_runtime84.jsxs)("div", { className: "shortcuts-wrapper", children: [(0, import_jsx_runtime84.jsx)(Xc, { shortcut: "↑↓", children: g3("commandPalette.shortcuts.select") }), (0, import_jsx_runtime84.jsx)(Xc, { shortcut: "↵", children: g3("commandPalette.shortcuts.confirm") }), (0, import_jsx_runtime84.jsx)(Xc, { shortcut: cg("Esc"), children: g3("commandPalette.shortcuts.close") })] }), (0, import_jsx_runtime84.jsxs)("div", { className: "commands", children: [a && !p && (0, import_jsx_runtime84.jsxs)("div", { className: "command-category", children: [(0, import_jsx_runtime84.jsxs)("div", { className: "command-category-title", children: [g3("commandPalette.recents"), (0, import_jsx_runtime84.jsx)("div", { className: "icon", style: { marginLeft: "6px" }, children: K4 })] }), (0, import_jsx_runtime84.jsx)(Iw, { command: a, isSelected: a.label === h2?.label, onClick: (I) => E(a, I), disabled: !w(a), onMouseMove: () => f(a), showShortcut: !o.device.viewport.isMobile, appState: t })] }), Object.keys(b).length > 0 ? Object.keys(b).map((I, _) => (0, import_jsx_runtime84.jsxs)("div", { className: "command-category", children: [(0, import_jsx_runtime84.jsx)("div", { className: "command-category-title", children: I }), b[I].map((k3) => (0, import_jsx_runtime84.jsx)(Iw, { command: k3, isSelected: k3.label === h2?.label, onClick: (R3) => E(k3, R3), onMouseMove: () => f(k3), showShortcut: !o.device.viewport.isMobile, appState: t }, k3.label))] }, I)) : s ? (0, import_jsx_runtime84.jsxs)("div", { className: "no-match", children: [(0, import_jsx_runtime84.jsx)("div", { className: "icon", children: A4 }), " ", g3("commandPalette.search.noMatch")] }) : null] })] });
 }
 var Iw = ({ command: e7, isSelected: o, disabled: t, onMouseMove: r, onClick: n, showShortcut: i3, appState: a }) => {
   let l = () => {
@@ -22808,19 +22810,19 @@ var sL = ({ appStateSnapshot: e7, elementsSnapshot: o, files: t, actionManager: 
   (0, import_react88.useEffect)(() => {
     k3();
   }, [l, d, u3, x, f, k3]);
-  let { exportedElements: R, exportingFrame: M } = yn(o, e7, c3);
+  let { exportedElements: R3, exportingFrame: M } = yn(o, e7, c3);
   return (0, import_react88.useEffect)(() => {
     let N3 = E.current;
     if (!N3) return;
     let G = N3.offsetWidth, H3 = N3.offsetHeight;
-    G && t9({ elements: R, appState: { ...e7, name: l, exportBackground: d, exportWithDarkMode: u3, exportScale: x, exportEmbedScene: f }, files: t, exportPadding: Vi, maxWidthOrHeight: Math.max(G, H3), exportingFrame: M }).then((V) => (S(null), vY(V).then(() => {
+    G && t9({ elements: R3, appState: { ...e7, name: l, exportBackground: d, exportWithDarkMode: u3, exportScale: x, exportEmbedScene: f }, files: t, exportPadding: Vi, maxWidthOrHeight: Math.max(G, H3), exportingFrame: M }).then((V) => (S(null), vY(V).then(() => {
       N3.replaceChildren(V);
     }).catch((F) => {
       throw F.name === "CANVAS_POSSIBLY_TOO_BIG" ? new Error(g3("canvasError.canvasTooBig")) : F;
     }))).catch((V) => {
       console.error(V), S(V);
     });
-  }, [e7, t, R, M, l, d, u3, x, f]), (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal", children: [(0, import_jsx_runtime95.jsx)("h3", { children: g3("imageExportDialog.header") }), (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal__preview", children: [(0, import_jsx_runtime95.jsx)("div", { className: "ImageExportModal__preview__canvas", ref: E, children: w && (0, import_jsx_runtime95.jsx)(lL, {}) }), (0, import_jsx_runtime95.jsx)("div", { className: "ImageExportModal__preview__filename", children: !e && (0, import_jsx_runtime95.jsx)("input", { type: "text", className: "TextInput", value: l, style: { width: "30ch" }, onChange: (N3) => {
+  }, [e7, t, R3, M, l, d, u3, x, f]), (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal", children: [(0, import_jsx_runtime95.jsx)("h3", { children: g3("imageExportDialog.header") }), (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal__preview", children: [(0, import_jsx_runtime95.jsx)("div", { className: "ImageExportModal__preview__canvas", ref: E, children: w && (0, import_jsx_runtime95.jsx)(lL, {}) }), (0, import_jsx_runtime95.jsx)("div", { className: "ImageExportModal__preview__filename", children: !e && (0, import_jsx_runtime95.jsx)("input", { type: "text", className: "TextInput", value: l, style: { width: "30ch" }, onChange: (N3) => {
     s(N3.target.value), r.executeAction(Yp, "ui", N3.target.value);
   } }) })] }), (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal__settings", children: [(0, import_jsx_runtime95.jsx)("h3", { children: g3("imageExportDialog.header") }), a && (0, import_jsx_runtime95.jsx)(Za2, { label: g3("imageExportDialog.label.onlySelected"), name: "exportOnlySelected", children: (0, import_jsx_runtime95.jsx)($a, { name: "exportOnlySelected", checked: c3, onChange: (N3) => {
     m(N3);
@@ -22832,8 +22834,8 @@ var sL = ({ appStateSnapshot: e7, elementsSnapshot: o, files: t, actionManager: 
     b(N3), r.executeAction(fc, "ui", N3);
   } }) }), (0, import_jsx_runtime95.jsx)(Za2, { label: g3("imageExportDialog.label.scale"), name: "exportScale", children: (0, import_jsx_runtime95.jsx)(Zc, { name: "exportScale", value: x, onChange: (N3) => {
     T3(N3), r.executeAction(ov, "ui", N3);
-  }, choices: Cs.map((N3) => ({ value: N3, label: `${N3}×` })) }) }), (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal__settings__buttons", children: [(0, import_jsx_runtime95.jsx)(Dr, { className: "ImageExportModal__settings__buttons__button", label: g3("imageExportDialog.title.exportToPng"), onClick: () => n(wE.png, R, { exportingFrame: M }), icon: b4, children: g3("imageExportDialog.button.exportToPng") }), (0, import_jsx_runtime95.jsx)(Dr, { className: "ImageExportModal__settings__buttons__button", label: g3("imageExportDialog.title.exportToSvg"), onClick: () => n(wE.svg, R, { exportingFrame: M }), icon: b4, children: g3("imageExportDialog.button.exportToSvg") }), (LK || aE) && (0, import_jsx_runtime95.jsx)(Dr, { className: "ImageExportModal__settings__buttons__button", label: g3("imageExportDialog.title.copyPngToClipboard"), status: _, onClick: async () => {
-    await n(wE.clipboard, R, { exportingFrame: M }), I();
+  }, choices: Cs.map((N3) => ({ value: N3, label: `${N3}×` })) }) }), (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal__settings__buttons", children: [(0, import_jsx_runtime95.jsx)(Dr, { className: "ImageExportModal__settings__buttons__button", label: g3("imageExportDialog.title.exportToPng"), onClick: () => n(wE.png, R3, { exportingFrame: M }), icon: b4, children: g3("imageExportDialog.button.exportToPng") }), (0, import_jsx_runtime95.jsx)(Dr, { className: "ImageExportModal__settings__buttons__button", label: g3("imageExportDialog.title.exportToSvg"), onClick: () => n(wE.svg, R3, { exportingFrame: M }), icon: b4, children: g3("imageExportDialog.button.exportToSvg") }), (LK || aE) && (0, import_jsx_runtime95.jsx)(Dr, { className: "ImageExportModal__settings__buttons__button", label: g3("imageExportDialog.title.copyPngToClipboard"), status: _, onClick: async () => {
+    await n(wE.clipboard, R3, { exportingFrame: M }), I();
   }, icon: E4, children: g3("imageExportDialog.button.copyPngToClipboard") })] })] })] });
 };
 var Za2 = ({ label: e7, children: o, tooltip: t, name: r }) => (0, import_jsx_runtime95.jsxs)("div", { className: "ImageExportModal__settings__setting", title: e7, children: [(0, import_jsx_runtime95.jsxs)("label", { htmlFor: r, className: "ImageExportModal__settings__setting__label", children: [e7, t && (0, import_jsx_runtime95.jsx)(Ut, { label: t, long: true, children: x4 })] }), (0, import_jsx_runtime95.jsx)("div", { className: "ImageExportModal__settings__setting__content", children: o })] });
@@ -23426,8 +23428,8 @@ var G0 = () => {
       if (E) {
         let w = e7.state.zoom.value, S = qt({ text: E.searchQuery, x: E.textElement.x + (E.matchedLines[0]?.offsetX ?? 0), y: E.textElement.y + (E.matchedLines[0]?.offsetY ?? 0), width: E.matchedLines[0]?.width, height: E.matchedLines[0]?.height, fontSize: E.textElement.fontSize, fontFamily: E.textElement.fontFamily }), I = 14, _ = E.textElement.fontSize, k3 = _ * w < I;
         if (!iJ([S], e7.canvas.width / window.devicePixelRatio, e7.canvas.height / window.devicePixelRatio, { offsetLeft: e7.state.offsetLeft, offsetTop: e7.state.offsetTop, scrollX: e7.state.scrollX, scrollY: e7.state.scrollY, zoom: e7.state.zoom }, e7.scene.getNonDeletedElementsMap(), e7.getEditorUIOffsets()) || k3) {
-          let R;
-          k3 ? _ >= I ? R = { fitToContent: true } : R = { fitToViewport: true, maxZoom: To(I / _, 1) } : R = { fitToContent: true }, e7.scrollToContent(S, { animate: true, duration: 300, ...R, canvasOffsets: e7.getEditorUIOffsets() });
+          let R3;
+          k3 ? _ >= I ? R3 = { fitToContent: true } : R3 = { fitToViewport: true, maxZoom: To(I / _, 1) } : R3 = { fitToContent: true }, e7.scrollToContent(S, { animate: true, duration: 300, ...R3, canvasOffsets: e7.getEditorUIOffsets() });
         }
       }
     }
@@ -23677,8 +23679,8 @@ var qA = ar("TTDDialogBase", ({ tab: e7, ...o }) => {
     }
     try {
       p(true), le("ai", "generate", "ttd");
-      let { generatedResponse: I, error: _, rateLimit: k3, rateLimitRemaining: R } = await o.onTextSubmit(c3);
-      if (typeof I == "string" && a((M) => ({ generatedResponse: I, prompt: M?.prompt ?? null })), Mo(k3) && Mo(R) && h2({ rateLimit: k3, rateLimitRemaining: R }), _) {
+      let { generatedResponse: I, error: _, rateLimit: k3, rateLimitRemaining: R3 } = await o.onTextSubmit(c3);
+      if (typeof I == "string" && a((M) => ({ generatedResponse: I, prompt: M?.prompt ?? null })), Mo(k3) && Mo(R3) && h2({ rateLimit: k3, rateLimitRemaining: R3 }), _) {
         S(_);
         return;
       }
@@ -23700,7 +23702,7 @@ TTD mermaid definition render errror: ${M.message}`, "color: yellow"), le("ai", 
     }
   }, b = (0, import_react105.useRef)(f);
   b.current = f;
-  let [x, T3] = (0, import_react105.useState)({ loaded: false, api: import("./mermaid-to-excalidraw-ZQMNUUWV.js") });
+  let [x, T3] = (0, import_react105.useState)({ loaded: false, api: import("./mermaid-to-excalidraw-CWJTW4GT.js") });
   (0, import_react105.useEffect)(() => {
     (async () => {
       await x.api, T3((_) => ({ ..._, loaded: true }));
@@ -23763,7 +23765,7 @@ var t_ = ({ label: e7, icon: o, dragInputCallback: t, value: r, elements: n, edi
       return;
     }
     let _ = Number(I.toFixed(2)), k3 = Number(r);
-    (isNaN(k3) || Math.abs(_ - k3) >= p1) && (b.current.lastUpdatedValue = E, t({ accumulatedChange: 0, instantChange: 0, originalElements: w, originalElementsMap: d.scene.getNonDeletedElementsMap(), shouldKeepAspectRatio: a, shouldChangeByStepSize: false, scene: s, nextValue: _, property: l, originalAppState: S, setInputValue: (R) => f(String(R)) }), d.syncActionResult({ captureUpdate: dr.IMMEDIATELY }));
+    (isNaN(k3) || Math.abs(_ - k3) >= p1) && (b.current.lastUpdatedValue = E, t({ accumulatedChange: 0, instantChange: 0, originalElements: w, originalElementsMap: d.scene.getNonDeletedElementsMap(), shouldKeepAspectRatio: a, shouldChangeByStepSize: false, scene: s, nextValue: _, property: l, originalAppState: S, setInputValue: (R3) => f(String(R3)) }), d.syncActionResult({ captureUpdate: dr.IMMEDIATELY }));
   }, T3 = (0, import_react107.useRef)({});
   return T3.current.handleInputValue = x, (0, import_react107.useEffect)(() => {
     let E = p.current, w = T3.current;
@@ -23776,14 +23778,14 @@ var t_ = ({ label: e7, icon: o, dragInputCallback: t, value: r, elements: n, edi
       document.body.classList.add("excalidraw-cursor-resize");
       let w = Number(p.current.value);
       isNaN(w) && (w = 0);
-      let S = null, I = d.scene.getNonDeletedElements().reduce((H3, V) => (H3.set(V.id, Gr(V)), H3), /* @__PURE__ */ new Map()), _ = n.map((H3) => I.get(H3.id)), k3 = Lg(c3), R = 0, M = 0, N3 = (H3) => {
+      let S = null, I = d.scene.getNonDeletedElements().reduce((H3, V) => (H3.set(V.id, Gr(V)), H3), /* @__PURE__ */ new Map()), _ = n.map((H3) => I.get(H3.id)), k3 = Lg(c3), R3 = 0, M = 0, N3 = (H3) => {
         if (S && I !== null && _ !== null) {
           let V = H3.clientX - S.x;
-          V !== 0 && (M += V, Math.abs(M) >= m && (M = Math.sign(M) * Math.floor(Math.abs(M) / m), R += M, t({ accumulatedChange: R, instantChange: M, originalElements: _, originalElementsMap: I, shouldKeepAspectRatio: a, shouldChangeByStepSize: H3.shiftKey, property: l, scene: s, originalAppState: k3, setInputValue: (F) => f(String(F)) }), M = 0));
+          V !== 0 && (M += V, Math.abs(M) >= m && (M = Math.sign(M) * Math.floor(Math.abs(M) / m), R3 += M, t({ accumulatedChange: R3, instantChange: M, originalElements: _, originalElementsMap: I, shouldKeepAspectRatio: a, shouldChangeByStepSize: H3.shiftKey, property: l, scene: s, originalAppState: k3, setInputValue: (F) => f(String(F)) }), M = 0));
         }
         S = { x: H3.clientX, y: H3.clientY };
       }, G = () => {
-        window.removeEventListener("pointermove", N3, false), d.syncActionResult({ captureUpdate: dr.IMMEDIATELY }), S = null, R = 0, M = 0, _ = null, I = null, document.body.classList.remove("excalidraw-cursor-resize"), window.removeEventListener("pointerup", G, false);
+        window.removeEventListener("pointermove", N3, false), d.syncActionResult({ captureUpdate: dr.IMMEDIATELY }), S = null, R3 = 0, M = 0, _ = null, I = null, document.body.classList.remove("excalidraw-cursor-resize"), window.removeEventListener("pointerup", G, false);
       };
       T3.current.onPointerMove = N3, T3.current.onPointerUp = G, window.addEventListener("pointermove", N3, false), window.addEventListener("pointerup", G, false);
     }
@@ -23812,7 +23814,7 @@ var n_ = ({ accumulatedChange: e7, originalElements: o, originalElementsMap: t, 
     if (l.croppingElementId === d.id) {
       let E = m.get(d.id);
       if (!E || !Ye(E) || !E.crop) return;
-      let w = E.crop, S = { ...w }, I = E.scale[0] === -1, _ = E.scale[1] === -1, { width: k3, height: R } = er(E), M = w.naturalWidth / k3, N3 = w.naturalHeight / R, G = I ? w.width + w.x : w.naturalWidth - w.x, H3 = _ ? w.height + w.y : w.naturalHeight - w.y, V = Ge * M, F = Ge * N3;
+      let w = E.crop, S = { ...w }, I = E.scale[0] === -1, _ = E.scale[1] === -1, { width: k3, height: R3 } = er(E), M = w.naturalWidth / k3, N3 = w.naturalHeight / R3, G = I ? w.width + w.x : w.naturalWidth - w.x, H3 = _ ? w.height + w.y : w.naturalHeight - w.y, V = Ge * M, F = Ge * N3;
       if (i3 !== void 0) {
         if (a === "width") {
           let ne = i3 * M, ge = se(ne, V, G);
@@ -23821,11 +23823,11 @@ var n_ = ({ accumulatedChange: e7, originalElements: o, originalElementsMap: t, 
           let ne = i3 * N3, ge = se(ne, F, H3);
           S = { ...S, height: ge, y: _ ? w.y + w.height - ge : w.y };
         }
-        Y(E, { crop: S, width: S.width / (w.naturalWidth / k3), height: S.height / (w.naturalHeight / R) });
+        Y(E, { crop: S, width: S.width / (w.naturalWidth / k3), height: S.height / (w.naturalHeight / R3) });
         return;
       }
       let O3 = a === "width" ? s : 0, j = a === "height" ? s : 0, oe2 = se(w.width + O3, V, G), W = se(w.height + j, V, H3);
-      S = { ...w, x: I ? w.x + w.width - oe2 : w.x, y: _ ? w.y + w.height - W : w.y, width: oe2, height: W }, Y(E, { crop: S, width: S.width / (w.naturalWidth / k3), height: S.height / (w.naturalHeight / R) });
+      S = { ...w, x: I ? w.x + w.width - oe2 : w.x, y: _ ? w.y + w.height - W : w.y, width: oe2, height: W }, Y(E, { crop: S, width: S.width / (w.naturalWidth / k3), height: S.height / (w.naturalHeight / R3) });
       return;
     }
     if (i3 !== void 0) {
@@ -23929,7 +23931,7 @@ var x_ = ({ accumulatedChange: e7, originalElements: o, originalElementsMap: t, 
     for (let p of c3) {
       let u3 = Ki2(p, s, t);
       if (u3.length > 1) {
-        let h2 = u3.map((R) => R.latest), f = u3.map((R) => R.original), [b, x, T3, E] = $e(f), w = T3 - b, S = E - x, I = w / S, _ = Math.max(CE, l === "width" ? Math.max(0, i3) : w), k3 = Math.max(CE, l === "height" ? Math.max(0, i3) : S);
+        let h2 = u3.map((R3) => R3.latest), f = u3.map((R3) => R3.original), [b, x, T3, E] = $e(f), w = T3 - b, S = E - x, I = w / S, _ = Math.max(CE, l === "width" ? Math.max(0, i3) : w), k3 = Math.max(CE, l === "height" ? Math.max(0, i3) : S);
         x1(_, k3, S, I, u(b, x), l, h2, f, s, t);
       } else {
         let [h2] = u3, f = h2?.latest, b = h2?.original;
@@ -23948,7 +23950,7 @@ var x_ = ({ accumulatedChange: e7, originalElements: o, originalElementsMap: t, 
   for (let p of c3) {
     let u3 = Ki2(p, s, t);
     if (u3.length > 1) {
-      let h2 = u3.map((R) => R.latest), f = u3.map((R) => R.original), [b, x, T3, E] = $e(f), w = T3 - b, S = E - x, I = w / S, _ = Math.max(0, w + m);
+      let h2 = u3.map((R3) => R3.latest), f = u3.map((R3) => R3.original), [b, x, T3, E] = $e(f), w = T3 - b, S = E - x, I = w / S, _ = Math.max(0, w + m);
       l === "width" && (n ? _ = Oe(_, $i) : _ = Math.round(_));
       let k3 = Math.max(0, S + d);
       l === "height" && (n ? k3 = Oe(k3, $i) : k3 = Math.round(k3)), _ = Math.max(CE, _), k3 = Math.max(CE, k3), x1(_, k3, S, I, u(b, x), l, h2, f, s, t);
@@ -24047,11 +24049,11 @@ var __ = ({ accumulatedChange: e7, instantChange: o, originalElements: t, origin
   if (s.croppingElementId === d.id) {
     let w = c3.get(d.id);
     if (!w || !Ye(w) || !w.crop) return;
-    let S = w.crop, I = S, _ = w.scale[0] === -1, k3 = w.scale[1] === -1, { width: R, height: M } = er(w);
+    let S = w.crop, I = S, _ = w.scale[0] === -1, k3 = w.scale[1] === -1, { width: R3, height: M } = er(w);
     if (i3 !== void 0) {
       if (a === "x") {
-        let H3 = i3 * (S.naturalWidth / R);
-        _ ? I = { ...S, x: se(S.naturalWidth - H3 - S.width, 0, S.naturalWidth - S.width) } : I = { ...S, x: se(i3 * (S.naturalWidth / R), 0, S.naturalWidth - S.width) };
+        let H3 = i3 * (S.naturalWidth / R3);
+        _ ? I = { ...S, x: se(S.naturalWidth - H3 - S.width, 0, S.naturalWidth - S.width) } : I = { ...S, x: se(i3 * (S.naturalWidth / R3), 0, S.naturalWidth - S.width) };
       }
       a === "y" && (I = { ...S, y: se(i3 * (S.naturalHeight / M), 0, S.naturalHeight - S.height) }), Y(w, { crop: I });
       return;
@@ -24200,7 +24202,7 @@ var L12 = Z_;
 var J_2 = ({ UIOptions: e7 }) => (0, import_jsx_runtime149.jsxs)(ft, { __fallback: true, children: [(0, import_jsx_runtime149.jsx)(ft.DefaultItems.LoadScene, {}), (0, import_jsx_runtime149.jsx)(ft.DefaultItems.SaveToActiveFile, {}), e7.canvasActions.export && (0, import_jsx_runtime149.jsx)(ft.DefaultItems.Export, {}), e7.canvasActions.saveAsImage && (0, import_jsx_runtime149.jsx)(ft.DefaultItems.SaveAsImage, {}), (0, import_jsx_runtime149.jsx)(ft.DefaultItems.SearchMenu, {}), (0, import_jsx_runtime149.jsx)(ft.DefaultItems.Help, {}), (0, import_jsx_runtime149.jsx)(ft.DefaultItems.ClearCanvas, {}), (0, import_jsx_runtime149.jsx)(ft.Separator, {}), (0, import_jsx_runtime149.jsx)(ft.Group, { title: "Excalidraw links", children: (0, import_jsx_runtime149.jsx)(ft.DefaultItems.Socials, {}) }), (0, import_jsx_runtime149.jsx)(ft.Separator, {}), (0, import_jsx_runtime149.jsx)(ft.DefaultItems.ToggleTheme, {}), (0, import_jsx_runtime149.jsx)(ft.DefaultItems.ChangeCanvasBackground, {})] });
 var q_ = () => (0, import_jsx_runtime149.jsxs)(pd2, { __fallback: true, children: [(0, import_jsx_runtime149.jsx)(pd2.Actions.SaveToDisk, {}), (0, import_jsx_runtime149.jsx)(pd2.Actions.ExportToImage, {})] });
 var Q_ = ({ actionManager: e7, appState: o, files: t, setAppState: r, elements: n, canvas: i3, onLockToggle: a, onHandToolToggle: l, onPenModeToggle: s, showExitZenModeBtn: c3, renderTopRightUI: m, renderCustomStats: d, UIOptions: p, onExportImage: u3, renderWelcomeScreen: h2, children: f, app: b, isCollaborating: x, generateLinkForSelection: T3 }) => {
-  let E = me(), w = xw(), S = w.tunnelsJotai.Provider, [I, _] = ce(Sr), k3 = () => p.canvasActions.export ? (0, import_jsx_runtime149.jsx)(i0, { elements: n, appState: o, files: t, actionManager: e7, exportOpts: p.canvasActions.export, canvas: i3, setAppState: r }) : null, R = () => !p.canvasActions.saveAsImage || o.openDialog?.name !== "imageExport" ? null : (0, import_jsx_runtime149.jsx)(Gw, { elements: n, appState: o, files: t, actionManager: e7, onExportImage: u3, onCloseRequest: () => r({ openDialog: null }), name: b.getName() }), M = () => (0, import_jsx_runtime149.jsxs)("div", { style: { position: "relative" }, children: [(0, import_jsx_runtime149.jsx)(w.MainMenuTunnel.Out, {}), h2 && (0, import_jsx_runtime149.jsx)(w.WelcomeScreenMenuHintTunnel.Out, {})] }), N3 = () => (0, import_jsx_runtime149.jsx)(Nr2, { heading: "selectedShapeActions", className: clsx_m_default("selected-shape-actions zen-mode-transition", { "transition-left": o.zenModeEnabled }), children: (0, import_jsx_runtime149.jsx)(Qe, { className: gE.SHAPE_ACTIONS_MENU, padding: 2, style: { maxHeight: `${o.height - 166}px` }, children: (0, import_jsx_runtime149.jsx)(Gc, { appState: o, elementsMap: b.scene.getNonDeletedElementsMap(), renderAction: e7.renderAction, app: b }) }) }), G = () => {
+  let E = me(), w = xw(), S = w.tunnelsJotai.Provider, [I, _] = ce(Sr), k3 = () => p.canvasActions.export ? (0, import_jsx_runtime149.jsx)(i0, { elements: n, appState: o, files: t, actionManager: e7, exportOpts: p.canvasActions.export, canvas: i3, setAppState: r }) : null, R3 = () => !p.canvasActions.saveAsImage || o.openDialog?.name !== "imageExport" ? null : (0, import_jsx_runtime149.jsx)(Gw, { elements: n, appState: o, files: t, actionManager: e7, onExportImage: u3, onCloseRequest: () => r({ openDialog: null }), name: b.getName() }), M = () => (0, import_jsx_runtime149.jsxs)("div", { style: { position: "relative" }, children: [(0, import_jsx_runtime149.jsx)(w.MainMenuTunnel.Out, {}), h2 && (0, import_jsx_runtime149.jsx)(w.WelcomeScreenMenuHintTunnel.Out, {})] }), N3 = () => (0, import_jsx_runtime149.jsx)(Nr2, { heading: "selectedShapeActions", className: clsx_m_default("selected-shape-actions zen-mode-transition", { "transition-left": o.zenModeEnabled }), children: (0, import_jsx_runtime149.jsx)(Qe, { className: gE.SHAPE_ACTIONS_MENU, padding: 2, style: { maxHeight: `${o.height - 166}px` }, children: (0, import_jsx_runtime149.jsx)(Gc, { appState: o, elementsMap: b.scene.getNonDeletedElementsMap(), renderAction: e7.renderAction, app: b }) }) }), G = () => {
     let O3 = O9(o, n), j = o.stats.open && !o.zenModeEnabled && !o.viewModeEnabled && o.openDialog?.name !== "elementLinkSelector";
     return (0, import_jsx_runtime149.jsx)(Jc, { side: "top", children: (0, import_jsx_runtime149.jsxs)("div", { className: "App-menu App-menu_top", children: [(0, import_jsx_runtime149.jsxs)(it2.Col, { gap: 6, className: clsx_m_default("App-menu_top__left"), children: [M(), O3 && N3()] }), !o.viewModeEnabled && o.openDialog?.name !== "elementLinkSelector" && (0, import_jsx_runtime149.jsx)(Nr2, { heading: "shapes", className: "shapes-section", children: (oe2) => (0, import_jsx_runtime149.jsxs)("div", { style: { position: "relative" }, children: [h2 && (0, import_jsx_runtime149.jsx)(w.WelcomeScreenToolbarHintTunnel.Out, {}), (0, import_jsx_runtime149.jsx)(it2.Col, { gap: 4, align: "start", children: (0, import_jsx_runtime149.jsxs)(it2.Row, { gap: 1, className: clsx_m_default("App-toolbar-container", { "zen-mode": o.zenModeEnabled }), children: [(0, import_jsx_runtime149.jsxs)(Qe, { padding: 1, className: clsx_m_default("App-toolbar", { "zen-mode": o.zenModeEnabled }), children: [(0, import_jsx_runtime149.jsx)(ed, { appState: o, isMobile: E.editor.isMobile, device: E, app: b }), oe2, (0, import_jsx_runtime149.jsxs)(it2.Row, { gap: 1, children: [(0, import_jsx_runtime149.jsx)(od, { zenModeEnabled: o.zenModeEnabled, checked: o.penMode, onChange: () => s(null), title: g3("toolBar.penMode"), penDetected: o.penDetected }), (0, import_jsx_runtime149.jsx)(td2, { checked: o.activeTool.locked, onChange: a, title: g3("toolBar.lock") }), (0, import_jsx_runtime149.jsx)("div", { className: "App-toolbar__divider" }), (0, import_jsx_runtime149.jsx)(rd2, { checked: nd(o), onChange: () => l(), title: g3("toolBar.hand"), isMobile: true }), (0, import_jsx_runtime149.jsx)(Yc, { appState: o, activeTool: o.activeTool, UIOptions: p, app: b })] })] }), x && (0, import_jsx_runtime149.jsx)(Qe, { style: { marginLeft: 8, alignSelf: "center", height: "fit-content" }, children: (0, import_jsx_runtime149.jsx)(X0, { title: g3("toolBar.laser"), checked: o.activeTool.type === fn.laser, onChange: () => b.setActiveTool({ type: fn.laser }), isMobile: true }) })] }) })] }) }), (0, import_jsx_runtime149.jsxs)("div", { className: clsx_m_default("layer-ui__wrapper__top-right zen-mode-transition", { "transition-right": o.zenModeEnabled }), children: [o.collaborators.size > 0 && (0, import_jsx_runtime149.jsx)(ad, { collaborators: o.collaborators, userToFollow: o.userToFollow?.socketId || null }), m?.(E.editor.isMobile, o), !o.viewModeEnabled && o.openDialog?.name !== "elementLinkSelector" && (!V || o.openSidebar?.name !== ks.name) && (0, import_jsx_runtime149.jsx)(w.DefaultSidebarTriggerTunnel.Out, {}), j && (0, import_jsx_runtime149.jsx)(ol, { app: b, onClose: () => {
       e7.executeAction(Di);
@@ -24222,7 +24224,7 @@ var Q_ = ({ actionManager: e7, appState: o, files: t, setAppState: r, elements: 
     r({ openDialog: null });
   } }), (0, import_jsx_runtime149.jsx)(Tw, {}), o.openDialog?.name === "elementLinkSelector" && (0, import_jsx_runtime149.jsx)(L12, { sourceElementId: o.openDialog.sourceElementId, onClose: () => {
     r({ openDialog: null });
-  }, elementsMap: b.scene.getNonDeletedElementsMap(), appState: o, generateLinkForSelection: T3 }), (0, import_jsx_runtime149.jsx)(w.OverwriteConfirmDialogTunnel.Out, {}), R(), k3(), o.pasteDialog.shown && (0, import_jsx_runtime149.jsx)(t0, { setAppState: r, appState: o, onClose: () => r({ pasteDialog: { shown: false, data: null } }) }), E.editor.isMobile && (0, import_jsx_runtime149.jsx)(Qw, { app: b, appState: o, elements: n, actionManager: e7, renderJSONExportDialog: k3, renderImageExportDialog: R, setAppState: r, onLockToggle: a, onHandToolToggle: l, onPenModeToggle: s, renderTopRightUI: m, renderCustomStats: d, renderSidebars: H3, device: E, renderWelcomeScreen: h2, UIOptions: p }), !E.editor.isMobile && (0, import_jsx_runtime149.jsxs)(import_jsx_runtime149.Fragment, { children: [(0, import_jsx_runtime149.jsxs)("div", { className: "layer-ui__wrapper", style: o.openSidebar && V && E.editor.canFitSidebar ? { width: "calc(100% - var(--right-sidebar-width))" } : {}, children: [h2 && (0, import_jsx_runtime149.jsx)(w.WelcomeScreenCenterTunnel.Out, {}), G(), (0, import_jsx_runtime149.jsx)(s0, { appState: o, actionManager: e7, showExitZenModeBtn: c3, renderWelcomeScreen: h2 }), o.scrolledOutside && (0, import_jsx_runtime149.jsx)("button", { type: "button", className: "scroll-back-to-content", onClick: () => {
+  }, elementsMap: b.scene.getNonDeletedElementsMap(), appState: o, generateLinkForSelection: T3 }), (0, import_jsx_runtime149.jsx)(w.OverwriteConfirmDialogTunnel.Out, {}), R3(), k3(), o.pasteDialog.shown && (0, import_jsx_runtime149.jsx)(t0, { setAppState: r, appState: o, onClose: () => r({ pasteDialog: { shown: false, data: null } }) }), E.editor.isMobile && (0, import_jsx_runtime149.jsx)(Qw, { app: b, appState: o, elements: n, actionManager: e7, renderJSONExportDialog: k3, renderImageExportDialog: R3, setAppState: r, onLockToggle: a, onHandToolToggle: l, onPenModeToggle: s, renderTopRightUI: m, renderCustomStats: d, renderSidebars: H3, device: E, renderWelcomeScreen: h2, UIOptions: p }), !E.editor.isMobile && (0, import_jsx_runtime149.jsxs)(import_jsx_runtime149.Fragment, { children: [(0, import_jsx_runtime149.jsxs)("div", { className: "layer-ui__wrapper", style: o.openSidebar && V && E.editor.canFitSidebar ? { width: "calc(100% - var(--right-sidebar-width))" } : {}, children: [h2 && (0, import_jsx_runtime149.jsx)(w.WelcomeScreenCenterTunnel.Out, {}), G(), (0, import_jsx_runtime149.jsx)(s0, { appState: o, actionManager: e7, showExitZenModeBtn: c3, renderWelcomeScreen: h2 }), o.scrolledOutside && (0, import_jsx_runtime149.jsx)("button", { type: "button", className: "scroll-back-to-content", onClick: () => {
     r((O3) => ({ ..._a(n, O3) }));
   }, children: g3("buttons.scrollBackToContent") })] }), H3()] })] });
   return (0, import_jsx_runtime149.jsx)(Ip.Provider, { value: o, children: (0, import_jsx_runtime149.jsx)(S, { children: (0, import_jsx_runtime149.jsx)(Iu.Provider, { value: w, children: F }) }) });
@@ -24639,8 +24641,8 @@ var K1 = (e7, o, t, r, n) => {
 var T5 = (e7, o, t, r, n) => {
   let [i3, a, , , l, s] = C(r, n), c3 = 3, m = 20, d = c3 / t.zoom.value, p = d / 2, u3 = l - i3 + d, h2 = s - a + d, f = Math.min(m / t.zoom.value, u3), b = Math.min(m / t.zoom.value, h2);
   e7.save(), e7.fillStyle = o.selectionColor, e7.strokeStyle = o.selectionColor, e7.lineWidth = d, [[[-u3, -h2], [0, p], [f, p], [p, 0], [p, b]], [[u3 - p, -h2], [p, p], [-f + p, p], [0, 0], [0, b]], [[-u3, h2], [0, -p], [f, -p], [p, 0], [p, -b]], [[u3 - p, h2], [p, -p], [-f + p, -p], [0, 0], [0, -b]]].forEach((T3) => {
-    let [[E, w], [S, I], [_, k3], [R, M], [N3, G]] = T3;
-    e7.save(), e7.translate(l, s), e7.rotate(r.angle), e7.beginPath(), e7.moveTo(E + S, w + I), e7.lineTo(E + _, w + k3), e7.stroke(), e7.beginPath(), e7.moveTo(E + R, w + M), e7.lineTo(E + N3, w + G), e7.stroke(), e7.restore();
+    let [[E, w], [S, I], [_, k3], [R3, M], [N3, G]] = T3;
+    e7.save(), e7.translate(l, s), e7.rotate(r.angle), e7.beginPath(), e7.moveTo(E + S, w + I), e7.lineTo(E + _, w + k3), e7.stroke(), e7.beginPath(), e7.moveTo(E + R3, w + M), e7.lineTo(E + N3, w + G), e7.stroke(), e7.restore();
   }), e7.restore();
 };
 var C5 = (e7, o, t, r) => {
@@ -24677,13 +24679,13 @@ var Z1 = ({ canvas: e7, elementsMap: o, visibleElements: t, selectedElements: r,
       for (let S of o.values()) {
         let I = [], _ = l.remoteSelectedElementIds.get(S.id);
         if (b && X(S) && (S.startBinding || S.endBinding) || (T3.has(S.id) && !sF(a, S) && I.push(x), _ && I.push(..._.map((k3) => Tn(k3, a.collaborators.get(k3))))), I.length) {
-          let [k3, R, M, N3, G, H3] = C(S, o, true);
-          E.push({ angle: S.angle, x1: k3, y1: R, x2: M, y2: N3, selectionColors: I, dashed: !!_, cx: G, cy: H3, activeEmbeddable: a.activeEmbeddable?.element === S && a.activeEmbeddable.state === "active", padding: S.id === a.croppingElementId || Ye(S) ? 0 : void 0 });
+          let [k3, R3, M, N3, G, H3] = C(S, o, true);
+          E.push({ angle: S.angle, x1: k3, y1: R3, x2: M, y2: N3, selectionColors: I, dashed: !!_, cx: G, cy: H3, activeEmbeddable: a.activeEmbeddable?.element === S && a.activeEmbeddable.state === "active", padding: S.id === a.croppingElementId || Ye(S) ? 0 : void 0 });
         }
       }
       let w = (S) => {
-        let I = an(o, S), [_, k3, R, M] = $e(I);
-        E.push({ angle: 0, x1: _, x2: R, y1: k3, y2: M, selectionColors: [open_color_default.black], dashed: true, cx: _ + (R - _) / 2, cy: k3 + (M - k3) / 2, activeEmbeddable: false });
+        let I = an(o, S), [_, k3, R3, M] = $e(I);
+        E.push({ angle: 0, x1: _, x2: R3, y1: k3, y2: M, selectionColors: [open_color_default.black], dashed: true, cx: _ + (R3 - _) / 2, cy: k3 + (M - k3) / 2, activeEmbeddable: false });
       };
       for (let S of dF(a)) w(S);
       a.editingGroupId && w(a.editingGroupId), E.forEach((S) => $1(d, a, S));
@@ -24702,8 +24704,8 @@ var Z1 = ({ canvas: e7, elementsMap: o, visibleElements: t, selectedElements: r,
       d.setLineDash([2 / a.zoom.value]);
       let k3 = d.lineWidth;
       d.lineWidth = 1 / a.zoom.value, d.strokeStyle = x, nl(d, E - T3, w - T3, S - E + T3 * 2, I - w + T3 * 2, (E + S) / 2, (w + I) / 2, 0), d.lineWidth = k3, d.setLineDash(_);
-      let R = Ki([E, w, S, I, (E + S) / 2, (w + I) / 2], 0, a.zoom, "mouse", u3 ? { ...Ls(s), rotation: true } : Ls(s));
-      r.some((M) => !M.locked) && K1(d, l, a, R, 0);
+      let R3 = Ki([E, w, S, I, (E + S) / 2, (w + I) / 2], 0, a.zoom, "mouse", u3 ? { ...Ls(s), rotation: true } : Ls(s));
+      r.some((M) => !M.locked) && K1(d, l, a, R3, 0);
     }
     d.restore();
   }
@@ -25076,16 +25078,16 @@ var iT = ({ id: e7, onChange: o, onSubmit: t, getViewportCoords: r, element: n, 
     setTimeout(() => {
       d.onblur = I, j || d.focus();
     });
-  }, R = () => {
+  }, R3 = () => {
     d.onblur = null, window.addEventListener("pointerup", k3), window.addEventListener("blur", I);
   }, M = (F) => {
     let O3 = F?.target;
     if (F.button === mE.WHEEL) {
-      O3 instanceof HTMLTextAreaElement && (F.preventDefault(), l.handleCanvasPanUsingWheelOrSpaceDrag(F)), R();
+      O3 instanceof HTMLTextAreaElement && (F.preventDefault(), l.handleCanvasPanUsingWheelOrSpaceDrag(F)), R3();
       return;
     }
     let j = O3 instanceof HTMLElement && O3.classList.contains("properties-trigger");
-    (F.target instanceof HTMLElement || F.target instanceof SVGElement) && F.target.closest(`.${gE.SHAPE_ACTIONS_MENU}, .${gE.ZOOM_ACTIONS}`) && !ag(F.target) || j ? R() : F.target instanceof HTMLCanvasElement && !Ot() && requestAnimationFrame(() => {
+    (F.target instanceof HTMLElement || F.target instanceof SVGElement) && F.target.closest(`.${gE.SHAPE_ACTIONS_MENU}, .${gE.ZOOM_ACTIONS}`) && !ag(F.target) || j ? R3() : F.target instanceof HTMLCanvasElement && !Ot() && requestAnimationFrame(() => {
       I();
     });
   }, N3 = l.scene.onUpdate(() => {
@@ -25468,7 +25470,7 @@ var Ng = class e6 extends import_react31.default.Component {
         this.addElementsFromPasteOrLibrary({ elements: d, files: m2.files || null, position: "cursor", retainSeed: r3 });
       } else if (m2.text) {
         if (m2.text && lT(m2.text)) {
-          let u3 = await import("./mermaid-to-excalidraw-ZQMNUUWV.js");
+          let u3 = await import("./mermaid-to-excalidraw-CWJTW4GT.js");
           try {
             let { elements: h2, files: f = {} } = await u3.parseMermaidToExcalidraw(m2.text), b = Yi(h2, { regenerateIds: true });
             this.addElementsFromPasteOrLibrary({ elements: b, files: f, position: "cursor" });
@@ -25501,14 +25503,14 @@ var Ng = class e6 extends import_react31.default.Component {
       }
       this.scene.replaceAllElements(w), T3.forEach((k3) => {
         if (k(k3) && Ne(k3)) {
-          let R = qe(k3, this.scene.getElementsMapIncludingDeleted());
-          Xa(k3, R, this.scene.getElementsMapIncludingDeleted());
+          let R3 = qe(k3, this.scene.getElementsMapIncludingDeleted());
+          Xa(k3, R3, this.scene.getElementsMapIncludingDeleted());
         }
       }), sE && Nn.loadElementsFonts(T3).then((k3) => {
         this.fonts.onLoaded(k3);
       }), t3.files && this.addMissingFiles(t3.files), this.store.shouldCaptureIncrement();
       let _ = f9(T3);
-      this.setState({ ...this.state, openSidebar: this.state.openSidebar && this.device.editor.canFitSidebar && st.get(Ja2) ? this.state.openSidebar : null, ...aF({ editingGroupId: null, selectedElementIds: _.reduce((k3, R) => (Ne(R) || (k3[R.id] = true), k3), {}) }, this.scene.getNonDeletedElements(), this.state, this) }, () => {
+      this.setState({ ...this.state, openSidebar: this.state.openSidebar && this.device.editor.canFitSidebar && st.get(Ja2) ? this.state.openSidebar : null, ...aF({ editingGroupId: null, selectedElementIds: _.reduce((k3, R3) => (Ne(R3) || (k3[R3.id] = true), k3), {}) }, this.scene.getNonDeletedElements(), this.state, this) }, () => {
         t3.files && this.addNewImagesToImageCache();
       }), this.setActiveTool({ type: "selection" }), t3.fitToContent && this.scrollToContent(T3, { fitToContent: true, canvasOffsets: this.getEditorUIOffsets() });
     });
@@ -26768,7 +26770,7 @@ var Ng = class e6 extends import_react31.default.Component {
       if (E.length) {
         let w = this.getTopLayerFrameAtSceneCoords({ x: n, y: u3 }), S = ht(E, l, s), I = S.width > d, _ = I ? en(E, l, d) : E;
         S = I ? ht(_, l, s) : S;
-        let k3 = n - S.width / 2, R = u3 - S.height / 2, M = qt({ ...a, x: k3, y: R, text: _, originalText: E, lineHeight: s, autoResize: !I, frameId: w ? w.id : null });
+        let k3 = n - S.width / 2, R3 = u3 - S.height / 2, M = qt({ ...a, x: k3, y: R3, text: _, originalText: E, lineHeight: s, autoResize: !I, frameId: w ? w.id : null });
         b.push(M), u3 += M.height + p;
       } else h2[T3 - 1]?.trim() && (u3 += Zn(a.fontSize, s) + p);
       return b;
@@ -26962,7 +26964,7 @@ var Ng = class e6 extends import_react31.default.Component {
             if (S && Ye(S) && S.crop !== null && t.hit.element === S) {
               let I = S.crop, _ = At(S) && this.imageCache.get(S.fileId)?.image;
               if (_ && !(_ instanceof Promise)) {
-                let k3 = ue(Be(n.x - i3.x, n.y - i3.y), Math.max(this.state.zoom.value, 2)), [R, M, N3, G, H3, V] = C(S, c3), F = O(T(u(R, M), u(H3, V), S.angle)), O3 = O(T(u(N3, M), u(H3, V), S.angle)), j = O(T(u(R, G), u(H3, V), S.angle)), oe2 = Je(Lo(O3, F)), W = Je(Lo(j, F)), ne = Be(h6(k3, oe2), h6(k3, W)), ge = { ...I, x: se(I.x - ne[0] * Math.sign(S.scale[0]), 0, _.naturalWidth - I.width), y: se(I.y - ne[1] * Math.sign(S.scale[1]), 0, _.naturalHeight - I.height) };
+                let k3 = ue(Be(n.x - i3.x, n.y - i3.y), Math.max(this.state.zoom.value, 2)), [R3, M, N3, G, H3, V] = C(S, c3), F = O(T(u(R3, M), u(H3, V), S.angle)), O3 = O(T(u(N3, M), u(H3, V), S.angle)), j = O(T(u(R3, G), u(H3, V), S.angle)), oe2 = Je(Lo(O3, F)), W = Je(Lo(j, F)), ne = Be(h6(k3, oe2), h6(k3, W)), ge = { ...I, x: se(I.x - ne[0] * Math.sign(S.scale[0]), 0, _.naturalWidth - I.width), y: se(I.y - ne[1] * Math.sign(S.scale[1]), 0, _.naturalHeight - I.height) };
                 Y(S, { crop: ge });
                 return;
               }
@@ -26972,9 +26974,9 @@ var Ng = class e6 extends import_react31.default.Component {
           let { snapOffset: E, snapLines: w } = RF(x, b, this, r, this.scene.getNonDeletedElementsMap());
           if (this.setState({ snapLines: w }), this.state.editingFrame || N9(t, p, b, this.scene, E, r[Q.CTRL_OR_CMD] ? null : this.getEffectiveGridSize()), this.setState({ selectedElementsAreBeingDragged: true, selectionElement: null }), (p.length !== 1 || !X(p[0])) && this.setState({ suggestedBindings: _N(p, this.scene.getNonDeletedElementsMap(), this.state.zoom) }), r.altKey && !t.hit.hasBeenDuplicated) {
             t.hit.hasBeenDuplicated = true;
-            let S = [], I = [], _ = /* @__PURE__ */ new Map(), k3 = /* @__PURE__ */ new Map(), R = t.hit.element, M = new Set(this.scene.getSelectedElements({ selectedElementIds: this.state.selectedElementIds, includeBoundTextElement: true, includeElementsInFrames: true }).map((V) => V.id)), N3 = this.scene.getElementsIncludingDeleted();
+            let S = [], I = [], _ = /* @__PURE__ */ new Map(), k3 = /* @__PURE__ */ new Map(), R3 = t.hit.element, M = new Set(this.scene.getSelectedElements({ selectedElementIds: this.state.selectedElementIds, includeBoundTextElement: true, includeElementsInFrames: true }).map((V) => V.id)), N3 = this.scene.getElementsIncludingDeleted();
             for (let V of N3) {
-              let F = M.has(V.id) || V.id === R?.id && t.hit.wasAddedToSelection;
+              let F = M.has(V.id) || V.id === R3?.id && t.hit.wasAddedToSelection;
               if (Math.abs(V.x) > 1e7 || Math.abs(V.x) > 1e7 || Math.abs(V.width) > 1e7 || Math.abs(V.height) > 1e7) {
                 console.error("Alt+dragging element in scene with invalid dimensions", V.x, V.y, V.width, V.height, F);
                 return;
@@ -27314,7 +27316,7 @@ var AT = ({ children: e7, icon: o }) => {
 AT.displayName = "TTDDialogTrigger";
 xT();
 var TM = (e7) => {
-  let { onChange: o, initialData: t, excalidrawAPI: r, isCollaborating: n = false, onPointerUpdate: i3, renderTopRightUI: a, langCode: l = _o2.code, viewModeEnabled: s, zenModeEnabled: c3, gridModeEnabled: m, libraryReturnUrl: d, theme: p, name: u3, renderCustomStats: h2, onPaste: f, detectScroll: b = true, handleKeyboardGlobally: x = false, onLibraryChange: T3, autoFocus: E = false, generateIdForFile: w, onLinkOpen: S, generateLinkForSelection: I, onPointerDown: _, onPointerUp: k3, onScrollChange: R, onDuplicate: M, children: N3, validateEmbeddable: G, renderEmbeddable: H3, aiEnabled: V, showDeprecatedFonts: F } = e7, O3 = e7.UIOptions?.canvasActions, j = { ...e7.UIOptions, canvasActions: { ...PE.canvasActions, ...O3 }, tools: { image: e7.UIOptions?.tools?.image ?? true } };
+  let { onChange: o, initialData: t, excalidrawAPI: r, isCollaborating: n = false, onPointerUpdate: i3, renderTopRightUI: a, langCode: l = _o2.code, viewModeEnabled: s, zenModeEnabled: c3, gridModeEnabled: m, libraryReturnUrl: d, theme: p, name: u3, renderCustomStats: h2, onPaste: f, detectScroll: b = true, handleKeyboardGlobally: x = false, onLibraryChange: T3, autoFocus: E = false, generateIdForFile: w, onLinkOpen: S, generateLinkForSelection: I, onPointerDown: _, onPointerUp: k3, onScrollChange: R3, onDuplicate: M, children: N3, validateEmbeddable: G, renderEmbeddable: H3, aiEnabled: V, showDeprecatedFonts: F } = e7, O3 = e7.UIOptions?.canvasActions, j = { ...e7.UIOptions, canvasActions: { ...PE.canvasActions, ...O3 }, tools: { image: e7.UIOptions?.tools?.image ?? true } };
   return O3?.export && (j.canvasActions.export.saveFileToDisk = O3.export?.saveFileToDisk ?? PE.canvasActions.export.saveFileToDisk), j.canvasActions.toggleTheme === null && typeof p > "u" && (j.canvasActions.toggleTheme = true), (0, import_react27.useEffect)(() => {
     (async () => {
       await import("./roundRect-R2DEW6RD.js");
@@ -27325,7 +27327,7 @@ var TM = (e7) => {
     return document.addEventListener("touchmove", W, { passive: false }), () => {
       document.removeEventListener("touchmove", W);
     };
-  }, []), (0, import_jsx_runtime167.jsx)(VE, { store: st, children: (0, import_jsx_runtime167.jsx)(XE, { langCode: l, theme: p, children: (0, import_jsx_runtime167.jsx)(bT, { onChange: o, initialData: t, excalidrawAPI: r, isCollaborating: n, onPointerUpdate: i3, renderTopRightUI: a, langCode: l, viewModeEnabled: s, zenModeEnabled: c3, gridModeEnabled: m, libraryReturnUrl: d, theme: p, name: u3, renderCustomStats: h2, UIOptions: j, onPaste: f, detectScroll: b, handleKeyboardGlobally: x, onLibraryChange: T3, autoFocus: E, generateIdForFile: w, onLinkOpen: S, generateLinkForSelection: I, onPointerDown: _, onPointerUp: k3, onScrollChange: R, onDuplicate: M, validateEmbeddable: G, renderEmbeddable: H3, aiEnabled: V !== false, showDeprecatedFonts: F, children: N3 }) }) });
+  }, []), (0, import_jsx_runtime167.jsx)(VE, { store: st, children: (0, import_jsx_runtime167.jsx)(XE, { langCode: l, theme: p, children: (0, import_jsx_runtime167.jsx)(bT, { onChange: o, initialData: t, excalidrawAPI: r, isCollaborating: n, onPointerUpdate: i3, renderTopRightUI: a, langCode: l, viewModeEnabled: s, zenModeEnabled: c3, gridModeEnabled: m, libraryReturnUrl: d, theme: p, name: u3, renderCustomStats: h2, UIOptions: j, onPaste: f, detectScroll: b, handleKeyboardGlobally: x, onLibraryChange: T3, autoFocus: E, generateIdForFile: w, onLinkOpen: S, generateLinkForSelection: I, onPointerDown: _, onPointerUp: k3, onScrollChange: R3, onDuplicate: M, validateEmbeddable: G, renderEmbeddable: H3, aiEnabled: V !== false, showDeprecatedFonts: F, children: N3 }) }) });
 };
 var CM = (e7, o) => {
   if (e7.children !== o.children) return false;
@@ -27345,7 +27347,7 @@ function isRecord(value) {
 }
 
 // src/background.ts
-var BACKGROUND_SCHEMA_VERSION = 2;
+var BACKGROUND_SCHEMA_VERSION = 3;
 var DEFAULT_BACKDROP = "#121212";
 var BACKDROP_SWATCHES = [
   { color: "#000000", label: "Black" },
@@ -27366,6 +27368,24 @@ var MAX_BACKGROUND_EDGE = 2048;
 var BACKGROUND_FORMAT = "image/webp";
 var BACKGROUND_QUALITY = 0.8;
 var IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+var BACKGROUND_FITS = [
+  { key: "cover", label: "Fill", hint: "Fills the board, cropping the overflow" },
+  { key: "contain", label: "Fit", hint: "Whole picture, letterboxed" },
+  { key: "stretch", label: "Stretch", hint: "Fills the board, ignoring the shape" },
+  { key: "center", label: "Centre", hint: "Actual size, in the middle" },
+  { key: "tile", label: "Tile", hint: "Actual size, repeated" }
+];
+var DEFAULT_FIT = "cover";
+function isBackgroundFit(value) {
+  return typeof value === "string" && BACKGROUND_FITS.some((fit) => fit.key === value);
+}
+var FIT_CSS = {
+  cover: { size: "cover", repeat: "no-repeat" },
+  contain: { size: "contain", repeat: "no-repeat" },
+  stretch: { size: "100% 100%", repeat: "no-repeat" },
+  center: { size: "auto", repeat: "no-repeat" },
+  tile: { size: "auto", repeat: "repeat" }
+};
 var LOOK_CONTROLS = [
   { key: "contrast", label: "Contrast", min: 0, max: 200, neutral: 100 },
   { key: "brightness", label: "Brightness", min: 0, max: 200, neutral: 100 },
@@ -27375,16 +27395,21 @@ var LOOK_CONTROLS = [
 var NEUTRAL_LOOK = Object.fromEntries(
   LOOK_CONTROLS.map((control) => [control.key, control.neutral])
 );
-function createBackground(image, look = NEUTRAL_LOOK, color = DEFAULT_BACKDROP) {
+function createBackground(image, look = NEUTRAL_LOOK, color = DEFAULT_BACKDROP, fit = DEFAULT_FIT) {
   return {
     schemaVersion: BACKGROUND_SCHEMA_VERSION,
     color: isBackdropColor(color) ? color.toLowerCase() : DEFAULT_BACKDROP,
+    fit: isBackgroundFit(fit) ? fit : DEFAULT_FIT,
     image,
     contrast: look.contrast,
     brightness: look.brightness,
     saturation: look.saturation,
     opacity: look.opacity
   };
+}
+function setBackgroundFit(background, fit) {
+  if (!isBackgroundFit(fit) || background.fit === fit) return background;
+  return { ...background, fit };
 }
 function setBackdropColor(background, color) {
   if (!isBackdropColor(color)) return background;
@@ -27404,7 +27429,13 @@ function resetLook(background) {
   return LOOK_CONTROLS.every((control) => background[control.key] === control.neutral) ? background : { ...background, ...NEUTRAL_LOOK };
 }
 function backgroundStyle(background) {
+  const fit = FIT_CSS[background.fit] ?? FIT_CSS[DEFAULT_FIT];
   return {
+    // Quoted, so a data URL's own characters cannot end the CSS value early.
+    backgroundImage: background.image === null ? "none" : `url("${background.image}")`,
+    backgroundSize: fit.size,
+    backgroundRepeat: fit.repeat,
+    backgroundPosition: "center",
     filter: `contrast(${background.contrast}%) brightness(${background.brightness}%) saturate(${background.saturation}%)`,
     opacity: `${background.opacity / 100}`
   };
@@ -27417,7 +27448,8 @@ function readBackground(raw) {
   const image = typeof stored === "string" && isImageFile({ type: dataUrlType(stored) }) ? stored : null;
   const color = isBackdropColor(raw["color"]) ? raw["color"] : DEFAULT_BACKDROP;
   if (image === null && color === DEFAULT_BACKDROP) return null;
-  const background = createBackground(image, NEUTRAL_LOOK, color);
+  const fit = isBackgroundFit(raw["fit"]) ? raw["fit"] : DEFAULT_FIT;
+  const background = createBackground(image, NEUTRAL_LOOK, color, fit);
   for (const control of LOOK_CONTROLS) {
     const value = raw[control.key];
     background[control.key] = typeof value === "number" && Number.isFinite(value) ? clamp2(Math.round(value), control.min, control.max) : control.neutral;
@@ -28156,6 +28188,7 @@ function SettingsPanel(props) {
   useDismiss(root2, props.onClose, { ignore: "[data-settings-toggle]" });
   const look = background ?? NEUTRAL_LOOK;
   const backdrop = background?.color ?? DEFAULT_BACKDROP;
+  const fit = background?.fit ?? DEFAULT_FIT;
   return /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)(
     "div",
     {
@@ -28244,6 +28277,19 @@ function SettingsPanel(props) {
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("p", { className: "settings__note", children: "PNG, JPEG or WebP — or drop one onto the board. It is shrunk to fit and kept with this board only." }),
           importError ? /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("p", { className: "settings__error", role: "alert", children: importError }) : null,
+          background?.image ? /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("div", { className: "settings__fits", role: "radiogroup", "aria-label": "How the picture fits", children: BACKGROUND_FITS.map((option) => /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+            "button",
+            {
+              type: "button",
+              role: "radio",
+              className: `settings__fit${option.key === fit ? " settings__fit--on" : ""}`,
+              "aria-checked": option.key === fit,
+              title: option.hint,
+              onClick: () => props.onFit(option.key),
+              children: option.label
+            },
+            option.key
+          )) }) : null,
           /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("div", { className: "settings__sliders", children: LOOK_CONTROLS.map((control) => /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("label", { className: "settings__slider", children: [
             /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("span", { className: "settings__slider-name", children: control.label }),
             /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
@@ -28825,6 +28871,18 @@ function CanvasApp({ bridge, bindings }) {
     setImportError(null);
     autosave.writeBackground(id2, kept);
   }, [autosave, showBackground]);
+  const chooseFit = (0, import_react121.useCallback)(
+    (fit) => {
+      const current = backgroundRef.current;
+      const id2 = indexRef.current?.lastOpen;
+      if (!current || !id2) return;
+      const next = setBackgroundFit(current, fit);
+      if (next === current) return;
+      showBackground(next);
+      autosave.writeBackground(id2, next);
+    },
+    [autosave, showBackground]
+  );
   const chooseBackdrop = (0, import_react121.useCallback)(
     (color) => {
       const id2 = indexRef.current?.lastOpen;
@@ -28927,14 +28985,11 @@ function CanvasApp({ bridge, bindings }) {
       },
       children: [
         background?.image ? /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
-          "img",
+          "div",
           {
             className: "canvas__backdrop",
             "data-testid": "canvas-backdrop",
-            src: background.image,
-            alt: "",
             "aria-hidden": "true",
-            draggable: false,
             style: backgroundStyle(background)
           }
         ) : null,
@@ -28985,6 +29040,7 @@ function CanvasApp({ bridge, bindings }) {
             importError,
             onImport: (file) => void importBackground(file),
             onBackdrop: chooseBackdrop,
+            onFit: chooseFit,
             onAdjust: adjustLook,
             onResetLook: resetBackgroundLook,
             onRemoveBackground: removeBackground,

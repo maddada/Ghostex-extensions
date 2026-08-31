@@ -20,7 +20,7 @@
 import { isRecord } from './stored.js';
 
 /** Bumped whenever the stored shape changes; `readBackground` migrates. */
-export const BACKGROUND_SCHEMA_VERSION = 2;
+export const BACKGROUND_SCHEMA_VERSION = 3;
 
 /**
  * What a board sits on before anything is drawn or imported. The same near
@@ -72,6 +72,36 @@ export const BACKGROUND_QUALITY = 0.8;
  */
 export const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
 
+/**
+ * How a picture is laid over the board, the way a desktop lays out a
+ * wallpaper. `cover` is the default because it is what a photograph almost
+ * always wants; `centre` and `tile` are the ones that matter for a small
+ * picture, which the others would blow up into a blur.
+ */
+export const BACKGROUND_FITS = [
+  { key: 'cover', label: 'Fill', hint: 'Fills the board, cropping the overflow' },
+  { key: 'contain', label: 'Fit', hint: 'Whole picture, letterboxed' },
+  { key: 'stretch', label: 'Stretch', hint: 'Fills the board, ignoring the shape' },
+  { key: 'center', label: 'Centre', hint: 'Actual size, in the middle' },
+  { key: 'tile', label: 'Tile', hint: 'Actual size, repeated' },
+] as const;
+
+export type BackgroundFit = (typeof BACKGROUND_FITS)[number]['key'];
+export const DEFAULT_FIT: BackgroundFit = 'cover';
+
+export function isBackgroundFit(value: unknown): value is BackgroundFit {
+  return typeof value === 'string' && BACKGROUND_FITS.some((fit) => fit.key === value);
+}
+
+/** What each fit means in CSS, on the layer the picture is painted on. */
+const FIT_CSS: Record<BackgroundFit, { size: string; repeat: string }> = {
+  cover: { size: 'cover', repeat: 'no-repeat' },
+  contain: { size: 'contain', repeat: 'no-repeat' },
+  stretch: { size: '100% 100%', repeat: 'no-repeat' },
+  center: { size: 'auto', repeat: 'no-repeat' },
+  tile: { size: 'auto', repeat: 'repeat' },
+};
+
 export const LOOK_CONTROLS = [
   { key: 'contrast', label: 'Contrast', min: 0, max: 200, neutral: 100 },
   { key: 'brightness', label: 'Brightness', min: 0, max: 200, neutral: 100 },
@@ -93,6 +123,8 @@ export interface BoardBackground extends BackgroundLook {
   schemaVersion: number;
   /** What the board sits on. Shows through a picture's transparency. */
   color: string;
+  /** How the picture is laid over the board. */
+  fit: BackgroundFit;
   /**
    * The picture, as a data URL small enough to live in the host's JSON store,
    * or null for a board that has only chosen a colour.
@@ -104,16 +136,24 @@ export function createBackground(
   image: string | null,
   look: BackgroundLook = NEUTRAL_LOOK,
   color: string = DEFAULT_BACKDROP,
+  fit: BackgroundFit = DEFAULT_FIT,
 ): BoardBackground {
   return {
     schemaVersion: BACKGROUND_SCHEMA_VERSION,
     color: isBackdropColor(color) ? color.toLowerCase() : DEFAULT_BACKDROP,
+    fit: isBackgroundFit(fit) ? fit : DEFAULT_FIT,
     image,
     contrast: look.contrast,
     brightness: look.brightness,
     saturation: look.saturation,
     opacity: look.opacity,
   };
+}
+
+/** Lays the picture out differently. A fit it already has changes nothing. */
+export function setBackgroundFit(background: BoardBackground, fit: BackgroundFit): BoardBackground {
+  if (!isBackgroundFit(fit) || background.fit === fit) return background;
+  return { ...background, fit };
 }
 
 /** Repaints what the board sits on. A colour it already has changes nothing. */
@@ -151,9 +191,29 @@ export function resetLook(background: BoardBackground): BoardBackground {
     : { ...background, ...NEUTRAL_LOOK };
 }
 
-/** How the sliders are drawn: filters over the picture, never changes to it. */
-export function backgroundStyle(background: BoardBackground): { filter: string; opacity: string } {
+/**
+ * How the picture is drawn: the fit as CSS, and the sliders as filters over
+ * it. Nothing here ever changes the stored picture, so every adjustment undoes
+ * by moving the control back.
+ *
+ * It is a painted layer rather than an `<img>` because tiling is a thing an
+ * image element cannot do, and one code path for all five fits beats two.
+ */
+export function backgroundStyle(background: BoardBackground): {
+  backgroundImage: string;
+  backgroundSize: string;
+  backgroundRepeat: string;
+  backgroundPosition: string;
+  filter: string;
+  opacity: string;
+} {
+  const fit = FIT_CSS[background.fit] ?? FIT_CSS[DEFAULT_FIT];
   return {
+    // Quoted, so a data URL's own characters cannot end the CSS value early.
+    backgroundImage: background.image === null ? 'none' : `url("${background.image}")`,
+    backgroundSize: fit.size,
+    backgroundRepeat: fit.repeat,
+    backgroundPosition: 'center',
     filter: `contrast(${background.contrast}%) brightness(${background.brightness}%) saturate(${background.saturation}%)`,
     opacity: `${background.opacity / 100}`,
   };
@@ -181,8 +241,10 @@ export function readBackground(raw: unknown): BoardBackground | null {
   // board was already being drawn on: nothing about it changes on upgrade.
   const color = isBackdropColor(raw['color']) ? raw['color'] : DEFAULT_BACKDROP;
   if (image === null && color === DEFAULT_BACKDROP) return null;
+  // Before version 3 a picture always filled the board, which is `cover`.
+  const fit = isBackgroundFit(raw['fit']) ? raw['fit'] : DEFAULT_FIT;
 
-  const background = createBackground(image, NEUTRAL_LOOK, color);
+  const background = createBackground(image, NEUTRAL_LOOK, color, fit);
   for (const control of LOOK_CONTROLS) {
     const value = raw[control.key];
     background[control.key] =

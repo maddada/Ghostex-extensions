@@ -4,6 +4,7 @@ import {
   BACKDROP_SWATCHES,
   BACKGROUND_SCHEMA_VERSION,
   DEFAULT_BACKDROP,
+  DEFAULT_FIT,
   LOOK_CONTROLS,
   MAX_BACKGROUND_EDGE,
   NEUTRAL_LOOK,
@@ -17,7 +18,9 @@ import {
   readBackground,
   resetLook,
   setBackdropColor,
+  setBackgroundFit,
   shrinkImage,
+  type BackgroundFit,
 } from '../src/background.js';
 
 const IMAGE = 'data:image/webp;base64,c2hydW5r';
@@ -32,6 +35,7 @@ describe('a board background', () => {
     expect(createBackground(IMAGE)).toEqual({
       schemaVersion: BACKGROUND_SCHEMA_VERSION,
       color: DEFAULT_BACKDROP,
+      fit: DEFAULT_FIT,
       image: IMAGE,
       ...NEUTRAL_LOOK,
     });
@@ -72,7 +76,7 @@ describe('a board background', () => {
   test('is drawn with CSS filters, never by touching the picture', () => {
     const tuned = { ...createBackground(IMAGE), contrast: 120, brightness: 90, saturation: 50, opacity: 35 };
 
-    expect(backgroundStyle(tuned)).toEqual({
+    expect(backgroundStyle(tuned)).toMatchObject({
       filter: 'contrast(120%) brightness(90%) saturate(50%)',
       opacity: '0.35',
     });
@@ -119,6 +123,55 @@ describe('a board background', () => {
         );
       }
     });
+  });
+});
+
+describe('how the picture lies over the board', () => {
+  test('fills the board unless told otherwise', () => {
+    expect(createBackground(IMAGE).fit).toBe('cover');
+    expect(backgroundStyle(createBackground(IMAGE))).toMatchObject({
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+    });
+  });
+
+  test('each fit is the CSS a desktop would use for that wallpaper', () => {
+    const css = (fit: BackgroundFit) => backgroundStyle(setBackgroundFit(createBackground(IMAGE), fit));
+
+    expect(css('contain')).toMatchObject({ backgroundSize: 'contain', backgroundRepeat: 'no-repeat' });
+    expect(css('stretch')).toMatchObject({ backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' });
+    expect(css('center')).toMatchObject({ backgroundSize: 'auto', backgroundRepeat: 'no-repeat' });
+    expect(css('tile')).toMatchObject({ backgroundSize: 'auto', backgroundRepeat: 'repeat' });
+  });
+
+  test('the picture is quoted, so its own characters cannot end the CSS value', () => {
+    expect(backgroundStyle(createBackground(IMAGE)).backgroundImage).toBe(`url("${IMAGE}")`);
+    expect(backgroundStyle(createBackground(null)).backgroundImage).toBe('none');
+  });
+
+  test('setting a fit keeps everything else, and setting the same one changes nothing', () => {
+    const tuned = adjustBackground(createBackground(IMAGE), 'opacity', 40);
+    const tiled = setBackgroundFit(tuned, 'tile');
+
+    expect(tiled.fit).toBe('tile');
+    expect(tiled.image).toBe(IMAGE);
+    expect(tiled.opacity).toBe(40);
+    expect(setBackgroundFit(tiled, 'tile')).toBe(tiled);
+  });
+
+  test('a fit the board has never heard of is refused', () => {
+    const background = createBackground(IMAGE);
+
+    for (const bad of ['zoom', '', 'COVER', 42, null]) {
+      expect(setBackgroundFit(background, bad as BackgroundFit)).toBe(background);
+    }
+    expect(readBackground({ ...createBackground(IMAGE), fit: 'nonsense' })?.fit).toBe(DEFAULT_FIT);
+  });
+
+  test('a background saved before fits existed still fills the board', () => {
+    // Every picture filled the board before version 3, which is `cover`.
+    expect(readBackground({ schemaVersion: 2, image: IMAGE, ...NEUTRAL_LOOK })?.fit).toBe('cover');
   });
 });
 

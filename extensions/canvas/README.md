@@ -100,6 +100,12 @@ to fit and compressed, then drawn behind Excalidraw's canvas — behind everythi
 not on it: nothing can select it, nothing can move it, and it is never part of
 what you draw or export.
 
+**How it lies** is the row under it, the same five choices a desktop gives a
+wallpaper: *Fill* covers the board and crops the overflow, *Fit* shows the whole
+picture letterboxed, *Stretch* fills it ignoring the shape, *Centre* draws it at
+its own size in the middle, and *Tile* repeats it. Fill is the default, and
+Centre or Tile are what a small picture or a pattern wants.
+
 Four sliders — contrast, brightness, saturation and opacity — keep the drawing
 readable over it. They are filters applied when the picture is drawn, so the
 picture itself is never changed and every adjustment undoes by moving the slider
@@ -175,10 +181,11 @@ where the pointer is are about this moment rather than about the board, and are
 deliberately dropped.
 
 `background:<id>` is a board's backdrop — the colour, the picture as a
-compressed data URL, and the four slider values — in a key of its own, so the
+compressed data URL, how it lies, and the four slider values — in a key of its own, so the
 board document that saves on every drag never carries the picture. A board on
 the default colour with no picture has no such key at all, and a board saved
-before colours existed reads back on the default it was already drawn on.
+before colours existed reads back on the default it was already drawn on, and one
+saved before fits existed still fills the board the way it always did.
 
 Writes are debounced, so a whole drag is one save, while creating, renaming,
 switching or deleting a board is written straight away. Excalidraw reports a
@@ -220,6 +227,11 @@ copies Excalidraw's stylesheet and its Latin font families into `dist/`, skippin
 only Xiaolai, the CJK fallback, which is twelve megabytes of per-glyph subsets;
 and it refuses to finish if the fonts it ships and the fonts the bundle asks for
 have drifted apart.
+
+Excalidraw ships a translation per language as a lazy chunk and picks one from
+its `langCode` prop, which Canvas never sets — so fifty-three of them could
+never load. They are stubbed at build time, which is 1.3MB and half of `dist/`;
+a language that is asked for anyway reads as English rather than as blank text.
 
 `npm test` runs the suite in jsdom against a fake `window.ghostex` bridge with
 in-memory storage. Excalidraw itself is stood in for there — it wants a canvas,
