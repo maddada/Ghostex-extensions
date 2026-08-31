@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "canvas",
+  "title": "Canvas",
+  "description": "An infinite pan and zoom board inside Ghostex for notes, sketches, and ideas.",
+  "version": "0.1.0",
+  "author": "banozz",
+  "icon": "icon.svg",
+  "categories": ["Productivity"],
+  "placements": ["view"],
+  "defaultPlacement": "view",
+  "server": {
+    "static": "dist/"
+  },
+  "permissions": []
+}
