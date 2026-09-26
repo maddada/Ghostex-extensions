@@ -27789,6 +27789,7 @@ var FONT_SIZE = { fine: 16, medium: 20, bold: 36 };
 var FONT_FAMILY_NUNITO = 6;
 var LINE_HEIGHT = 1.25;
 var CHAR_WIDTH = 0.62;
+var WIDE_CHAR_WIDTH = 1.2;
 var NOTE_PADDING = 12;
 function migrateLegacyBoard(raw) {
   if (!isRecord(raw)) return null;
@@ -27834,8 +27835,13 @@ function note(id2, item) {
   const paper = lookup(PAPER_HEX, item["color"], DEFAULT_PAPER);
   const text2 = typeof item["text"] === "string" ? item["text"] : "";
   const textId = `${id2}-text`;
+  const fontSize = 16;
+  const textWidth = Math.max(width - NOTE_PADDING * 2, 1);
+  const wrapped = wrapText(text2, fontSize, textWidth);
+  const textHeight = wrapped.split("\n").length * fontSize * LINE_HEIGHT;
+  const paperHeight = Math.max(height, textHeight + NOTE_PADDING * 2);
   const paperElement = {
-    ...base(id2, "rectangle", x, y, width, height),
+    ...base(id2, "rectangle", x, y, width, paperHeight),
     strokeColor: "transparent",
     backgroundColor: paper,
     fillStyle: "solid",
@@ -27844,11 +27850,10 @@ function note(id2, item) {
     roundness: { type: 3 },
     boundElements: [{ type: "text", id: textId }]
   };
-  const fontSize = 16;
   const writing = {
-    ...base(textId, "text", x + NOTE_PADDING, y + NOTE_PADDING, Math.max(width - NOTE_PADDING * 2, 1), Math.max(height - NOTE_PADDING * 2, 1)),
+    ...base(textId, "text", x + NOTE_PADDING, y + NOTE_PADDING, textWidth, Math.max(paperHeight - NOTE_PADDING * 2, 1)),
     strokeColor: NOTE_TEXT_HEX,
-    text: text2,
+    text: wrapped,
     originalText: text2,
     fontSize,
     fontFamily: FONT_FAMILY_NUNITO,
@@ -27863,6 +27868,10 @@ function note(id2, item) {
 function ink(id2, item) {
   const points = readPoints(item["points"]);
   if (points.length === 0) return [];
+  if (points.length === 1) {
+    const [only] = points;
+    points.push([only[0] + 1e-4, only[1] + 1e-4]);
+  }
   const [first] = points;
   const relative = points.map(([x, y]) => [x - first[0], y - first[1]]);
   const xs = relative.map(([x]) => x);
@@ -27926,7 +27935,7 @@ function label(id2, item) {
   const text2 = typeof item["text"] === "string" ? item["text"] : "";
   const fontSize = lookup(FONT_SIZE, item["size"], 20);
   const lines = text2.split("\n");
-  const longest = lines.reduce((widest, line) => Math.max(widest, line.length), 1);
+  const longest = lines.reduce((widest, line) => Math.max(widest, measure(line)), CHAR_WIDTH);
   return [
     {
       ...base(
@@ -27934,7 +27943,7 @@ function label(id2, item) {
         "text",
         finiteOr2(item["x"], 0),
         finiteOr2(item["y"], 0),
-        longest * fontSize * CHAR_WIDTH,
+        longest * fontSize,
         lines.length * fontSize * LINE_HEIGHT
       ),
       strokeColor: lookup(INK_HEX, item["color"], DEFAULT_INK),
@@ -27987,6 +27996,33 @@ function seedFor(id2) {
     hash = Math.imul(hash, 16777619);
   }
   return (hash >>> 1) + 1;
+}
+function measure(line) {
+  let width = 0;
+  for (const char of line) width += (char.codePointAt(0) ?? 0) >= 11904 ? WIDE_CHAR_WIDTH : CHAR_WIDTH;
+  return width;
+}
+function wrapText(text2, fontSize, maxWidth) {
+  const limit = Math.max(maxWidth / fontSize, WIDE_CHAR_WIDTH);
+  const wrapped = [];
+  for (const paragraph of text2.split("\n")) {
+    let line = "";
+    for (const word of paragraph.split(/(?<= )/)) {
+      if (line.trim() !== "" && measure(line + word.trimEnd()) > limit) {
+        wrapped.push(line.trimEnd());
+        line = "";
+      }
+      for (const char of word) {
+        if (line !== "" && char !== " " && measure(line + char) > limit) {
+          wrapped.push(line);
+          line = "";
+        }
+        line += char;
+      }
+    }
+    wrapped.push(line.trimEnd());
+  }
+  return wrapped.join("\n");
 }
 function lookup(table, key, fallback) {
   return typeof key === "string" && key in table ? table[key] : fallback;

@@ -74,6 +74,8 @@ const FONT_FAMILY_NUNITO = 6;
 const LINE_HEIGHT = 1.25;
 /** Roughly how wide a character is, per unit of font size: a frame, not metrics. */
 const CHAR_WIDTH = 0.62;
+/** The same for CJK, full-width forms and emoji, which take about a whole em. */
+const WIDE_CHAR_WIDTH = 1.2;
 
 /** How much room a note's text is given inside its rectangle. */
 const NOTE_PADDING = 12;
@@ -145,8 +147,19 @@ function note(id: string, item: Record<string, unknown>): StoredElement[] {
   const text = typeof item['text'] === 'string' ? item['text'] : '';
   const textId = `${id}-text`;
 
+  const fontSize = 16;
+  // Excalidraw draws bound text exactly as `text` breaks it and rewraps only
+  // when the note is edited or resized, so an unwrapped paragraph would run
+  // off the paper and be cut off there. `originalText` keeps the source.
+  const textWidth = Math.max(width - NOTE_PADDING * 2, 1);
+  const wrapped = wrapText(text, fontSize, textWidth);
+  const textHeight = wrapped.split('\n').length * fontSize * LINE_HEIGHT;
+  // The old note hid what did not fit; the paper grows instead, the way
+  // Excalidraw grows a container around its text, so nothing written is hidden.
+  const paperHeight = Math.max(height, textHeight + NOTE_PADDING * 2);
+
   const paperElement: StoredElement = {
-    ...base(id, 'rectangle', x, y, width, height),
+    ...base(id, 'rectangle', x, y, width, paperHeight),
     strokeColor: 'transparent',
     backgroundColor: paper,
     fillStyle: 'solid',
@@ -156,11 +169,10 @@ function note(id: string, item: Record<string, unknown>): StoredElement[] {
     boundElements: [{ type: 'text', id: textId }],
   };
 
-  const fontSize = 16;
   const writing: StoredElement = {
-    ...base(textId, 'text', x + NOTE_PADDING, y + NOTE_PADDING, Math.max(width - NOTE_PADDING * 2, 1), Math.max(height - NOTE_PADDING * 2, 1)),
+    ...base(textId, 'text', x + NOTE_PADDING, y + NOTE_PADDING, textWidth, Math.max(paperHeight - NOTE_PADDING * 2, 1)),
     strokeColor: NOTE_TEXT_HEX,
-    text,
+    text: wrapped,
     originalText: text,
     fontSize,
     fontFamily: FONT_FAMILY_NUNITO,
@@ -179,6 +191,13 @@ function ink(id: string, item: Record<string, unknown>): StoredElement[] {
   const points = readPoints(item['points']);
   // A stroke with nothing in it would draw nothing and could never be erased.
   if (points.length === 0) return [];
+  // A tap left a one-sample stroke, drawn as a dot. Excalidraw deletes any
+  // freedraw with fewer than two points on load, and stores a dot of its own
+  // as a second point a hair away from the first, so this one does the same.
+  if (points.length === 1) {
+    const [only] = points as [[number, number]];
+    points.push([only[0] + 0.0001, only[1] + 0.0001]);
+  }
 
   const [first] = points as [[number, number], ...[number, number][]];
   const relative = points.map(([x, y]) => [x - first[0], y - first[1]]);
@@ -255,7 +274,7 @@ function label(id: string, item: Record<string, unknown>): StoredElement[] {
   const text = typeof item['text'] === 'string' ? item['text'] : '';
   const fontSize = lookup(FONT_SIZE, item['size'], 20);
   const lines = text.split('\n');
-  const longest = lines.reduce((widest, line) => Math.max(widest, line.length), 1);
+  const longest = lines.reduce((widest, line) => Math.max(widest, measure(line)), CHAR_WIDTH);
 
   return [
     {
@@ -264,7 +283,7 @@ function label(id: string, item: Record<string, unknown>): StoredElement[] {
         'text',
         finiteOr(item['x'], 0),
         finiteOr(item['y'], 0),
-        longest * fontSize * CHAR_WIDTH,
+        longest * fontSize,
         lines.length * fontSize * LINE_HEIGHT,
       ),
       strokeColor: lookup(INK_HEX, item['color'], DEFAULT_INK),
@@ -322,6 +341,44 @@ function seedFor(id: string): number {
   }
   // rough.js seeds are 32-bit and zero means "roll a new one", so it is avoided.
   return (hash >>> 1) + 1;
+}
+
+/** How wide a line is estimated to draw, per unit of font size. */
+function measure(line: string): number {
+  let width = 0;
+  for (const char of line) width += (char.codePointAt(0) ?? 0) >= 0x2e80 ? WIDE_CHAR_WIDTH : CHAR_WIDTH;
+  return width;
+}
+
+/**
+ * Breaks text into lines no wider than `maxWidth`, the way the old note did
+ * with `overflow-wrap: anywhere`: between words where it can, inside a word
+ * where it must. Only line breaks are added, and spaces left hanging at the
+ * end of a broken line are dropped, as Excalidraw drops them; the note's
+ * `originalText` keeps the text as it was written. The estimate errs wide, so
+ * a line breaks early rather than running past the paper.
+ */
+function wrapText(text: string, fontSize: number, maxWidth: number): string {
+  const limit = Math.max(maxWidth / fontSize, WIDE_CHAR_WIDTH);
+  const wrapped: string[] = [];
+  for (const paragraph of text.split('\n')) {
+    let line = '';
+    for (const word of paragraph.split(/(?<= )/)) {
+      if (line.trim() !== '' && measure(line + word.trimEnd()) > limit) {
+        wrapped.push(line.trimEnd());
+        line = '';
+      }
+      for (const char of word) {
+        if (line !== '' && char !== ' ' && measure(line + char) > limit) {
+          wrapped.push(line);
+          line = '';
+        }
+        line += char;
+      }
+    }
+    wrapped.push(line.trimEnd());
+  }
+  return wrapped.join('\n');
 }
 
 function lookup<T>(table: Record<string, T>, key: unknown, fallback: T): T {
