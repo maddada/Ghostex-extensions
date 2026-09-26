@@ -11,7 +11,7 @@
  */
 
 import { Excalidraw, MainMenu } from '@excalidraw/excalidraw';
-import type { AppState, BinaryFiles } from '@excalidraw/excalidraw/types';
+import type { AppState, BinaryFiles, LibraryItems } from '@excalidraw/excalidraw/types';
 import type { OrderedExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -58,6 +58,7 @@ import {
   loadBackground,
   loadBoard,
   loadIndex,
+  loadLibrary,
   type Autosave,
   type SaveStatus,
 } from './persistence.js';
@@ -159,6 +160,14 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
   // A board, or an index, that failed to load must never be saved over.
   const savingBlockedRef = useRef(false);
   const indexBlockedRef = useRef(false);
+  /**
+   * The shape library, handed to every board as Excalidraw mounts for it and
+   * kept here because Excalidraw forgets it on every remount. The signature
+   * skips the write each mount would otherwise repeat for an unchanged list.
+   */
+  const libraryRef = useRef<readonly unknown[]>([]);
+  const librarySignatureRef = useRef('');
+  const libraryBlockedRef = useRef(false);
 
   const autosave: Autosave = useMemo(() => createAutosave(storage, setStatus), [storage]);
 
@@ -170,12 +179,15 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
     let cancelled = false;
     void (async () => {
       const stored = await loadIndex(storage);
-      const [document, backdrop] = await Promise.all([
+      const [document, backdrop, library] = await Promise.all([
         loadBoard(storage, stored.value.lastOpen),
         loadBackground(storage, stored.value.lastOpen),
+        loadLibrary(storage),
       ]);
       if (cancelled) return;
 
+      libraryRef.current = library.value;
+      libraryBlockedRef.current = library.failed;
       boardRef.current = document.value;
       indexRef.current = stored.value;
       backgroundRef.current = backdrop;
@@ -290,6 +302,17 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
       signatureRef.current = signature;
       boardRef.current = next;
       if (!savingBlockedRef.current) autosave.schedule(next);
+    },
+    [autosave],
+  );
+
+  const onLibraryChange = useCallback(
+    (items: LibraryItems) => {
+      libraryRef.current = items;
+      const signature = JSON.stringify(items);
+      if (signature === librarySignatureRef.current) return;
+      librarySignatureRef.current = signature;
+      if (!libraryBlockedRef.current) autosave.writeLibrary(items);
     },
     [autosave],
   );
@@ -543,6 +566,7 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
               collaborators: new Map(),
             } as never,
             files: board.files as never,
+            libraryItems: libraryRef.current as never,
             scrollToContent: false,
           }
         : null,
@@ -599,6 +623,7 @@ function CanvasApp({ bridge, bindings }: { bridge: GhostexBridge | null; binding
             key={board.id}
             initialData={initialData}
             onChange={onSceneChange}
+            onLibraryChange={onLibraryChange}
             theme={board.appState.theme === 'light' ? 'light' : 'dark'}
             name={index ? currentBoard(index).name : 'Canvas'}
             renderTopRightUI={renderChrome}

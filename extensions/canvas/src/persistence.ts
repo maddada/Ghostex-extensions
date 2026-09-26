@@ -30,6 +30,12 @@ export type SaveStatus = 'loading' | 'saving' | 'saved' | 'error' | 'unavailable
 
 export const AUTOSAVE_DELAY_MS = 400;
 
+/**
+ * Where the shape library lives. Excalidraw keeps it only in memory, and it
+ * belongs to the install rather than to any one board, so it has one key.
+ */
+export const LIBRARY_STORAGE_KEY = 'library';
+
 export interface LoadResult<T> {
   value: T;
   /** True when storage exists but could not be read: do not save over it. */
@@ -48,6 +54,8 @@ export interface Autosave {
    * null for one removed — and drops any slider change still waiting for it.
    */
   writeBackground(boardId: string, background: BoardBackground | null): void;
+  /** Writes the shape library immediately: adding to it is one deliberate act. */
+  writeLibrary(items: readonly unknown[]): void;
   /**
    * Replaces a deleted board's contents and background with null. The host
    * store has no delete, so a null value is the closest thing to one: the keys
@@ -100,6 +108,21 @@ export async function loadBackground(
     return readBackground(await storage.get(backgroundStorageKey(id)));
   } catch {
     return null;
+  }
+}
+
+/**
+ * The shape library as stored. Excalidraw restores every item it is handed,
+ * so all this insists on is a list; a read that failed carries `failed`, so
+ * the library it could not see is never saved over.
+ */
+export async function loadLibrary(storage: BridgeStorage | null): Promise<LoadResult<readonly unknown[]>> {
+  if (!storage) return { value: [], failed: false };
+  try {
+    const raw = await storage.get(LIBRARY_STORAGE_KEY);
+    return { value: Array.isArray(raw) ? raw : [], failed: false };
+  } catch {
+    return { value: [], failed: true };
   }
 }
 
@@ -197,6 +220,10 @@ export function createAutosave(
       const key = backgroundStorageKey(boardId);
       background.clearKey(key);
       enqueue(key, value);
+    },
+    writeLibrary(items: readonly unknown[]): void {
+      if (disposed || unavailable()) return;
+      enqueue(LIBRARY_STORAGE_KEY, items);
     },
     tombstone(id: string): void {
       if (disposed || !storage) return;

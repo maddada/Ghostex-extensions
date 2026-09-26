@@ -28054,6 +28054,7 @@ function finiteOr2(value, fallback) {
 
 // src/persistence.ts
 var AUTOSAVE_DELAY_MS = 400;
+var LIBRARY_STORAGE_KEY = "library";
 async function loadIndex(storage) {
   if (!storage) return { value: readIndex(null), failed: false };
   try {
@@ -28077,6 +28078,15 @@ async function loadBackground(storage, id2 = DEFAULT_BOARD_ID) {
     return readBackground(await storage.get(backgroundStorageKey(id2)));
   } catch {
     return null;
+  }
+}
+async function loadLibrary(storage) {
+  if (!storage) return { value: [], failed: false };
+  try {
+    const raw = await storage.get(LIBRARY_STORAGE_KEY);
+    return { value: Array.isArray(raw) ? raw : [], failed: false };
+  } catch {
+    return { value: [], failed: true };
   }
 }
 function createAutosave(storage, onStatus, delayMs = AUTOSAVE_DELAY_MS) {
@@ -28159,6 +28169,10 @@ function createAutosave(storage, onStatus, delayMs = AUTOSAVE_DELAY_MS) {
       const key = backgroundStorageKey(boardId);
       background.clearKey(key);
       enqueue(key, value);
+    },
+    writeLibrary(items) {
+      if (disposed || unavailable()) return;
+      enqueue(LIBRARY_STORAGE_KEY, items);
     },
     tombstone(id2) {
       if (disposed || !storage) return;
@@ -28680,6 +28694,9 @@ function CanvasApp({ bridge, bindings }) {
   const toastTimer = (0, import_react121.useRef)(null);
   const savingBlockedRef = (0, import_react121.useRef)(false);
   const indexBlockedRef = (0, import_react121.useRef)(false);
+  const libraryRef = (0, import_react121.useRef)([]);
+  const librarySignatureRef = (0, import_react121.useRef)("");
+  const libraryBlockedRef = (0, import_react121.useRef)(false);
   const autosave = (0, import_react121.useMemo)(() => createAutosave(storage, setStatus), [storage]);
   (0, import_react121.useEffect)(() => {
     bindings.flush = () => autosave.flush();
@@ -28688,11 +28705,14 @@ function CanvasApp({ bridge, bindings }) {
     let cancelled = false;
     void (async () => {
       const stored = await loadIndex(storage);
-      const [document2, backdrop] = await Promise.all([
+      const [document2, backdrop, library] = await Promise.all([
         loadBoard(storage, stored.value.lastOpen),
-        loadBackground(storage, stored.value.lastOpen)
+        loadBackground(storage, stored.value.lastOpen),
+        loadLibrary(storage)
       ]);
       if (cancelled) return;
+      libraryRef.current = library.value;
+      libraryBlockedRef.current = library.failed;
       boardRef.current = document2.value;
       indexRef.current = stored.value;
       backgroundRef.current = backdrop;
@@ -28782,6 +28802,16 @@ function CanvasApp({ bridge, bindings }) {
       signatureRef.current = signature;
       boardRef.current = next;
       if (!savingBlockedRef.current) autosave.schedule(next);
+    },
+    [autosave]
+  );
+  const onLibraryChange = (0, import_react121.useCallback)(
+    (items) => {
+      libraryRef.current = items;
+      const signature = JSON.stringify(items);
+      if (signature === librarySignatureRef.current) return;
+      librarySignatureRef.current = signature;
+      if (!libraryBlockedRef.current) autosave.writeLibrary(items);
     },
     [autosave]
   );
@@ -28984,6 +29014,7 @@ function CanvasApp({ bridge, bindings }) {
         collaborators: /* @__PURE__ */ new Map()
       },
       files: board.files,
+      libraryItems: libraryRef.current,
       scrollToContent: false
     } : null,
     [board]
@@ -29033,6 +29064,7 @@ function CanvasApp({ bridge, bindings }) {
           {
             initialData,
             onChange: onSceneChange,
+            onLibraryChange,
             theme: board.appState.theme === "light" ? "light" : "dark",
             name: index2 ? currentBoard(index2).name : "Canvas",
             renderTopRightUI: renderChrome,

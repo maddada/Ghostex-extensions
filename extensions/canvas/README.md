@@ -46,7 +46,8 @@ cannot honestly offer them:
 | Excalidraw's canvas background picker | Canvas paints that canvas transparent so a picture can sit behind it, and offers the colour in its own Background panel instead. |
 
 Everything else is there, including **Export image**, which hands you a PNG or
-SVG through the browser, and the shape library, which is stored locally.
+SVG through the browser, and the shape library, which Canvas keeps in the
+Ghostex store and shares between all your boards.
 
 The dotted grid is off unless you turn it on — right-click the board, or the
 menu. Light and dark are Excalidraw's own toggle, remembered per board.
@@ -168,7 +169,7 @@ page's own `navigator.clipboard`.
 
 ## Storage
 
-Three kinds of key in the Ghostex extension store.
+Four kinds of key in the Ghostex extension store.
 
 `boards` is the index: which boards exist, what they are called, which project
 each is linked to, and which one to reopen. A board's name lives only here, so
@@ -187,6 +188,9 @@ board document that saves on every drag never carries the picture. A board on
 the default colour with no picture has no such key at all, and a board saved
 before colours existed reads back on the default it was already drawn on, and one
 saved before fits existed still fills the board the way it always did.
+
+`library` is Excalidraw's shape library, one list for the whole install, written
+whenever an item is added to it or removed.
 
 Writes are debounced, so a whole drag is one save, while creating, renaming,
 switching or deleting a board is written straight away. Excalidraw reports a
