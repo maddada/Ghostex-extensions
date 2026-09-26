@@ -44,8 +44,8 @@
   CDN is patched out of the bundle at build time and pointed at `dist/fonts/`
   instead, and the build refuses to finish if `dist/` names a host it has not
   already accounted for. Excalidraw's own online features — text to diagram,
-  the Mermaid converter, and live embedded links — are turned off for the same
-  reason, and the Mermaid converter is left out of the bundle entirely rather
+  the Mermaid converter, live embedded links, and publishing library items to
+  its public library — are turned off for the same reason, and the Mermaid converter is left out of the bundle entirely rather
   than shipping six megabytes of code nothing can reach.
 
 ## [0.1.0] - {PR_MERGE_DATE}

@@ -488,7 +488,6 @@ import {
   ot,
   oy,
   p2,
-  p4,
   p7,
   pB,
   pE,
@@ -609,7 +608,7 @@ import {
   zh,
   zp,
   zs
-} from "./chunk-XRBWTDVX.js";
+} from "./chunk-JSQV3O3Y.js";
 import {
   B
 } from "./chunk-DM6ZMB2R.js";
@@ -21173,7 +21172,7 @@ var vn = async (e7, o, t, r, { exportBackground: n, exportPadding: i3 = Vi, view
   let m = pp(o, t, r, { exportBackground: n, viewBackgroundColor: a, exportPadding: i3, exportingFrame: c3 });
   if (e7 === "png") {
     let d = vY(m);
-    return t.exportEmbedScene && (d = d.then((p) => import("./image-GAAHSSAO-6TMEZG36.js").then(({ encodePngMetadata: u3 }) => u3({ blob: p, metadata: to(o, t, r, "local") })))), es(d, { description: "Export to PNG", name: l, extension: t.exportEmbedScene ? "excalidraw.png" : "png", mimeTypes: [yo.png], fileHandle: s });
+    return t.exportEmbedScene && (d = d.then((p) => import("./image-GAAHSSAO-LMCF4VDY.js").then(({ encodePngMetadata: u3 }) => u3({ blob: p, metadata: to(o, t, r, "local") })))), es(d, { description: "Export to PNG", name: l, extension: t.exportEmbedScene ? "excalidraw.png" : "png", mimeTypes: [yo.png], fileHandle: s });
   } else if (e7 === "clipboard") try {
     let d = vY(m);
     await Bp(d);
@@ -22078,7 +22077,7 @@ var MS = ({ setAppState: e7, selectedItems: o, library: t, onRemoveFromLibrary: 
     IO(M).catch(Ug).catch((N3) => {
       e7({ errorMessage: N3.message });
     });
-  }, R3 = () => (0, import_jsx_runtime74.jsxs)(Ce, { open: c3, children: [(0, import_jsx_runtime74.jsx)(Ce.Trigger, { onToggle: () => m(!c3), children: px }), (0, import_jsx_runtime74.jsxs)(Ce.Content, { onClickOutside: () => m(false), onSelect: () => m(false), className: "library-menu", children: [!h2 && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: _, icon: Yx, "data-testid": "lib-dropdown--load", children: g3("buttons.load") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: k3, icon: $x, "data-testid": "lib-dropdown--export", children: g3("buttons.export") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: () => u3(true), icon: Tx, children: b }), h2 && (0, import_jsx_runtime74.jsx)(Ce.Item, { icon: p4, onSelect: () => T3(true), "data-testid": "lib-dropdown--remove", children: g3("buttons.publishLibrary") })] })] });
+  }, R3 = () => (0, import_jsx_runtime74.jsxs)(Ce, { open: c3, children: [(0, import_jsx_runtime74.jsx)(Ce.Trigger, { onToggle: () => m(!c3), children: px }), (0, import_jsx_runtime74.jsxs)(Ce.Content, { onClickOutside: () => m(false), onSelect: () => m(false), className: "library-menu", children: [!h2 && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: _, icon: Yx, "data-testid": "lib-dropdown--load", children: g3("buttons.load") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: k3, icon: $x, "data-testid": "lib-dropdown--export", children: g3("buttons.export") }), !!f.length && (0, import_jsx_runtime74.jsx)(Ce.Item, { onSelect: () => u3(true), icon: Tx, children: b }), null] })] });
   return (0, import_jsx_runtime74.jsxs)("div", { className: clsx_m_default("library-menu-dropdown-container", l), children: [R3(), o.length > 0 && (0, import_jsx_runtime74.jsx)("div", { className: "library-actions-counter", children: o.length }), p && d(), x && (0, import_jsx_runtime74.jsx)(Wv, { onClose: () => T3(false), libraryItems: _S(s.libraryItems, o), appState: a, onSuccess: (M) => I(M, s.libraryItems), onError: (M) => window.alert(M), updateItemsInStorage: () => t.setLibrary(s.libraryItems), onRemove: (M) => i3(o.filter((N3) => N3 !== M)) }), E && S()] });
 };
 var fu = ({ selectedItems: e7, onSelectItems: o, className: t }) => {

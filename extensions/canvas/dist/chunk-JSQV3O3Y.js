@@ -15200,7 +15200,7 @@ var Ri = (e8) => i6(e8);
 var s6 = async (e8) => {
   let t3;
   if (e8.type === H.png) try {
-    return await (await import("./image-GAAHSSAO-6TMEZG36.js")).decodePngMetadata(e8);
+    return await (await import("./image-GAAHSSAO-LMCF4VDY.js")).decodePngMetadata(e8);
   } catch (n3) {
     throw n3.message === "INVALID" ? new nn("Image doesn't contain scene", "IMAGE_NOT_CONTAINS_SCENE_DATA") : new nn("Error: cannot restore image");
   }
@@ -15703,7 +15703,6 @@ export {
   l4,
   U4,
   f4,
-  p4,
   m4,
   b4,
   E4,

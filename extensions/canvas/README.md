@@ -41,6 +41,7 @@ cannot honestly offer them:
 | --- | --- |
 | Text to diagram, and the Mermaid converter | Both sit behind Excalidraw's AI features, which call a server. |
 | Live embedded links (YouTube, Figma, and the rest) | An embed is a frame fetched over the network. |
+| Publishing library items to Excalidraw's public library | It uploads the items and your details to Excalidraw's server. |
 | Open, Save to file, Export to file | Files are Ghostex's business; a board saves itself into the host store. |
 | Excalidraw's canvas background picker | Canvas paints that canvas transparent so a picture can sit behind it, and offers the colour in its own Background panel instead. |
 

@@ -72,6 +72,19 @@ const UPSTREAM_PATCHES = {
       to: 'VITE_APP_FIREBASE_CONFIG:"{}"',
     },
   ],
+  /**
+   * The library menu offers "Publish selected" once library items are picked,
+   * and its dialog uploads them, a preview picture and the author's details to
+   * Excalidraw's public library backend. That is a network write no prop can
+   * turn off, so the menu item goes and the dialog behind it can never open.
+   */
+  'index.js': [
+    {
+      what: "the library menu's Publish item",
+      from: 'h&&Mt(Ce.Item,{icon:Cb,onSelect:()=>T(!0),"data-testid":"lib-dropdown--remove",children:g("buttons.publishLibrary")})',
+      to: 'null',
+    },
+  ],
 };
 
 /**
@@ -265,8 +278,8 @@ for (const family of FONT_FAMILIES) {
  *
  * Excalidraw is a whole application, and its bundle carries the addresses its
  * own UI would use. None of them is fetched here — `app.tsx` turns off
- * collaboration, the diagram-from-text tabs and embedded links, and the one
- * thing that did fetch on its own, the font CDN, is patched out above — but
+ * collaboration, the diagram-from-text tabs and embedded links, and the font
+ * CDN and library publishing, which no prop turns off, are patched out above — but
  * the strings are in the code, and pretending otherwise would be worse than
  * listing them. An upgrade that introduces a new host fails this build, so
  * someone has to look at it rather than ship it unread.
@@ -288,7 +301,10 @@ const ALLOWED_HOSTS = new Map([
   ['json.excalidraw.com', 'the share-a-link backend, reachable only while collaborating'],
   ['oss-collab.excalidraw.com', 'the collaboration server, and Canvas never collaborates'],
   ['oss-ai.excalidraw.com', 'the diagram-from-text backend, and `aiEnabled` is false'],
-  ['us-central1-excalidraw-room-persistence.cloudfunctions.net', 'the collaboration room store'],
+  [
+    'us-central1-excalidraw-room-persistence.cloudfunctions.net',
+    "the library publishing backend, whose only way in, the library menu's Publish item, is patched out",
+  ],
   ['www.youtube.com', 'one of the link types Excalidraw can embed'],
   ['youtube.com', 'one of the link types Excalidraw can embed'],
   ['player.vimeo.com', 'one of the link types Excalidraw can embed'],
