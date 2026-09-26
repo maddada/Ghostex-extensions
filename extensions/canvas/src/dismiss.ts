@@ -7,8 +7,7 @@
  * so the board's own key handling never sees the press that closed a menu.
  */
 
-import type { RefObject } from 'preact';
-import { useLayoutEffect, useRef } from 'preact/hooks';
+import { useLayoutEffect, useRef, type RefObject } from 'react';
 
 export interface DismissOptions {
   /** Whether the thing is open at all; nothing is listened for while it is not. */
@@ -18,7 +17,7 @@ export interface DismissOptions {
 }
 
 export function useDismiss(
-  root: RefObject<HTMLElement>,
+  root: RefObject<HTMLElement | null>,
   onClose: () => void,
   { active = true, ignore }: DismissOptions = {},
 ): void {

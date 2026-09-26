@@ -7,13 +7,17 @@ import {
   createAutosave,
   loadBackground,
   loadBoard,
-  loadSettings,
   type SaveStatus,
 } from '../src/persistence.js';
-import { SETTINGS_STORAGE_KEY, createSettings } from '../src/settings.js';
 import { createFakeBridge } from './fake-bridge.js';
 
 const KEY = boardStorageKey('default');
+
+/** The default board, scrolled somewhere: one field that is easy to tell apart. */
+function scrolledTo(scrollX: number) {
+  const board = createBoard();
+  return { ...board, appState: { ...board.appState, scrollX } };
+}
 
 describe('autosave', () => {
   beforeEach(() => vi.useFakeTimers());
@@ -24,12 +28,12 @@ describe('autosave', () => {
     const autosave = createAutosave(bridge.storage, () => {});
 
     autosave.schedule(createBoard());
-    autosave.schedule({ ...createBoard(), viewport: { x: 10, y: 0, zoom: 1 } });
-    autosave.schedule({ ...createBoard(), viewport: { x: 20, y: 0, zoom: 1 } });
+    autosave.schedule(scrolledTo(10));
+    autosave.schedule(scrolledTo(20));
     await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
 
     expect(bridge.writes).toEqual([KEY]);
-    expect(bridge.read(KEY)).toMatchObject({ viewport: { x: 20, y: 0, zoom: 1 } });
+    expect(bridge.read(KEY)).toMatchObject({ appState: { scrollX: 20 } });
   });
 
   test('writes nothing until the debounce elapses', async () => {
@@ -51,7 +55,7 @@ describe('autosave', () => {
     autosave.schedule(createBoard());
     await autosave.flush();
 
-    expect(bridge.read(KEY)).toMatchObject({ schemaVersion: SCHEMA_VERSION, items: [] });
+    expect(bridge.read(KEY)).toMatchObject({ schemaVersion: SCHEMA_VERSION, elements: [] });
   });
 
   test('reports saving, then saved', async () => {
@@ -110,7 +114,7 @@ describe('loading', () => {
   });
 
   test('restores what was stored', async () => {
-    const stored = { ...createBoard(), viewport: { x: 40, y: 12, zoom: 1.5 } };
+    const stored = scrolledTo(40);
     const bridge = createFakeBridge({ [KEY]: stored });
 
     const { value, failed } = await loadBoard(bridge.storage);
@@ -134,33 +138,11 @@ describe('loading', () => {
   });
 });
 
-describe('settings and backgrounds', () => {
+describe('backgrounds', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
   const IMAGE = 'data:image/webp;base64,c2hydW5r';
-
-  test('settings load with defaults when nothing is stored, and restore what was', async () => {
-    await expect(loadSettings(createFakeBridge().storage)).resolves.toEqual(createSettings());
-    const bridge = createFakeBridge({ [SETTINGS_STORAGE_KEY]: { schemaVersion: 1, font: 'lora' } });
-    await expect(loadSettings(bridge.storage)).resolves.toMatchObject({ font: 'lora' });
-    await expect(loadSettings(null)).resolves.toEqual(createSettings());
-    // A read that failed falls back like an empty one: nothing saves over settings on its own.
-    const failing = createFakeBridge({ [SETTINGS_STORAGE_KEY]: { schemaVersion: 1, font: 'lora' } });
-    failing.failNextGet();
-    await expect(loadSettings(failing.storage)).resolves.toEqual(createSettings());
-  });
-
-  test('settings are written straight away', async () => {
-    const bridge = createFakeBridge();
-    const autosave = createAutosave(bridge.storage, () => {});
-
-    autosave.writeSettings({ ...createSettings(), font: 'caveat' });
-    await autosave.flush();
-
-    expect(bridge.writes).toEqual([SETTINGS_STORAGE_KEY]);
-    expect(bridge.read(SETTINGS_STORAGE_KEY)).toMatchObject({ font: 'caveat' });
-  });
 
   test('a background loads from its own key, and is null when the board has none', async () => {
     const bridge = createFakeBridge({ [backgroundStorageKey('b2')]: createBackground(IMAGE) });

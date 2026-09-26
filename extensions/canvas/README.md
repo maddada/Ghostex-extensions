@@ -1,17 +1,18 @@
 # Canvas
 
-Canvas is an infinite pan-and-zoom board inside Ghostex. Open it as a view, next
-to Agents, Code, Kanban, and Docs, write sticky notes anywhere on it, and it
-keeps your place: the board, your notes, and the part of it you were looking at
-are saved as you work and restored when you come back. Keep as many boards as
-you like, and give a board to a project if you want one there.
+Canvas is an infinite drawing board inside Ghostex. Open it as a view, next to
+Agents, Code, Kanban and Docs, and sketch: freehand ink, boxes, arrows, text,
+images, all with real [Excalidraw](https://github.com/excalidraw/excalidraw)
+running inside the extension. It keeps your place — everything on the board and
+the part of it you were looking at are saved as you work and restored when you
+come back.
 
-Notes are markdown: write structure, links, code and task lists, and the note
-shows them rendered on coloured paper. You do not have to know the syntax — the
-bar above a note you are editing writes it for you. Draw on the same board with a
-pen, hand-drawn shapes and text labels, and rub any of it out with the eraser.
-Pick the font notes are written in, and give any board a picture of your own as
-its background, from the settings panel inside the canvas.
+Keep as many boards as you like, and give a board to a project if you want one
+there. Give any board a picture of your own as its background, and it sits
+behind the drawing rather than in it.
+
+Canvas asks for no permissions and reaches no network. Everything it runs,
+Excalidraw and its fonts included, ships inside `dist/`.
 
 ## Setup
 
@@ -24,311 +25,178 @@ gx extensions state canvas --set pinned=true
 
 There is nothing to configure and nothing to sign in to.
 
-## Using the board
+## Drawing
 
-| Gesture | What it does |
+The drawing is Excalidraw's, unchanged: the toolbar across the top, the
+properties panel that appears beside a selection, undo and redo, the shape
+library, the command palette, the context menu, and every keyboard shortcut it
+ships with. Its own help dialog — the `?` in the corner, or the menu — is the
+reference, and it is right, because nothing about the drawing is reimplemented
+here.
+
+A few things are turned off, because a Ghostex extension with no permissions
+cannot honestly offer them:
+
+| Off | Why |
 | --- | --- |
-| Trackpad or wheel scroll | Pan the board |
-| Hold <kbd>Space</kbd> and drag | Pan the board |
-| Middle-button drag | Pan the board |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + scroll, or trackpad pinch | Zoom around the pointer |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd> / <kbd>0</kbd> | Zoom in, out, back to 100% |
-| <kbd>Shift</kbd> + <kbd>1</kbd> | Zoom to fit |
+| Text to diagram, and the Mermaid converter | Both sit behind Excalidraw's AI features, which call a server. |
+| Live embedded links (YouTube, Figma, and the rest) | An embed is a frame fetched over the network. |
+| Publishing library items to Excalidraw's public library | It uploads the items and your details to Excalidraw's server. |
+| Open, Save to file, Export to file | Files are Ghostex's business; a board saves itself into the host store. |
+| Excalidraw's canvas background picker | Canvas paints that canvas transparent so a picture can sit behind it, and offers the colour in its own Background panel instead. |
 
-The toolbar in the bottom-left corner does the same things with the pointer, and
-shows the current zoom. The status in the top-right corner reads `Saved` once
-your changes are stored, and says so plainly when they are not.
+Everything else is there, including **Export image**, which hands you a PNG or
+SVG through the browser, and the shape library, which Canvas keeps in the
+Ghostex store and shares between all your boards.
+
+The dotted grid is off unless you turn it on — right-click the board, or the
+menu. Light and dark are Excalidraw's own toggle, remembered per board.
 
 ## Boards
 
-The board's name sits in the top-left corner. Click it for the board switcher:
-every board you have, and everything you can do to the one that is open.
+The board's name is in the top-right corner, beside Excalidraw's Library
+button. Click it for the menu:
 
 | In the menu | What it does |
 | --- | --- |
-| A board's name | Opens it, with everything on it |
-| **New board…** | Names a new, empty board and opens it |
-| **Rename this board…** | Renames the open board |
-| **Copy this board as JSON** | Copies the open board to the clipboard |
-| **Delete this board…** | Deletes it, after asking |
-| **Link this board to …** | Ties the open board to the project Ghostex has open |
+| The list of boards | Switches to one. The open board has a ✓. |
+| New board… | Names and opens an empty board. |
+| Rename this board… | Renames the open one. |
+| Copy this board as JSON | Puts the open board on the clipboard as an `.excalidraw` file. |
+| Link this board to *project* | Ties the open board to the Ghostex project you have open. |
+| Delete this board… | Asks first, then deletes the board and its background. |
 
-Canvas reopens the board you had open last. Each board is separate: its notes,
-its view, and its undo history are its own.
+Every board has its own contents, its own view, its own undo history and its own
+background picture. Switching boards saves the one you are leaving first.
 
-### A board for a project
+Canvas always has a board open: delete the last one and a fresh empty board takes
+its place. The board you had open is the one that reopens next time.
 
-When Ghostex has a project open, the menu says so at the top. If that project
-has a board, the menu offers to open it; if it has none, **New board for
-`<project>`** makes one and links it in a click. A linked board is marked with a
-◆ next to its name, and the switcher lists which project each board belongs to.
+### Boards and projects
 
-Linking never switches boards on its own: changing project in Ghostex leaves
-whatever you are working on open, and offers the project's board in the menu.
-A project has one board — linking a second board to it moves the link, and the
-first board keeps everything on it. Boards with no project carry on unchanged,
-and if Ghostex has no project open, the menu says nothing about projects.
+A board can belong to the Ghostex project you have open. When it does, the
+switcher shows that project at the top of the menu and offers its board — or
+offers to create one, named after the project and linked in a single click.
+
+A project has at most one board, so linking a board to a project that already
+has one moves the link; the old board keeps everything on it, unlinked.
+
+Nothing switches on its own. Changing project in Ghostex never moves the board
+out from under you while you are drawing; the menu just starts offering the
+other one.
+
+## The background picture
+
+The **Background** button, beside the board name, opens the panel for the open
+board's backdrop.
+
+**The colour** at the top is what the board sits on. Six are a click away —
+black, Ghostex's own near-black, slate, sepia, paper and white — and the `+`
+opens a picker for any other. It matters most with a cut-out: a PNG with
+transparency shows this colour through its holes, so a logo on a transparent
+background sits on the colour you chose rather than on whatever was there.
+
+**The picture** goes in front of it. Choose a PNG, JPEG or WebP, or drop one
+anywhere on the board. It is scaled down
+to fit and compressed, then drawn behind Excalidraw's canvas — behind everything,
+not on it: nothing can select it, nothing can move it, and it is never part of
+what you draw or export.
+
+**How it lies** is the row under it, the same five choices a desktop gives a
+wallpaper: *Fill* covers the board and crops the overflow, *Fit* shows the whole
+picture letterboxed, *Stretch* fills it ignoring the shape, *Centre* draws it at
+its own size in the middle, and *Tile* repeats it. Fill is the default, and
+Centre or Tile are what a small picture or a pattern wants.
+
+Four sliders — contrast, brightness, saturation and opacity — keep the drawing
+readable over it. They are filters applied when the picture is drawn, so the
+picture itself is never changed and every adjustment undoes by moving the slider
+back. **Reset sliders** returns all four to neutral, and **Remove** takes the
+picture away while keeping the colour — they are two separate choices.
+
+A backdrop belongs to one board. Each board can have its own colour, its own
+picture, both, or neither.
 
 ## Copying a board out
 
-Boards live in Ghostex's own extension store, which has no export of its own.
-**Copy this board as JSON** in the switcher menu is the way out: it puts the
-open board on the clipboard as the same document Ghostex stores — its name, its
-schema version, everything on it, and where you were looking — laid out to be
-read. Paste it into a file, a note or a gist and the board is backed up. A line
-along the bottom of the board says which board was copied, or says plainly that
-the copy did not go through.
+**Copy this board as JSON** in the board menu puts the open board on the
+clipboard as an `.excalidraw` file: Excalidraw's own format, with the board's
+name in it. Paste it into excalidraw.com, into a Ghostex drawing, or into a
+file — it opens anywhere Excalidraw runs.
 
-A board's background picture is not in the copy. It is stored apart from the
-board for the same reason it is left out here: it is megabytes of image data,
-and it would bury the part you can actually read.
+It copies the board that is open and nothing else: not your other boards, not
+the background picture.
 
-## Notes
+## Boards from before Excalidraw
 
-Double-click anywhere on the board to write a note there, or use **Note** in the
-tool bar at the top to put one in the middle of the view. Double-clicking makes
-a note only while **Select** is the tool in hand.
+Canvas 0.1 had a drawing engine of its own — sticky notes, ink, four shapes and
+text labels. Every board saved by it is converted the first time 0.2 opens it,
+and written back in the new shape, so the conversion happens once:
 
-| Gesture | What it does |
+| Was | Becomes |
 | --- | --- |
-| Double-click the board | New note, ready to type in |
-| Double-click a note | Type in it |
-| Drag a note | Move it, and whatever is selected with it |
-| Drag a corner handle | Resize it |
-| Click a note | Select it |
-| <kbd>Shift</kbd> + click | Add it to the selection, or take it out |
-| Click the board | Deselect |
-| **Edit** in the bar above a selected note | Edit its markdown |
-| **Done** in that bar | Back to the rendered note |
-| A button on the format bar above it | Write that markdown into the note |
-| A swatch in the note's bar | Paint the note that colour |
-| <kbd>C</kbd> | Cycle the selected note to the next colour |
-| **Aa** in that bar | Write this one note in a font of its own |
-| The × in that bar | Delete it |
-| <kbd>Esc</kbd> | Stop typing |
-| <kbd>Delete</kbd> / <kbd>Backspace</kbd> | Delete whatever is selected |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Z</kbd> | Undo |
-| <kbd>⇧</kbd> + <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Z</kbd> | Redo |
+| A sticky note | A filled rounded rectangle with the note's writing bound inside it, keeping the paper colour. |
+| Freehand ink | A freedraw stroke, drawn through the same points. |
+| A rectangle, ellipse, line or arrow | The same shape in Excalidraw, keeping its sketch. |
+| A text label | Text on the board. |
+| Where you were looking | The same view, in Excalidraw's terms. |
 
-Undo and redo cover every change to the board — adding, moving, resizing,
-typing, colouring, ticking, deleting — and one drag is one undo, not one per
-pixel. They do not move the view: undo puts your notes back, and leaves you
-looking where you are looking. Undo also puts the selection back: undo a
-Delete and what came back is selected, ready to be moved instead.
+Two things do not survive, and cannot. **Markdown is now plain text**: every
+character you typed is still in the note, but it reads as the source it was
+written in rather than as a rendered document, and the change is not
+reversible. **Per-note fonts and the default font are gone**, because Excalidraw
+brings its own fonts and its own way of choosing them.
 
-## Selecting
-
-With **Select** in hand, everything on the board can be picked up the same
-way — notes, ink, shapes and labels. A selected drawing shows a box; a selected
-note shows its bar and handles.
-
-| Gesture | What it does |
-| --- | --- |
-| Click a note, a stroke, a shape or a label | Select it |
-| <kbd>Shift</kbd> + click | Add it to the selection, or take it out again |
-| Drag on empty board | Drag out a box: everything wholly inside it is selected |
-| <kbd>Shift</kbd> + drag on empty board | Add what the box surrounds to the selection |
-| Drag a selected item | Move the whole selection with it |
-| Click one item of a selection | Select just that one |
-| Click the board | Deselect everything |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>A</kbd> | Select everything on the board |
-| <kbd>Delete</kbd> / <kbd>Backspace</kbd> | Delete the selection |
-| Arrow keys | Nudge the selection by 1; with <kbd>Shift</kbd>, by 5 |
-| <kbd>Esc</kbd> | Back to **Select** with nothing selected |
-
-A group moves as one: drag any member and the rest follow, and a group drag or
-a group delete is one undo. Ink is painted on top of notes, so where a stroke
-crosses a note a click picks up the stroke; click the note away from the ink to
-pick up the note. Picking a drawing tool lets go of the selection.
-
-## Keyboard
-
-The tool keys are Excalidraw's, so that muscle memory carries over. Each tool
-button's tooltip shows its keys.
-
-| Key | Tool |
-| --- | --- |
-| <kbd>V</kbd> or <kbd>1</kbd> | Select |
-| <kbd>P</kbd> or <kbd>7</kbd> | Pen |
-| <kbd>R</kbd> or <kbd>2</kbd> | Rect |
-| <kbd>O</kbd> or <kbd>4</kbd> | Ellipse |
-| <kbd>L</kbd> or <kbd>6</kbd> | Line |
-| <kbd>A</kbd> or <kbd>5</kbd> | Arrow |
-| <kbd>T</kbd> or <kbd>8</kbd> | Text |
-| <kbd>E</kbd> or <kbd>0</kbd> | Eraser |
-
-Keys only act on the board: while you are typing in a note or a label they are
-letters. Zoom, undo and redo keys are listed with the gestures above.
-
-## Markdown in a note
-
-A note holds markdown and shows it rendered. Double-click it (or press **Edit**)
-to see the source, <kbd>Esc</kbd> or **Done** to go back. Headings,
-**bold**, `code`, fenced code blocks, lists, quotes, tables and links all work.
-
-You do not have to know any of that syntax. While the source is open, a second
-bar sits above the note with a button for each piece of markdown:
-
-| Button | What it writes |
-| --- | --- |
-| Bold | `**bold**` |
-| Italic | `*italic*` |
-| Heading | `# heading`, then `##`, then `###`, then plain text again |
-| Bullet list | `- item` |
-| Task list | `- [ ] task` |
-| Inline code | `` `code` `` |
-| Code block | a fenced block around the lines you picked |
-| Link | `[text](url)`, with the address left selected to paste over |
-
-A button works on whatever is selected, or on the line the caret is in, and puts
-you back where you were in the text. Press it again to take the markdown off,
-and <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Z</kbd> takes one press back. A heading
-and a list item are different kinds of line, so making a line into one takes the
-other off rather than stacking them up.
-
-Task lists are live. Write
-
-```markdown
-- [ ] write the note
-- [x] read it back
-```
-
-and the rendered note shows real checkboxes: click one and it ticks the matching
-line in the markdown, so the note text stays the one source of truth. Ticking is
-an ordinary edit, so <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Z</kbd> takes it back.
-
-Every rendered note is sanitized with DOMPurify before it reaches the board:
-scripts, event handlers and `javascript:` links in a note never run, and a
-link in a note opens away from the board rather than replacing it.
-
-## Note colours
-
-Notes come on six papers — butter, apricot, rose, mint, sky and lilac. Select
-a note and pick a swatch from the bar above it, or press <kbd>C</kbd> to cycle
-to the next colour. The colour is part of the note, so it is saved and restored
-with everything else, and undo takes a recolour back.
-
-## Drawing
-
-The tool bar at the top says what the pointer does. **Select** picks things up
-and moves them, and everything else draws:
-
-| Tool | What it does |
-| --- | --- |
-| **Pen** | Freehand ink. It thins and thickens with how fast you draw |
-| **Rect**, **Ellipse**, **Line**, **Arrow** | Drag out a hand-drawn shape |
-| **Text** | Click, type a label straight onto the board, <kbd>Esc</kbd> when done |
-| **Eraser** | Drag across ink, shapes and labels to rub them out |
-
-While a drawing tool is out it owns the pointer: notes stay where they are and
-you draw straight over them. Pick **Select** to move things again. A tool stays
-in hand until you change it, so three rectangles are three drags, not three
-trips to the tool bar. Placing a label is the exception — it hands the pointer
-back to **Select** so your next click does not start another one.
-
-Holding <kbd>Shift</kbd> while you drag squares a rectangle, rounds an ellipse
-into a circle, and snaps a line or arrow to the nearest 15°. Space-drag,
-middle-drag and scroll still pan while a drawing tool is out, and
-<kbd>⌘</kbd>/<kbd>Ctrl</kbd> + scroll still zooms.
-
-Every stroke, shape and label is one undo: a whole scribble goes back in one
-<kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Z</kbd>, and so does a whole eraser sweep,
-however many things it took. Back in **Select**, a stroke, shape or label is
-picked up, moved and deleted like a note — see *Selecting* above.
-
-The eraser does not touch notes. A note holds writing you cannot draw again,
-and it already has a ✕ in its own bar and the <kbd>Delete</kbd> key.
-
-## Ink
-
-The row under the tool bar appears for the tools that draw, and holds six inks
-— chalk, coral, amber, sage, azure and violet — and three weights. Whatever is
-picked there is what the next stroke, shape or label is drawn in; a label's
-weight sets how big its text is. Like note paper, the ink is stored by *name*,
-so the palette can be restyled later without rewriting saved boards.
-
-## Settings
-
-**Settings**, at the end of the zoom toolbar in the bottom-left corner, opens a
-panel with every look option Canvas has. Nothing about how the board looks is
-fixed in the code: what the panel shows is what you can change, and every value
-is saved and comes back with the board. <kbd>Esc</kbd> or a click on the board
-closes it.
-
-### Fonts
-
-The **Text** section lists the fonts notes and labels can be written in, each
-shown in itself. Four ship inside the extension — Caveat (hand-drawn), Inter
-(sans), Lora (serif) and JetBrains Mono (mono), all under the SIL Open Font
-License — and three are the system's own sans, serif and mono. Picking one
-makes it the font for every note and label on every board.
-
-A single note can have a font of its own: select it and press **Aa** in the bar
-above it. That note keeps its font when the default changes; **Default** in the
-same menu hands it back. A note's font is part of the note, so it is saved with
-it and undo takes it back.
-
-Nothing is ever fetched. A font is only loaded from `dist/fonts/` the first time
-something on the board is written in it.
-
-### A background for a board
-
-The **Background** section belongs to the board that is open, and says which one.
-**Choose picture…** takes a PNG, JPEG or WebP, and so does dropping one
-anywhere on the board. The picture is shrunk to at most 2048 pixels on its long
-side, compressed, and kept with that board only; it sits behind the board like a
-wallpaper, filling the view, and never moves with the pan or zoom.
-
-Four sliders keep what is on the board readable over it: **Contrast**,
-**Brightness**, **Saturation** and **Opacity**. They are filters drawn over the
-picture, not changes to it, so moving one back is all it takes to undo it, and
-**Reset sliders** moves them all back at once. **Remove** takes the picture off
-the board. Changing the picture keeps the sliders where you had them.
-
-## Preferences
-
-None in Ghostex's own settings. Everything about how Canvas looks is in the
-settings panel inside the canvas, where it can be changed without a new consent
-prompt, and where a board can carry settings of its own.
+Colours are mapped to Excalidraw's nearest swatch rather than carried across as
+hex values. Excalidraw stores every colour as though the board were light and
+inverts the canvas to draw a dark one, so a verbatim copy of Canvas 0.1's
+near-white ink would come out black and invisible.
 
 ## Permissions
 
 None. Canvas asks for no host capabilities. It uses only `ghostex.storage`,
 which needs no permission, to keep boards in Ghostex's own extension store.
-Everything it runs ships in `dist/`: no CDN scripts, no remote imports, no
-network access of any kind.
+
+It reaches no network either. Excalidraw normally falls back to a CDN when it
+cannot find a font file; `build.mjs` removes that fallback from the bundle at
+build time and points Excalidraw at `dist/fonts/` instead, so the shipped code
+has no font URL in it at all. The build also refuses to finish if `dist/` so
+much as names a host `build.mjs` has not already accounted for.
 
 Copying a board as JSON is not the `clipboard` permission either: that one is
-about Ghostex's own clipboard bridge, and Canvas never calls it. The copy is
-the page's own — `navigator.clipboard`, and the older selection copy behind it
-for a view that refuses the first.
+about Ghostex's own clipboard bridge, and Canvas never calls it. The copy is the
+page's own `navigator.clipboard`.
 
 ## Storage
 
-Four kinds of key in the Ghostex extension store. `boards` is the index: which
-boards exist, what they are called, which project each is linked to, and which
-one to reopen. Each board's contents are one key of their own, `board:<id>`,
-holding a versioned document — `schemaVersion`, its notes, and the saved
-viewport. A board's name lives only in the index, so the two can never disagree.
-`settings` holds what applies everywhere: today, the default font. A board's
-background is `background:<id>` — the picture as a compressed data URL and the
-four slider values — in a key of its own, so the board document that saves on
-every drag never carries the picture. A board with no picture has no such key
-until it is deleted; a removed picture leaves `null` behind, and so does
-deleting a board, for its contents and its background both.
+Four kinds of key in the Ghostex extension store.
 
-A note stores its markdown as you typed it and the *name* of its colour, never a
-hex value, so the palette can be restyled without rewriting saved boards. The
-same goes for a font: a note that chose one stores its name, and a note that did
-not stores nothing and follows the default. Ink
-stores the points it was drawn through, trimmed and rounded so a board file is
-not paying for samples nobody can see; a shape stores the two corners it was
-dragged between plus the seed that makes rough.js draw the same sketch every
-time, so a shape never re-rolls its wobble when the board is reopened. Boards
-written by an older version are migrated on load.
+`boards` is the index: which boards exist, what they are called, which project
+each is linked to, and which one to reopen. A board's name lives only here, so
+the two can never disagree.
 
-Writes are debounced, so a burst of panning or a whole drag is one save, while
-creating, renaming, switching, or deleting a board is written straight away.
+`board:<id>` is one board's contents: `schemaVersion`, the Excalidraw elements
+on it, the pictures pasted into it, and the slice of Excalidraw's app state
+worth keeping — where the board is scrolled, its zoom, its theme, and the
+settings the next shape is drawn with. What is selected, what dialog is open and
+where the pointer is are about this moment rather than about the board, and are
+deliberately dropped.
+
+`background:<id>` is a board's backdrop — the colour, the picture as a
+compressed data URL, how it lies, and the four slider values — in a key of its own, so the
+board document that saves on every drag never carries the picture. A board on
+the default colour with no picture has no such key at all, and a board saved
+before colours existed reads back on the default it was already drawn on, and one
+saved before fits existed still fills the board the way it always did.
+
+`library` is Excalidraw's shape library, one list for the whole install, written
+whenever an item is added to it or removed.
+
+Writes are debounced, so a whole drag is one save, while creating, renaming,
+switching or deleting a board is written straight away. Excalidraw reports a
+change for things that leave the board exactly as it was — a selection, a
+pointer moving — so a board is only written when its contents actually moved.
+
 The store has no delete, so a deleted board's key stays behind holding `null`.
 Boards survive Ghostex restarts and extension updates, and are removed when the
 extension is uninstalled. Undo history is not stored: reopening the view gives
@@ -344,14 +212,37 @@ npm run check             # typecheck, tests, and the reproducible build
 ```
 
 `npm run build` rebuilds `dist/` from `src/` with esbuild and must produce the
-committed bundle byte for byte; CI verifies this. The bundle contains Preact,
-marked, DOMPurify, Rough.js and perfect-freehand, all pinned to exact versions
-and listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The build also
-copies the four bundled fonts out of their pinned `@fontsource` packages into
-`dist/fonts/`, and refuses to finish if `src/styles.css` and `build.mjs` disagree
-about which files those are. `npm test` runs the suite in jsdom against a fake
-`window.ghostex` bridge with in-memory storage, so the whole extension is
-exercised headlessly.
+committed bundle byte for byte; CI verifies this. Most of what lands there is
+not ours: `@excalidraw/excalidraw` publishes only a prebuilt bundle, so the
+build inlines chunks upstream already minified, and the reviewable surface is
+`build.mjs` plus `src/` — what is pulled in, what is patched out, and what is
+copied. Everything in the bundle is pinned to an exact version and listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), which is generated — Excalidraw
+brings some sixty packages of its own, and a hand-kept list would be wrong within
+one upgrade:
+
+```sh
+node notices.mjs > THIRD_PARTY_NOTICES.md
+```
+
+The build makes exactly two changes to upstream's bytes, both of them removing
+the font CDN described under **Permissions**, and both asserted to match exactly
+once so a version bump fails the build rather than quietly restoring it. It
+copies Excalidraw's stylesheet and its Latin font families into `dist/`, skipping
+only Xiaolai, the CJK fallback, which is twelve megabytes of per-glyph subsets;
+and it refuses to finish if the fonts it ships and the fonts the bundle asks for
+have drifted apart.
+
+Excalidraw ships a translation per language as a lazy chunk and picks one from
+its `langCode` prop, which Canvas never sets — so fifty-three of them could
+never load. They are stubbed at build time, which is 1.3MB and half of `dist/`;
+a language that is asked for anyway reads as English rather than as blank text.
+
+`npm test` runs the suite in jsdom against a fake `window.ghostex` bridge with
+in-memory storage. Excalidraw itself is stood in for there — it wants a canvas,
+fonts and a worker that jsdom has none of — so the tests cover everything around
+the drawing: the boards, the project links, the conversion of old boards, and
+what reaches the host store.
 
 From the repository root:
 

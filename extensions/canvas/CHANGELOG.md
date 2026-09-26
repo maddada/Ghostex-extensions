@@ -1,5 +1,54 @@
 # Changelog
 
+## [0.2.0] - {PR_MERGE_DATE}
+
+- Canvas now draws with real [Excalidraw](https://github.com/excalidraw/excalidraw)
+  0.18.1 instead of a drawing engine of its own. The whole of it comes across:
+  the toolbar, the properties panel, the shape library, the command palette,
+  the context menu, undo and redo, and every keyboard shortcut Excalidraw
+  ships. Nothing about drawing is reimplemented here any more.
+- Everything around the drawing is unchanged: named boards, the switcher, links
+  to the Ghostex project you have open, per-board background pictures with
+  their four sliders, autosave to Ghostex storage, and the save state on the
+  board. The switcher and the Background button moved to the top-right corner,
+  beside Excalidraw's Library button.
+- Boards saved by 0.1 are converted the first time 0.2 opens one, and written
+  back converted, so it happens once. Notes become filled rectangles with their
+  writing bound inside and their paper colour kept; ink becomes freedraw;
+  rectangles, ellipses, lines and arrows become their Excalidraw equivalents,
+  keeping their sketch; labels become text; and the view you were on is carried
+  across. Colours land on Excalidraw's nearest swatch rather than being copied
+  as hex, because Excalidraw stores colours for a light board and inverts the
+  canvas to draw a dark one.
+- **Markdown notes are gone.** A converted note keeps every character that was
+  typed into it, but as the text it was written in rather than a rendered
+  document — headings, links, code and task lists read as their source. This is
+  not reversible. Coloured paper survives as a rectangle's fill; the per-note
+  format bar, the live task-list checkboxes, and the note and label fonts do
+  not: Excalidraw brings its own fonts and its own way of choosing them.
+- A board's background is now a colour as well as a picture. Six colours are a
+  click away in the Background panel and the `+` opens a picker for any other.
+  It is what a picture's transparency shows through, so a cut-out sits on the
+  colour you chose rather than on whatever happened to be behind it. Removing a
+  picture keeps the colour. Excalidraw's own canvas-background picker is hidden,
+  because Canvas paints that canvas transparent to put the picture behind it —
+  this is what replaces it.
+- A background picture now lies over the board the way a wallpaper does, with
+  the same five choices a desktop gives: Fill, Fit, Stretch, Centre and Tile.
+  Fill is the default and is what every picture did before.
+- **Copy this board as JSON** now copies an `.excalidraw` file, so a copied
+  board pastes into excalidraw.com, into a Ghostex drawing, or into a file.
+- The dotted grid is off unless you turn it on, in Excalidraw's own context
+  menu. Light and dark are its own toggle, remembered per board.
+- Still no permissions and still no network. Excalidraw's fallback to a font
+  CDN is patched out of the bundle at build time and pointed at `dist/fonts/`
+  instead, and the build refuses to finish if `dist/` names a host it has not
+  already accounted for. Excalidraw's own online features (text to diagram,
+  the Mermaid converter, live embedded links, and publishing library items to
+  its public library) are turned off for the same reason, and the Mermaid
+  converter is left out of the bundle entirely rather than shipping six
+  megabytes of code nothing can reach.
+
 ## [0.1.0] - {PR_MERGE_DATE}
 
 - Initial release: an infinite pan-and-zoom canvas in a Ghostex view.

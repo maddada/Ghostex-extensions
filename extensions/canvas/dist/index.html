@@ -4,10 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>Canvas</title>
+    <script>
+      /*
+        Where Excalidraw looks for its fonts. It only ever loads them from
+        here: `build.mjs` patches out the CDN it would otherwise fall back to,
+        so this is the whole supply, and it is this page's own folder however
+        Ghostex happens to serve the extension.
+      */
+      window.EXCALIDRAW_ASSET_PATH = new URL('./', document.baseURI).href;
+    </script>
+    <link rel="stylesheet" href="excalidraw.css" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div id="root"></div>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>

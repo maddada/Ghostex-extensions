@@ -1,14 +1,13 @@
 /**
- * Loading and saving through the Ghostex bridge: the board index, the
- * settings, and each board's contents and background.
+ * Loading and saving through the Ghostex bridge: the board index, and each
+ * board's scene and background.
  *
  * The host store is a key-value file rewritten on every `set`, so writes are
  * debounced and serialised: never more than one in flight, never out of order,
- * and the last value always wins. Board contents are debounced because they
- * change on every pixel of a drag, and a background because a slider moves it
- * on every pixel too; the index and the settings are written straight away,
- * because creating, renaming, switching or deleting a board, or picking a
- * font, is one deliberate act.
+ * and the last value always wins. A scene is debounced because Excalidraw
+ * reports a change on every pixel of a drag, and a background because a slider
+ * moves it on every pixel too; the index is written straight away, because
+ * creating, renaming, switching or deleting a board is one deliberate act.
  */
 
 import {
@@ -25,16 +24,17 @@ import {
   type BoardDocument,
 } from './board.js';
 import { BOARDS_STORAGE_KEY, readIndex, type BoardsIndex } from './boards.js';
-import {
-  SETTINGS_STORAGE_KEY,
-  createSettings,
-  readSettings,
-  type CanvasSettings,
-} from './settings.js';
+import { migrateLegacyBoard } from './migrate.js';
 
 export type SaveStatus = 'loading' | 'saving' | 'saved' | 'error' | 'unavailable';
 
 export const AUTOSAVE_DELAY_MS = 400;
+
+/**
+ * Where the shape library lives. Excalidraw keeps it only in memory, and it
+ * belongs to the install rather than to any one board, so it has one key.
+ */
+export const LIBRARY_STORAGE_KEY = 'library';
 
 export interface LoadResult<T> {
   value: T;
@@ -49,13 +49,13 @@ export interface Autosave {
   scheduleBackground(boardId: string, background: BoardBackground): void;
   /** Writes the board index immediately. */
   writeIndex(index: BoardsIndex): void;
-  /** Writes the settings immediately. */
-  writeSettings(settings: CanvasSettings): void;
   /**
    * Writes a board's background immediately — a picture just imported, or
    * null for one removed — and drops any slider change still waiting for it.
    */
   writeBackground(boardId: string, background: BoardBackground | null): void;
+  /** Writes the shape library immediately: adding to it is one deliberate act. */
+  writeLibrary(items: readonly unknown[]): void;
   /**
    * Replaces a deleted board's contents and background with null. The host
    * store has no delete, so a null value is the closest thing to one: the keys
@@ -81,20 +81,11 @@ export async function loadIndex(storage: BridgeStorage | null): Promise<LoadResu
 }
 
 /**
- * Settings and backgrounds carry no `failed` flag: nothing ever saves over
- * them on its own. A font is written when one is picked and a picture when
- * one is imported, both deliberate acts, so a read that failed falls back the
- * same way an empty one does and there is nothing to guard.
+ * A background carries no `failed` flag: nothing ever saves over one on its
+ * own. A picture is written when one is imported, a deliberate act, so a read
+ * that failed falls back the same way an empty one does and there is nothing
+ * to guard.
  */
-export async function loadSettings(storage: BridgeStorage | null): Promise<CanvasSettings> {
-  if (!storage) return createSettings();
-  try {
-    return readSettings(await storage.get(SETTINGS_STORAGE_KEY));
-  } catch {
-    return createSettings();
-  }
-}
-
 export async function loadBoard(
   storage: BridgeStorage | null,
   id: string = DEFAULT_BOARD_ID,
@@ -102,7 +93,7 @@ export async function loadBoard(
   if (!storage) return { value: createBoard(id), failed: false };
   try {
     const raw = await storage.get(boardStorageKey(id));
-    return { value: readBoard(raw, id), failed: false };
+    return { value: readBoard(raw, id, migrateLegacyBoard), failed: false };
   } catch {
     return { value: createBoard(id), failed: true };
   }
@@ -117,6 +108,21 @@ export async function loadBackground(
     return readBackground(await storage.get(backgroundStorageKey(id)));
   } catch {
     return null;
+  }
+}
+
+/**
+ * The shape library as stored. Excalidraw restores every item it is handed,
+ * so all this insists on is a list; a read that failed carries `failed`, so
+ * the library it could not see is never saved over.
+ */
+export async function loadLibrary(storage: BridgeStorage | null): Promise<LoadResult<readonly unknown[]>> {
+  if (!storage) return { value: [], failed: false };
+  try {
+    const raw = await storage.get(LIBRARY_STORAGE_KEY);
+    return { value: Array.isArray(raw) ? raw : [], failed: false };
+  } catch {
+    return { value: [], failed: true };
   }
 }
 
@@ -209,15 +215,15 @@ export function createAutosave(
       if (disposed || unavailable()) return;
       enqueue(BOARDS_STORAGE_KEY, index);
     },
-    writeSettings(settings: CanvasSettings): void {
-      if (disposed || unavailable()) return;
-      enqueue(SETTINGS_STORAGE_KEY, settings);
-    },
     writeBackground(boardId: string, value: BoardBackground | null): void {
       if (disposed || unavailable()) return;
       const key = backgroundStorageKey(boardId);
       background.clearKey(key);
       enqueue(key, value);
+    },
+    writeLibrary(items: readonly unknown[]): void {
+      if (disposed || unavailable()) return;
+      enqueue(LIBRARY_STORAGE_KEY, items);
     },
     tombstone(id: string): void {
       if (disposed || !storage) return;

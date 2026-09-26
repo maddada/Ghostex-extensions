@@ -8,7 +8,7 @@
  * whether a delete was meant.
  */
 
-import { useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 import { projectLabel, type HostProject } from './bridge.js';
 import {
@@ -60,28 +60,28 @@ export function Switcher(props: SwitcherProps) {
   useDismiss(root, close, { active: open });
 
   return (
-    <div class="boards" ref={root} data-chrome="boards">
+    <div className="boards" ref={root} data-chrome="boards">
       <button
         type="button"
-        class="boards__current"
+        className="boards__current"
         aria-label="Boards"
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => (open ? close() : setOpen(true))}
       >
-        <span class="boards__name">{board.name}</span>
+        <span className="boards__name">{board.name}</span>
         {board.projectId !== null ? (
-          <span class="boards__link" title={`Linked to ${projectLabel(board.projectId)}`}>
+          <span className="boards__link" title={`Linked to ${projectLabel(board.projectId)}`}>
             ◆
           </span>
         ) : null}
-        <span class="boards__chevron" aria-hidden="true">
+        <span className="boards__chevron" aria-hidden="true">
           ▾
         </span>
       </button>
 
       {open ? (
-        <div class="boards__menu" role="menu" aria-label="Boards">
+        <div className="boards__menu" role="menu" aria-label="Boards">
           {mode === 'list' ? (
             <List
               {...props}
@@ -113,19 +113,19 @@ export function Switcher(props: SwitcherProps) {
           ) : null}
 
           {mode === 'delete' ? (
-            <div class="boards__confirm">
-              <p class="boards__question">Delete “{board.name}” and everything on it?</p>
-              <div class="boards__row">
+            <div className="boards__confirm">
+              <p className="boards__question">Delete “{board.name}” and everything on it?</p>
+              <div className="boards__row">
                 <button
                   type="button"
-                  class="boards__button boards__button--danger"
+                  className="boards__button boards__button--danger"
                   onClick={() => run(props.onDelete)}
                 >
                   Yes, delete
                 </button>
                 <button
                   type="button"
-                  class="boards__button"
+                  className="boards__button"
                   onClick={() => setMode('list')}
                 >
                   Cancel
@@ -165,23 +165,23 @@ function List({
         board out from under whoever is drawing on it.
       */}
       {project ? (
-        <div class="boards__section">
-          <p class="boards__heading">Project · {project.name}</p>
+        <div className="boards__section">
+          <p className="boards__heading">Project · {project.name}</p>
           {linked === null ? (
             <button
               type="button"
-              class="boards__item"
+              className="boards__item"
               role="menuitem"
               onClick={() => onRun(() => onCreate(project.name, project.id))}
             >
               New board for {project.name}
             </button>
           ) : linked.id === board.id ? (
-            <p class="boards__note">This board is linked to {project.name}.</p>
+            <p className="boards__note">This board is linked to {project.name}.</p>
           ) : (
             <button
               type="button"
-              class="boards__item"
+              className="boards__item"
               role="menuitem"
               onClick={() => onRun(() => onOpen(linked.id))}
             >
@@ -191,39 +191,39 @@ function List({
         </div>
       ) : null}
 
-      <div class="boards__section boards__section--list">
-        <p class="boards__heading">Boards</p>
+      <div className="boards__section boards__section--list">
+        <p className="boards__heading">Boards</p>
         {index.boards.map((entry) => (
           <button
             key={entry.id}
             type="button"
-            class={`boards__item${entry.id === board.id ? ' boards__item--current' : ''}`}
+            className={`boards__item${entry.id === board.id ? ' boards__item--current' : ''}`}
             role="menuitemradio"
             aria-checked={entry.id === board.id}
             data-board-id={entry.id}
             onClick={() => onRun(() => onOpen(entry.id))}
           >
-            <span class="boards__tick" aria-hidden="true">
+            <span className="boards__tick" aria-hidden="true">
               {entry.id === board.id ? '✓' : ''}
             </span>
-            <span class="boards__label">{entry.name}</span>
+            <span className="boards__label">{entry.name}</span>
             {entry.projectId !== null ? (
-              <span class="boards__project">{projectLabel(entry.projectId)}</span>
+              <span className="boards__project">{projectLabel(entry.projectId)}</span>
             ) : null}
           </button>
         ))}
       </div>
 
-      <div class="boards__section">
-        <button type="button" class="boards__item" role="menuitem" onClick={() => onMode('create')}>
+      <div className="boards__section">
+        <button type="button" className="boards__item" role="menuitem" onClick={() => onMode('create')}>
           New board…
         </button>
-        <button type="button" class="boards__item" role="menuitem" onClick={() => onMode('rename')}>
+        <button type="button" className="boards__item" role="menuitem" onClick={() => onMode('rename')}>
           Rename this board…
         </button>
         <button
           type="button"
-          class="boards__item"
+          className="boards__item"
           role="menuitem"
           onClick={() => onRun(onCopy)}
         >
@@ -233,7 +233,7 @@ function List({
           board.projectId === project.id ? (
             <button
               type="button"
-              class="boards__item"
+              className="boards__item"
               role="menuitem"
               onClick={() => onRun(() => onLink(null))}
             >
@@ -242,7 +242,7 @@ function List({
           ) : (
             <button
               type="button"
-              class="boards__item"
+              className="boards__item"
               role="menuitem"
               onClick={() => onRun(() => onLink(project.id))}
             >
@@ -252,7 +252,7 @@ function List({
         ) : null}
         <button
           type="button"
-          class="boards__item boards__item--danger"
+          className="boards__item boards__item--danger"
           role="menuitem"
           onClick={() => onMode('delete')}
         >
@@ -285,7 +285,7 @@ function NameForm({
 
   return (
     <form
-      class="boards__form"
+      className="boards__form"
       onSubmit={(event) => {
         event.preventDefault();
         const name = field.current?.value.trim() ?? '';
@@ -293,29 +293,29 @@ function NameForm({
         onSubmit(name);
       }}
     >
-      <label class="boards__heading" for="board-name">
+      <label className="boards__heading" htmlFor="board-name">
         {label}
       </label>
       <input
         ref={field}
         id="board-name"
-        class="boards__input"
+        className="boards__input"
         type="text"
-        value={initial}
+        defaultValue={initial}
         maxLength={MAX_BOARD_NAME_LENGTH}
-        autocomplete="off"
-        spellcheck={false}
+        autoComplete="off"
+        spellCheck={false}
         onKeyDown={(event) => {
           if (event.key !== 'Escape') return;
           event.stopPropagation();
           onCancel();
         }}
       />
-      <div class="boards__row">
-        <button type="submit" class="boards__button boards__button--primary">
+      <div className="boards__row">
+        <button type="submit" className="boards__button boards__button--primary">
           {submit}
         </button>
-        <button type="button" class="boards__button" onClick={onCancel}>
+        <button type="button" className="boards__button" onClick={onCancel}>
           Cancel
         </button>
       </div>
