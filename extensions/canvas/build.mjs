@@ -279,8 +279,8 @@ for (const family of FONT_FAMILIES) {
  * Excalidraw is a whole application, and its bundle carries the addresses its
  * own UI would use. None of them is fetched here — `app.tsx` turns off
  * collaboration, the diagram-from-text tabs and embedded links, and the font
- * CDN and library publishing, which no prop turns off, are patched out above — but
- * the strings are in the code, and pretending otherwise would be worse than
+ * CDN and library publishing, which no prop turns off, are patched out above.
+ * But the strings are in the code, and pretending otherwise would be worse than
  * listing them. An upgrade that introduces a new host fails this build, so
  * someone has to look at it rather than ship it unread.
  */
