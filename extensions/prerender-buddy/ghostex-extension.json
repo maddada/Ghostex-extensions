@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "prerender-buddy",
+  "title": "Prerender Buddy",
+  "description": "Open your Prerender Buddy workspace beside your agent to review AI visibility, crawler access, website health, and articles.",
+  "version": "0.1.0",
+  "author": "Prerender Buddy",
+  "icon": "icon.svg",
+  "categories": ["Dev Tools", "Productivity"],
+  "placements": ["view"],
+  "defaultPlacement": "view",
+  "server": {
+    "url": "https://app.prerenderbuddy.com/"
+  },
+  "permissions": ["network"]
+}
