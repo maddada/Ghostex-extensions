@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Branch Graph</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header>
+    <div class="toolbar">
+      <div class="search-bar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input id="search" type="search" placeholder="Find commits…" aria-label="Find commits" autocomplete="off" spellcheck="false"><span id="search-count"></span><button id="previous-match" class="small-button" title="Previous match" aria-label="Previous match" hidden>↑</button><button id="next-match" class="small-button" title="Next match" aria-label="Next match" hidden>↓</button></div>
+      <select id="scope" aria-label="History scope" title="Choose which history to show"><option id="current-scope" value="current">Current branch</option><option value="all">All branches</option></select>
+      <button id="refresh" class="icon-button" title="Refresh (R)" aria-label="Refresh graph"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg></button>
+      <details id="settings-menu"><summary class="icon-button" aria-label="Graph settings" title="Graph settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg></summary><div class="settings-popover"><label><input id="auto-refresh" type="checkbox" checked> Automatic refresh</label><label><input id="auto-fetch" type="checkbox" checked> Fetch remotes every minute</label><label><input id="transparent" type="checkbox" checked> Transparency and app tint</label><p>Branch Graph 0.6.0 · Verified with Ghostex 10.45.0 on Linux.</p><p>Background fetch runs while this view is visible. Pull and push run when you click them.</p><p>Transparency follows your Ghostex glass settings with the local adapter.</p></div></details>
+    </div>
+    <div id="remote-controls" class="remote-controls" aria-label="Git remote actions">
+      <div class="sync-info"><div class="sync-line"><span data-sync-status>Open a Git project</span><span data-sync-fetched></span></div><span data-sync-target></span></div>
+      <div class="git-actions"><button data-git-action="fetch" disabled>Fetch</button><button data-git-action="pull" disabled>↓ Pull</button><button data-git-action="push" disabled>↑ Push</button></div>
+      <p data-sync-result role="status" hidden></p>
+    </div>
+  </header>
+  <div id="notice" role="status" hidden></div>
+  <main id="viewport" tabindex="0" aria-label="Commit graph. Use up and down arrows to select commits.">
+    <div id="empty" class="empty"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7v10M17 7v2c0 4-10 3-10 7"/><circle cx="7" cy="5" r="2.5"/><circle cx="7" cy="19" r="2.5"/><circle cx="17" cy="5" r="2.5"/></svg><strong id="empty-title">Connecting to Ghostex</strong><p id="empty-description">Your branch history will appear here.</p><button id="retry" class="text-button" hidden>Try again</button></div>
+    <div id="timeline" role="listbox" aria-label="Commits" hidden></div>
+    <div id="load-area" hidden><button id="load-more" class="text-button">Load older commits</button></div>
+  </main>
+  <div id="details-resizer" role="separator" aria-label="Resize commit details" aria-orientation="horizontal" aria-controls="details" tabindex="0" title="Drag to resize commit details. Double-click to reset." hidden></div>
+  <section id="details" aria-label="Commit details" hidden>
+    <div class="detail-bar"><span id="detail-hash" class="mono"></span><button id="copy-hash" class="small-button">Copy hash</button><span class="grow"></span><button id="close-details" class="icon-button" title="Close details (Esc)" aria-label="Close commit details">×</button></div>
+    <div class="detail-content"><h1 id="detail-subject"></h1><p id="detail-meta"></p><pre id="detail-body"></pre><div id="file-heading" class="file-heading"></div><ul id="detail-files"></ul></div>
+  </section>
+  <footer><span id="project" title="Active repository">No project</span><span id="summary">Local history</span></footer>
+</body>
+</html>

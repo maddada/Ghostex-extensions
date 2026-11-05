@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/maddada/Ghostex-extensions/main/schemas/ghostex-extension.schema.json",
+  "name": "ghostex-branch-graph",
+  "title": "Branch Graph",
+  "description": "A compact Git commit graph with remote status, background fetch and explicit pull/push actions, following your active project and worktree.",
+  "version": "0.6.0",
+  "author": "knutpfr",
+  "icon": "icon.svg",
+  "categories": [
+    "Developer Tools"
+  ],
+  "placements": [
+    "view"
+  ],
+  "defaultPlacement": "view",
+  "server": {
+    "static": "dist/"
+  },
+  "permissions": [
+    "exec"
+  ],
+  "preferences": [
+    {
+      "name": "autoRefresh",
+      "title": "Automatic refresh",
+      "description": "Refresh every five seconds while the graph is visible.",
+      "type": "checkbox",
+      "default": true
+    },
+    {
+      "name": "autoFetch",
+      "title": "Fetch remotes every minute",
+      "description": "Check for remote commits while the graph is visible. Never pulls or pushes automatically.",
+      "type": "checkbox",
+      "default": true
+    },
+    {
+      "name": "transparent",
+      "title": "Transparency and app tint",
+      "description": "Follow Ghostex's theme and app tint. Native transparency depends on the host; see README.md.",
+      "type": "checkbox",
+      "default": true
+    }
+  ]
+}

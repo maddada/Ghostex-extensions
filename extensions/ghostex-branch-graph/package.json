@@ -1,0 +1,20 @@
+{
+  "name": "ghostex-branch-graph",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "description": "Git history, remote status and explicit sync actions for Ghostex.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:ui": "npm run build && node tests/ui-sync.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright-core": "1.64.1"
+  },
+  "author": "knutpfr",
+  "license": "MIT"
+}
