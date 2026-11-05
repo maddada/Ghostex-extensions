@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" class="menu-page">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Git quick actions</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="quick.mjs"></script>
+</head>
+<body class="quick-actions">
+  <div id="remote-controls" class="remote-controls" aria-label="Git quick actions">
+    <div class="git-actions">
+      <button data-git-action="fetch" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg><span>Fetch remotes</span></button>
+      <button data-git-action="pull" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13m-5-5 5 5 5-5M5 17v4h14v-4"/></svg><span>Pull upstream</span></button>
+      <button data-git-action="push" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 17v4h14v-4"/></svg><span>Push branch</span></button>
+    </div>
+    <div class="sync-info"><span data-sync-target>No project</span><div class="sync-line"><span data-sync-status>Reading repository…</span><span data-sync-fetched></span></div><span id="quick-project" hidden></span></div>
+    <p data-sync-result role="status" hidden></p>
+  </div>
+</body>
+</html>

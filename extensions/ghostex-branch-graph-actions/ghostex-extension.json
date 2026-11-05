@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/maddada/Ghostex-extensions/main/schemas/ghostex-extension.schema.json",
+  "name": "ghostex-branch-graph-actions",
+  "title": "Branch Graph \u00b7 Quick actions",
+  "description": "Fetch, fast-forward pull and push the active project's branch from a compact titlebar popup.",
+  "version": "0.6.0",
+  "author": "knutpfr",
+  "icon": "icon.svg",
+  "categories": [
+    "Developer Tools"
+  ],
+  "placements": [
+    "popup"
+  ],
+  "defaultPlacement": "popup",
+  "popup": {
+    "width": 240,
+    "height": 184
+  },
+  "server": {
+    "static": "dist/"
+  },
+  "permissions": [
+    "exec"
+  ]
+}
