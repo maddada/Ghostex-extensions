@@ -220,19 +220,16 @@ export function buildCatalog() {
   rmSync(outputRoot, { force: true, recursive: true });
   mkdirSync(outputRoot, { recursive: true });
   // Ghostex 11.7 and older read catalog.json in one piece and reject all of it when one entry has a
-  // kind they don't know, so a sidebar extension (Ghostex 11.8+) would empty their store. Keep
-  // sidebar extensions out of catalog.json until they get a catalog only newer Ghostex reads.
-  const extensions = extensionDirectories()
-    .filter((extensionDir) => {
-      const manifest = JSON.parse(readFileSync(join(extensionDir, 'ghostex-extension.json'), 'utf8'));
-      if (manifest.kind !== 'sidebar') return true;
-      console.warn(`${basename(extensionDir)}: sidebar extensions are left out of catalog.json for now (older Ghostex can't read them).`);
-      return false;
-    })
-    .map((extensionDir) => catalogEntry(extensionDir, mergeDate));
+  // kind they don't know, so sidebar extensions (Ghostex 11.8+) go only into catalog-v2.json, the
+  // catalog newer Ghostex reads (gxserver's DEFAULT_EXTENSIONS_CATALOG_URL), which lists every
+  // extension. Both are uploaded to the rolling store release.
+  const everything = extensionDirectories().map((extensionDir) => catalogEntry(extensionDir, mergeDate));
+  const extensions = everything.filter((entry) => entry.kind !== 'sidebar');
   const catalog = { schemaVersion: 1, publishedAt: mergeDate, extensions };
   writeFileSync(join(outputRoot, 'catalog.json'), `${JSON.stringify(catalog, null, 2)}\n`);
-  return catalog;
+  const catalogV2 = { schemaVersion: 1, publishedAt: mergeDate, extensions: everything };
+  writeFileSync(join(outputRoot, 'catalog-v2.json'), `${JSON.stringify(catalogV2, null, 2)}\n`);
+  return catalogV2;
 }
 
 function main() {
