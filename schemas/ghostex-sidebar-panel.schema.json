@@ -327,6 +327,16 @@
         },
         "title": {
           "$ref": "#/$defs/label"
+        },
+        "folded": {
+          "type": "boolean",
+          "description": "The block folds under its heading: true starts folded, false starts open (Ghostex 11.8 and newer). Needs a title."
+        },
+        "show": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "description": "A rows or checklist block shows its first items and folds the rest behind \"N more\" (Ghostex 11.8 and newer)."
         }
       },
       "allOf": [

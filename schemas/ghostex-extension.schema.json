@@ -96,10 +96,12 @@
               "projects.read",
               "sessions.read",
               "sessions.open",
-              "agents.start"
+              "agents.start",
+              "agents.message",
+              "sessions.message"
             ]
           },
-          "description": "Host capabilities requested by the extension and shown for install consent. projects.read, sessions.read, sessions.open and agents.start are the scoped permissions of sidebar extensions: they reach only the extension API (/api/ext/v1) and the panel actions Ghostex runs."
+          "description": "Host capabilities requested by the extension and shown for install consent. projects.read, sessions.read, sessions.open, agents.start, agents.message (an agent may message the extension about its own thread) and sessions.message (after a tap on a thread's panel, the extension may send that thread one short message) are the scoped permissions of sidebar extensions: they reach only the extension API (/api/ext/v1) and the panel actions Ghostex runs."
         },
         "skill": {
           "type": "object",

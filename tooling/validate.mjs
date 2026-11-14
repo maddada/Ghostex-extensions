@@ -19,6 +19,8 @@ const PERMISSIONS = new Set([
   "sessions.read",
   "sessions.open",
   "agents.start",
+  "agents.message",
+  "sessions.message",
 ]);
 const PREFERENCE_TYPES = new Set([
   "textfield",

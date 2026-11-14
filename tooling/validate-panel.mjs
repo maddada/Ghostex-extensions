@@ -21,7 +21,7 @@ const ACTION_PERMISSIONS = { openProject: "sessions.open", focusSession: "sessio
 const KEYS = {
   document: ["$schema", "schema", "title", "tabs", "blocks"],
   tab: ["id", "title", "icon"],
-  blockBase: ["id", "type", "tab", "title"],
+  blockBase: ["id", "type", "tab", "title", "folded", "show"],
   rows: ["items"],
   checklist: ["editable", "items"],
   map: ["root", "groups"],
@@ -207,6 +207,16 @@ export function validatePanelDocument(document, { permissions = new Set() } = {}
     blockIds.add(block.id);
     if (block.tab !== undefined && !tabIds.has(block.tab)) fail(`${at}/tab names a tab the panel doesn't have`);
     label(block.title, `${at}/title`, true);
+    // Ghostex 11.8 and newer fold a block under its heading (`folded`) and show a list's first
+    // items with the rest behind "N more" (`show`); older Ghostex shows the block whole.
+    if (block.folded !== undefined) {
+      if (typeof block.folded !== "boolean") fail(`${at}/folded must be true or false`);
+      if (block.title === undefined) fail(`${at} folds, so it needs a title`);
+    }
+    if (block.show !== undefined) {
+      if (!["rows", "checklist"].includes(block.type)) fail(`${at}/show is for rows and checklist blocks`);
+      if (!Number.isInteger(block.show) || block.show < 1 || block.show > ITEMS_MAX) fail(`${at}/show must be 1 to ${ITEMS_MAX}`);
+    }
     const bodyKeys = KEYS[block.type];
     if (!["rows", "checklist", "map", "progress", "text", "buttons", "empty", "web"].includes(block.type)) {
       return fail(`${at}/type must be rows, checklist, map, progress, text, buttons, empty or web`);
