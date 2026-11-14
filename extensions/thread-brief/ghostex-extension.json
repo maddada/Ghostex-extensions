@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "thread-brief",
+  "title": "Thread brief",
+  "description": "Each thread's objective, what's next, what's done, what's blocked and what was parked, kept current by the agent in the side panel.",
+  "version": "0.1.0",
+  "author": "Ghostex",
+  "icon": "icon.svg",
+  "categories": ["Productivity"],
+  "kind": "sidebar",
+  "sidePanel": { "title": "Thread brief", "scope": "session", "panel": "panel.json" },
+  "server": {
+    "command": "node dist/server.mjs {port}",
+    "cwd": ".",
+    "readiness": {
+      "httpGet": "/health",
+      "timeoutSeconds": 30
+    }
+  },
+  "permissions": ["sessions.read", "agents.start", "agents.message", "sessions.message"],
+  "skill": { "name": "thread-brief", "path": "skill" }
+}

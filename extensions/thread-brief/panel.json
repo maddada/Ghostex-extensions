@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ghostex-sidebar-panel.schema.json",
+  "schema": 1,
+  "blocks": [
+    {
+      "id": "empty",
+      "type": "empty",
+      "title": "No brief yet",
+      "subtitle": "Ask this thread to write down its objective, what's next and what's done.",
+      "icon": "clipboard-list"
+    },
+    {
+      "id": "actions",
+      "type": "buttons",
+      "items": [{ "id": "draft", "title": "Ask for a brief", "icon": "sparkles", "style": "primary", "action": { "extension": "refresh" } }]
+    }
+  ]
+}
