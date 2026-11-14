@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "sidebar-extension",
+  "title": "Sidebar Extension",
+  "description": "A minimal Ghostex sidebar panel: your projects and a Today list, drawn by Ghostex.",
+  "version": "0.1.0",
+  "author": "Your Name",
+  "icon": "icon.svg",
+  "categories": ["Productivity"],
+  "kind": "sidebar",
+  "sidebar": {
+    "mode": { "title": "Sidebar Extension" },
+    "sections": [{ "block": "today", "where": "projectsTop" }],
+    "panel": "panel.json"
+  },
+  "server": {
+    "command": "node dist/server.mjs {port}",
+    "cwd": ".",
+    "readiness": {
+      "httpGet": "/health",
+      "timeoutSeconds": 30
+    }
+  },
+  "permissions": ["projects.read", "sessions.open"]
+}

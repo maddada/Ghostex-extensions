@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/ghostex-sidebar-panel.schema.json",
+  "schema": 1,
+  "tabs": [
+    { "id": "map", "title": "Map", "icon": "map" },
+    { "id": "focus", "title": "Focus", "icon": "focus-2" }
+  ],
+  "blocks": [
+    {
+      "id": "projects",
+      "type": "empty",
+      "tab": "map",
+      "title": "Loading your projects…",
+      "icon": "loader"
+    },
+    {
+      "id": "today",
+      "type": "checklist",
+      "tab": "focus",
+      "title": "Today",
+      "editable": true,
+      "items": [
+        { "id": "first", "text": "Tick me, add items, rename them", "done": false }
+      ]
+    },
+    {
+      "id": "actions",
+      "type": "buttons",
+      "tab": "map",
+      "items": [{ "title": "Refresh", "icon": "refresh", "action": { "extension": "refresh" } }]
+    }
+  ]
+}
