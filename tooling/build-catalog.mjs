@@ -11,6 +11,9 @@ import { validateManifest } from './validate.mjs';
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const extensionsRoot = join(repositoryRoot, 'extensions');
 const outputRoot = join(repositoryRoot, 'dist-store');
+// Where each extension's folder is browsed on GitHub: its catalog entry's `sourceUrl`, which Ghostex
+// 11.8 and newer link from the extension's card with the GitHub mark (older Ghostex ignores it).
+const sourceBaseUrl = 'https://github.com/maddada/Ghostex-extensions/tree/main';
 const screenshotExtensions = new Set(['.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp']);
 const ignoredEntryNames = new Set(['.DS_Store', '.git', 'node_modules']);
 const utf8Flag = 0x0800;
@@ -212,6 +215,7 @@ function catalogEntry(extensionDir, mergeDate) {
     screenshots: screenshotPaths(extensionDir),
     zip: zipName,
     sha256,
+    sourceUrl: `${sourceBaseUrl}/${normalizeRelativePath(relative(repositoryRoot, extensionDir))}`,
   };
 }
 
