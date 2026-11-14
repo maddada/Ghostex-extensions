@@ -6,11 +6,20 @@
   "version": "0.1.0",
   "author": "Your Name",
   "icon": "icon.svg",
-  "categories": ["Productivity"],
+  "categories": [
+    "Productivity"
+  ],
   "kind": "sidebar",
   "sidebar": {
-    "mode": { "title": "Sidebar Extension" },
-    "sections": [{ "block": "today", "where": "projectsTop" }],
+    "mode": {
+      "title": "Sidebar Extension"
+    },
+    "sections": [
+      {
+        "block": "today",
+        "where": "projectsTop"
+      }
+    ],
     "panel": "panel.json"
   },
   "server": {
@@ -21,5 +30,12 @@
       "timeoutSeconds": 30
     }
   },
-  "permissions": ["projects.read", "sessions.open"]
+  "permissions": [
+    "projects.read",
+    "sessions.open"
+  ],
+  "skill": {
+    "name": "sidebar-extension",
+    "path": "skill"
+  }
 }

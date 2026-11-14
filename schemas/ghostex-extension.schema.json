@@ -100,6 +100,28 @@
             ]
           },
           "description": "Host capabilities requested by the extension and shown for install consent. projects.read, sessions.read, sessions.open and agents.start are the scoped permissions of sidebar extensions: they reach only the extension API (/api/ext/v1) and the panel actions Ghostex runs."
+        },
+        "skill": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "path"
+          ],
+          "description": "An agent skill the extension ships (Ghostex 11.8 and newer). Ghostex asks whether to install it for the user's coding agents when the extension is installed, and removes it with the extension.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "maxLength": 64,
+              "description": "The skill's name, equal to the name: in its SKILL.md frontmatter."
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The folder in the extension that holds SKILL.md and its files."
+            }
+          }
         }
       }
     },

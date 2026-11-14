@@ -39,6 +39,7 @@ const COMMON_FIELDS = new Set([
   "categories",
   "preferences",
   "permissions",
+  "skill",
 ]);
 const WEB_FIELDS = new Set([
   ...COMMON_FIELDS,
@@ -435,6 +436,7 @@ export function validateManifest(manifest, options = {}) {
     );
   }
   if ("preferences" in manifest) validatePreferences(manifest.preferences, errors);
+  if ("skill" in manifest) validateSkill(manifest.skill, errors);
 
   if (isTerminal) {
     validateTerminal(manifest.terminal, errors);
@@ -486,7 +488,36 @@ export function validateManifestFile(manifestPath) {
   if (errors.length === 0 && manifest.kind === "sidebar") {
     errors.push(...validateSidebarFiles(manifest, dirname(absolutePath)));
   }
+  if (errors.length === 0 && manifest.skill) {
+    errors.push(...validateSkillFiles(manifest.skill, dirname(absolutePath)));
+  }
   return errors.map((error) => `${absolutePath}: ${error}`);
+}
+
+/**
+ * An agent skill the extension ships (Ghostex 11.8 and newer): a folder in the package with SKILL.md.
+ * Ghostex asks whether to install it when the extension is installed, and removes it with the extension.
+ */
+function validateSkill(skill, errors) {
+  if (!requireObject(skill, "manifest.skill", errors)) return;
+  hasOnlyKeys(skill, new Set(["name", "path"]), "manifest.skill", errors);
+  if (typeof skill.name !== "string" || skill.name.length > 64 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(skill.name)) {
+    errors.push("manifest.skill.name must be a kebab-case name of at most 64 characters");
+  }
+  requireRelativePath(skill.path, "manifest.skill.path", errors);
+}
+
+/** The skill folder holds SKILL.md, whose frontmatter `name` is the manifest's, as Ghostex checks at install. */
+function validateSkillFiles(skill, extensionDir) {
+  const path = join(extensionDir, skill.path, "SKILL.md");
+  if (!existsSync(path)) return [`manifest.skill.path ${skill.path} has no SKILL.md`];
+  const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(readFileSync(path, "utf8"));
+  const name = frontmatter && /^name:\s*["']?([^"'\r\n]+?)["']?\s*$/m.exec(frontmatter[1]);
+  if (!name) return [`${skill.path}/SKILL.md needs a name: in its frontmatter`];
+  if (name[1] !== skill.name) {
+    return [`${skill.path}/SKILL.md is named ${JSON.stringify(name[1])}, but manifest.skill.name is ${JSON.stringify(skill.name)}`];
+  }
+  return [];
 }
 
 /** The panel files and icons a sidebar extension ships, checked as Ghostex checks them at install. */

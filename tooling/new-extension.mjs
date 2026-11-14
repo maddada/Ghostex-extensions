@@ -43,6 +43,8 @@ export function scaffoldExtension(templateName, extensionId) {
   const sourceManifestPath = join(sourceDirectory, 'ghostex-extension.json');
   const manifest = JSON.parse(readFileSync(sourceManifestPath, 'utf8'));
   manifest.name = extensionId;
+  // The skill a template ships is named after the extension, in the manifest and in its SKILL.md.
+  if (manifest.skill) manifest.skill.name = extensionId;
   const errors = validateManifest(manifest, { folderName: extensionId });
   if (errors.length > 0) {
     throw new Error(errors.map((error) => `ghostex-extension.json: ${error}`).join('\n'));
@@ -59,6 +61,15 @@ export function scaffoldExtension(templateName, extensionId) {
       join(destinationDirectory, 'ghostex-extension.json'),
       `${JSON.stringify(manifest, null, 2)}\n`,
     );
+    if (manifest.skill) {
+      const skillFile = join(destinationDirectory, manifest.skill.path, 'SKILL.md');
+      writeFileSync(
+        skillFile,
+        readFileSync(skillFile, 'utf8')
+          .replace(/^name:.*$/m, `name: ${extensionId}`)
+          .replaceAll(templateDirectoryName, extensionId),
+      );
+    }
   } catch (error) {
     rmSync(destinationDirectory, { force: true, recursive: true });
     throw error;

@@ -56,3 +56,13 @@ manifest.
 - `sessions.open`: open a project when you click it in the panel.
 
 The server process itself is unsandboxed and is disclosed during installation.
+
+## Agent skill
+
+`skill` in the manifest points at a folder with a `SKILL.md` (here `skill/`),
+named after the extension. When someone installs the extension, Ghostex 11.8 and
+newer ask whether to install that skill for their coding agents too; it goes
+where Ghostex's own skills go, an update refreshes it, and uninstalling the
+extension removes it. Ghostex never replaces a skill of the same name that the
+user already has, so pick a name that is yours. Delete `skill` from the manifest
+if your extension has no skill.
