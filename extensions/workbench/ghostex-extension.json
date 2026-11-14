@@ -1,0 +1,26 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "workbench",
+  "title": "Workbench",
+  "description": "Your projects as a map, and a Today list, in the sidebar.",
+  "version": "0.1.0",
+  "author": "Ghostex",
+  "icon": "icon.svg",
+  "categories": ["Productivity"],
+  "kind": "sidebar",
+  "sidebar": {
+    "mode": { "title": "Workbench" },
+    "sections": [{ "block": "today", "where": "projectsTop" }],
+    "panel": "panel.json"
+  },
+  "sidePanel": { "title": "Workbench", "scope": "global", "panel": "panel.json" },
+  "server": {
+    "command": "node dist/server.mjs {port}",
+    "cwd": ".",
+    "readiness": {
+      "httpGet": "/health",
+      "timeoutSeconds": 30
+    }
+  },
+  "permissions": ["projects.read", "sessions.open"]
+}
