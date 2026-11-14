@@ -3,7 +3,7 @@
   "name": "workbench",
   "title": "Workbench",
   "description": "Your projects as a map, and a Today list, in the sidebar.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Ghostex",
   "icon": "icon.svg",
   "categories": ["Productivity"],
@@ -22,5 +22,5 @@
       "timeoutSeconds": 30
     }
   },
-  "permissions": ["projects.read", "sessions.open"]
+  "permissions": ["projects.read", "sessions.read", "sessions.open"]
 }

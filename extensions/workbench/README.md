@@ -10,6 +10,9 @@ Needs Ghostex 11.8 or newer.
 - **Today**: an editable list above your projects (and under Focus). Tick
   items, add them with Add item, and rename or delete them from their
   right-click menu. The progress bar follows what is done.
+- **This week**: under Focus, a small chart of the sessions active on each of
+  the last 7 days. It is a web page of Workbench's own, so it shows on the
+  computer; the phone shows Open on computer in its place.
 - **Side panel**: open Workbench from the side panel's view list for the same
   map and list with more room.
 
@@ -19,6 +22,7 @@ Workbench.
 ## Permissions
 
 - `projects.read`: reads your project names and folders to draw the map.
+- `sessions.read`: reads when your sessions were last active, for the chart.
 - `sessions.open`: opens a project when you click it.
 
 Workbench runs a small Node server while it is on; it talks only to Ghostex on

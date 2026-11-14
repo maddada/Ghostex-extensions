@@ -316,9 +316,10 @@
             "progress",
             "text",
             "buttons",
-            "empty"
+            "empty",
+            "web"
           ],
-          "description": "The v1 blocks. web (a small page of the extension's own) comes in a later version."
+          "description": "The blocks. web (a small page of the extension's own) needs Ghostex 11.8 or newer; the desktop shows it and the phone shows an Open on computer row."
         },
         "tab": {
           "$ref": "#/$defs/ident",
@@ -584,6 +585,33 @@
               },
               "action": {
                 "$ref": "#/$defs/action"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "web"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "path"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+\\.html?$",
+                "description": "An .html file in the extension's folder, loaded from Ghostex's own address with the extension bridge (ghostex.sidebar, ghostex.projects(), ghostex.sessions(), ghostex.on())."
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 40,
+                "maximum": 480,
+                "description": "Points tall; 120 when absent."
               }
             }
           }

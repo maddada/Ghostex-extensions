@@ -33,6 +33,14 @@
       "label": "Done today"
     },
     {
+      "id": "activity",
+      "type": "web",
+      "tab": "focus",
+      "title": "This week",
+      "path": "chart.html",
+      "height": 110
+    },
+    {
       "id": "refresh",
       "type": "buttons",
       "tab": "map",

@@ -29,6 +29,7 @@ const KEYS = {
   text: ["text"],
   buttons: ["items"],
   empty: ["subtitle", "icon", "action"],
+  web: ["path", "height"],
   row: ["id", "icon", "dot", "title", "subtitle", "trailing", "badge", "project", "session", "action", "menu"],
   checklistItem: ["id", "text", "done", "action", "menu"],
   mapRoot: ["title", "subtitle", "icon"],
@@ -207,9 +208,8 @@ export function validatePanelDocument(document, { permissions = new Set() } = {}
     if (block.tab !== undefined && !tabIds.has(block.tab)) fail(`${at}/tab names a tab the panel doesn't have`);
     label(block.title, `${at}/title`, true);
     const bodyKeys = KEYS[block.type];
-    if (block.type === "web") return fail(`${at}: web blocks come in a later version of Ghostex; use the native blocks for now`);
-    if (!["rows", "checklist", "map", "progress", "text", "buttons", "empty"].includes(block.type)) {
-      return fail(`${at}/type must be rows, checklist, map, progress, text, buttons or empty`);
+    if (!["rows", "checklist", "map", "progress", "text", "buttons", "empty", "web"].includes(block.type)) {
+      return fail(`${at}/type must be rows, checklist, map, progress, text, buttons, empty or web`);
     }
     only(block, [...KEYS.blockBase, ...bodyKeys], at);
     switch (block.type) {
@@ -288,6 +288,18 @@ export function validatePanelDocument(document, { permissions = new Set() } = {}
         label(block.subtitle, `${at}/subtitle`, true);
         icon(block.icon, `${at}/icon`);
         if (block.action !== undefined) action(block.action, `${at}/action`);
+        break;
+      // A small page of the extension's own (Ghostex 11.8 and newer): the desktop shows it, the
+      // phone shows an Open on computer row.
+      case "web":
+        if (typeof block.path !== "string" || !/\.html?$/i.test(block.path)) {
+          fail(`${at}/path must be an .html file in the extension`);
+        } else if (block.path.startsWith("/") || block.path.split(/[\\/]/).includes("..")) {
+          fail(`${at}/path must stay inside the extension folder`);
+        }
+        if (block.height !== undefined && !(Number.isInteger(block.height) && block.height >= 40 && block.height <= 480)) {
+          fail(`${at}/height must be a whole number from 40 to 480`);
+        }
         break;
     }
   });
