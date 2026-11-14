@@ -25,6 +25,10 @@ it looks like Ghostex in both themes. Needs Ghostex 11.8 or newer.
   | `GET /api/ext/v1/sessions?project=` | Your sessions and what they are doing (needs `sessions.read`) |
   | `GET /api/ext/v1/events` | Server-sent events: `panelChanged`, `checklistEdited`, `panelAction`, `projectsChanged`, `sessionsChanged` |
 
+  A tap on an `extension` action also arrives as `POST /ghostex/panel-action`
+  on your server, with the event as the body and your own token as
+  `Authorization: Bearer …`, so you can handle taps without following events.
+
   Add `surface=sidePanel` (and `session=<projectId>:<sessionId>` for a
   per-session side panel) to the panel calls for a side panel view.
 - From a shell inside the server's process, `ghostex extensions panel
