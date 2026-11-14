@@ -1,0 +1,595 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/maddada/Ghostex-extensions/schemas/ghostex-sidebar-panel.schema.json",
+  "title": "Ghostex sidebar panel",
+  "description": "What a sidebar extension's mode, sections or side panel shows. Ghostex draws it with its own rows, menus and tooltips; a panel can't pick colours or fonts. Ghostex checks the same rules when an extension writes it (PUT/PATCH /api/ext/v1/panel). Limits: 64 KiB of JSON, 64 blocks, 8 tabs, 200 items a block, labels up to 200 characters, text up to 4000.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "blocks"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema": {
+      "const": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "tabs": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{1,64}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "icon": {
+            "type": "string",
+            "description": "A Tabler icon name (map, focus-2) or a relative path to a one-colour SVG in the extension.",
+            "anyOf": [
+              {
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              {
+                "pattern": "^(?!/)(?!.*\\.\\.)[^\\\\]+\\.svg$"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "blocks": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/block"
+      }
+    }
+  },
+  "$defs": {
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "ident": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,64}$"
+    },
+    "icon": {
+      "type": "string",
+      "description": "A Tabler icon name (map, focus-2) or a relative path to a one-colour SVG in the extension.",
+      "anyOf": [
+        {
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        {
+          "pattern": "^(?!/)(?!.*\\.\\.)[^\\\\]+\\.svg$"
+        }
+      ]
+    },
+    "sessionRef": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}:[A-Za-z0-9_-]{1,64}$",
+      "description": "<projectId>:<sessionId>"
+    },
+    "action": {
+      "description": "What a tap does. openProject and focusSession need sessions.open, newAgent needs agents.start; extension goes back to the extension as a panelAction event.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "openProject"
+          ],
+          "properties": {
+            "openProject": {
+              "$ref": "#/$defs/label",
+              "description": "A project path (~/dev/app) or project id."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "focusSession"
+          ],
+          "properties": {
+            "focusSession": {
+              "$ref": "#/$defs/sessionRef"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "newAgent"
+          ],
+          "properties": {
+            "newAgent": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "project"
+              ],
+              "properties": {
+                "project": {
+                  "$ref": "#/$defs/label"
+                },
+                "draft": {
+                  "type": "string",
+                  "maxLength": 4000,
+                  "description": "Put in the new agent's chat box, not sent."
+                },
+                "agent": {
+                  "$ref": "#/$defs/ident"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "openUrl"
+          ],
+          "properties": {
+            "openUrl": {
+              "type": "string",
+              "pattern": "^(https://|http://(localhost|127\\.[0-9.]+|\\[::1\\])([:/?#]|$))"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "openView"
+          ],
+          "properties": {
+            "openView": {
+              "$ref": "#/$defs/ident"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "extension"
+          ],
+          "properties": {
+            "extension": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ident"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "name"
+                  ],
+                  "properties": {
+                    "name": {
+                      "$ref": "#/$defs/ident"
+                    },
+                    "data": {
+                      "description": "Passed back with the event; at most 4 KiB of JSON."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "menu": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "action"
+        ],
+        "properties": {
+          "title": {
+            "$ref": "#/$defs/label"
+          },
+          "icon": {
+            "$ref": "#/$defs/icon"
+          },
+          "action": {
+            "$ref": "#/$defs/action"
+          }
+        }
+      }
+    },
+    "row": {
+      "description": "With project or session, Ghostex fills in the name, live status dot, hover card and menu itself, and a click opens it.",
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "title"
+          ]
+        },
+        {
+          "required": [
+            "project"
+          ]
+        },
+        {
+          "required": [
+            "session"
+          ]
+        }
+      ],
+      "not": {
+        "required": [
+          "project",
+          "session"
+        ]
+      },
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ident"
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        },
+        "dot": {
+          "enum": [
+            "green",
+            "yellow",
+            "red",
+            "blue",
+            "gray"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/label"
+        },
+        "subtitle": {
+          "$ref": "#/$defs/label"
+        },
+        "trailing": {
+          "$ref": "#/$defs/label"
+        },
+        "badge": {
+          "$ref": "#/$defs/label"
+        },
+        "project": {
+          "$ref": "#/$defs/label"
+        },
+        "session": {
+          "$ref": "#/$defs/sessionRef"
+        },
+        "action": {
+          "$ref": "#/$defs/action"
+        },
+        "menu": {
+          "$ref": "#/$defs/menu"
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ident"
+        },
+        "type": {
+          "enum": [
+            "rows",
+            "checklist",
+            "map",
+            "progress",
+            "text",
+            "buttons",
+            "empty"
+          ],
+          "description": "The v1 blocks. web (a small page of the extension's own) comes in a later version."
+        },
+        "tab": {
+          "$ref": "#/$defs/ident",
+          "description": "The id of one of the panel's tabs."
+        },
+        "title": {
+          "$ref": "#/$defs/label"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "rows"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "items"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "maxItems": 200,
+                "items": {
+                  "$ref": "#/$defs/row"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "checklist"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "items"
+            ],
+            "properties": {
+              "editable": {
+                "type": "boolean",
+                "description": "The user may tick, add, rename and delete items; Ghostex applies the edits and tells the extension."
+              },
+              "items": {
+                "type": "array",
+                "maxItems": 200,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "text",
+                    "done"
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/$defs/ident"
+                    },
+                    "text": {
+                      "$ref": "#/$defs/label"
+                    },
+                    "done": {
+                      "type": "boolean"
+                    },
+                    "action": {
+                      "$ref": "#/$defs/action"
+                    },
+                    "menu": {
+                      "$ref": "#/$defs/menu"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "map"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "groups"
+            ],
+            "properties": {
+              "root": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "title"
+                ],
+                "properties": {
+                  "title": {
+                    "$ref": "#/$defs/label"
+                  },
+                  "subtitle": {
+                    "$ref": "#/$defs/label"
+                  },
+                  "icon": {
+                    "$ref": "#/$defs/icon"
+                  }
+                }
+              },
+              "groups": {
+                "type": "array",
+                "maxItems": 200,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "title",
+                    "items"
+                  ],
+                  "properties": {
+                    "title": {
+                      "$ref": "#/$defs/label"
+                    },
+                    "subtitle": {
+                      "$ref": "#/$defs/label"
+                    },
+                    "icon": {
+                      "$ref": "#/$defs/icon"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/row"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "progress"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "max": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "100 when absent; value is at most max."
+              },
+              "label": {
+                "$ref": "#/$defs/label"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "text"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 4000,
+                "description": "A small Markdown subset: paragraphs, bold, italic, code, links, lists."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "buttons"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "items"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 12,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "title",
+                    "action"
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/$defs/ident"
+                    },
+                    "title": {
+                      "$ref": "#/$defs/label"
+                    },
+                    "icon": {
+                      "$ref": "#/$defs/icon"
+                    },
+                    "style": {
+                      "enum": [
+                        "primary",
+                        "default"
+                      ]
+                    },
+                    "action": {
+                      "$ref": "#/$defs/action"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "empty"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "title"
+            ],
+            "properties": {
+              "subtitle": {
+                "$ref": "#/$defs/label"
+              },
+              "icon": {
+                "$ref": "#/$defs/icon"
+              },
+              "action": {
+                "$ref": "#/$defs/action"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

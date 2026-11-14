@@ -15,6 +15,9 @@
         },
         {
           "$ref": "#/$defs/terminalExtension"
+        },
+        {
+          "$ref": "#/$defs/sidebarExtension"
         }
       ]
     }
@@ -89,10 +92,14 @@
               "cli",
               "ssh",
               "network",
-              "clipboard"
+              "clipboard",
+              "projects.read",
+              "sessions.read",
+              "sessions.open",
+              "agents.start"
             ]
           },
-          "description": "Host capabilities requested by the extension and shown for install consent."
+          "description": "Host capabilities requested by the extension and shown for install consent. projects.read, sessions.read, sessions.open and agents.start are the scoped permissions of sidebar extensions: they reach only the extension API (/api/ext/v1) and the panel actions Ghostex runs."
         }
       }
     },
@@ -224,6 +231,179 @@
         },
         "terminal": {
           "$ref": "#/$defs/terminal"
+        }
+      }
+    },
+    "sidebarExtension": {
+      "type": "object",
+      "description": "Sidebar content drawn by Ghostex from a panel document (schemas/ghostex-sidebar-panel.schema.json): its own sidebar mode, sections in the Projects list, and/or a side panel view. Ghostex 11.8 and newer.",
+      "required": [
+        "kind"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "sidebar"
+          ]
+        },
+        {
+          "required": [
+            "sidePanel"
+          ]
+        }
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "placements"
+            ]
+          },
+          {
+            "required": [
+              "defaultPlacement"
+            ]
+          },
+          {
+            "required": [
+              "terminal"
+            ]
+          },
+          {
+            "required": [
+              "modal"
+            ]
+          },
+          {
+            "required": [
+              "popup"
+            ]
+          }
+        ]
+      },
+      "properties": {
+        "kind": {
+          "const": "sidebar"
+        },
+        "sidebar": {
+          "$ref": "#/$defs/sidebar"
+        },
+        "sidePanel": {
+          "$ref": "#/$defs/sidePanel"
+        },
+        "server": {
+          "description": "Optional: a command server for outside data and custom actions (it gets GHOSTEX_API_URL and GHOSTEX_API_TOKEN and runs while the extension is on), or a static folder. A panel that only shows its own JSON needs no server.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/server/oneOf/0"
+            },
+            {
+              "$ref": "#/$defs/server/oneOf/1"
+            }
+          ]
+        }
+      }
+    },
+    "sidebar": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "mode"
+          ]
+        },
+        {
+          "required": [
+            "sections"
+          ],
+          "properties": {
+            "sections": {
+              "minItems": 1
+            }
+          }
+        }
+      ],
+      "properties": {
+        "mode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "title"
+          ],
+          "description": "Its own sidebar mode: a top-row button that swaps the whole sidebar list, like Bots.",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "icon": {
+              "type": "string",
+              "pattern": "\\.svg$",
+              "description": "Relative path to an SVG; the extension's icon when absent."
+            }
+          }
+        },
+        "sections": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "Blocks of the sidebar panel shown inside the Projects list.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "block",
+              "where"
+            ],
+            "properties": {
+              "block": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The id of a block in the sidebar panel document."
+              },
+              "where": {
+                "enum": [
+                  "projectsTop",
+                  "projectsBottom"
+                ]
+              }
+            }
+          }
+        },
+        "panel": {
+          "type": "string",
+          "pattern": "\\.json$",
+          "description": "Relative path to the first panel document (schemas/ghostex-sidebar-panel.schema.json). An empty panel when absent."
+        }
+      }
+    },
+    "sidePanel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title"
+      ],
+      "description": "A side panel view drawn from the same panel blocks and the same extension API.",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "icon": {
+          "type": "string",
+          "pattern": "\\.svg$"
+        },
+        "scope": {
+          "enum": [
+            "global",
+            "session"
+          ],
+          "description": "One document for the computer (global, the default) or one per session."
+        },
+        "panel": {
+          "type": "string",
+          "pattern": "\\.json$",
+          "description": "The first document; with scope session, the one every session starts from."
         }
       }
     },

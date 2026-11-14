@@ -27,11 +27,14 @@ extensions/<extension-id>/
 ```
 
 - `schemas/ghostex-extension.schema.json` is the canonical manifest schema.
+- `schemas/ghostex-sidebar-panel.schema.json` is the panel document a sidebar
+  extension sends; Ghostex draws it in the sidebar or a side panel.
 - `templates/` contains complete starting points for static web, command-server,
-  and terminal-pane extensions.
+  terminal-pane and sidebar extensions.
 - `tooling/new-extension.mjs` creates an extension from a template and sets its
   folder and manifest id together.
-- `tooling/validate.mjs` validates manifests without third-party dependencies.
+- `tooling/validate.mjs` validates manifests (and a sidebar extension's panel
+  files) without third-party dependencies; `--panel <file>` checks one panel.
 - `extensions/` contains published extensions, one kebab-case folder per id.
 
 The manifest `name` must exactly match its folder name. Extension icons are
@@ -49,7 +52,8 @@ the same id:
 node tooling/new-extension.mjs static my-extension
 ```
 
-The available templates are `static`, `command-server`, and `terminal`. The
+The available templates are `static`, `command-server`, `terminal`, and
+`sidebar` (Ghostex 11.8 and newer). The
 command refuses invalid ids and existing destination folders. After creation,
 replace the template metadata and implementation, then validate the manifest:
 

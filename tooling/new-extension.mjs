@@ -13,6 +13,7 @@ const templates = new Map([
   ['static', 'static-extension'],
   ['command-server', 'command-server-extension'],
   ['terminal', 'terminal-extension'],
+  ['sidebar', 'sidebar-extension'],
 ]);
 
 function usage() {

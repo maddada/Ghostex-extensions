@@ -219,7 +219,17 @@ export function buildCatalog() {
   const mergeDate = resolveMergeDate();
   rmSync(outputRoot, { force: true, recursive: true });
   mkdirSync(outputRoot, { recursive: true });
-  const extensions = extensionDirectories().map((extensionDir) => catalogEntry(extensionDir, mergeDate));
+  // Ghostex 11.7 and older read catalog.json in one piece and reject all of it when one entry has a
+  // kind they don't know, so a sidebar extension (Ghostex 11.8+) would empty their store. Keep
+  // sidebar extensions out of catalog.json until they get a catalog only newer Ghostex reads.
+  const extensions = extensionDirectories()
+    .filter((extensionDir) => {
+      const manifest = JSON.parse(readFileSync(join(extensionDir, 'ghostex-extension.json'), 'utf8'));
+      if (manifest.kind !== 'sidebar') return true;
+      console.warn(`${basename(extensionDir)}: sidebar extensions are left out of catalog.json for now (older Ghostex can't read them).`);
+      return false;
+    })
+    .map((extensionDir) => catalogEntry(extensionDir, mergeDate));
   const catalog = { schemaVersion: 1, publishedAt: mergeDate, extensions };
   writeFileSync(join(outputRoot, 'catalog.json'), `${JSON.stringify(catalog, null, 2)}\n`);
   return catalog;

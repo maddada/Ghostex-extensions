@@ -2,10 +2,24 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
+
+import { validatePanelDocument } from "./validate-panel.mjs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const WEB_PLACEMENTS = new Set(["view", "chat-bar", "popup", "modal"]);
-const PERMISSIONS = new Set(["exec", "cli", "ssh", "network", "clipboard"]);
+const PERMISSIONS = new Set([
+  "exec",
+  "cli",
+  "ssh",
+  "network",
+  "clipboard",
+  // Scoped permissions of sidebar extensions: they reach only the extension API (/api/ext/v1)
+  // and the panel actions Ghostex runs.
+  "projects.read",
+  "sessions.read",
+  "sessions.open",
+  "agents.start",
+]);
 const PREFERENCE_TYPES = new Set([
   "textfield",
   "password",
@@ -35,6 +49,7 @@ const WEB_FIELDS = new Set([
   "popup",
 ]);
 const TERMINAL_FIELDS = new Set([...COMMON_FIELDS, "kind", "terminal"]);
+const SIDEBAR_FIELDS = new Set([...COMMON_FIELDS, "kind", "sidebar", "sidePanel", "server"]);
 const SEMVER =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
 
@@ -304,12 +319,89 @@ function validateTerminal(terminal, errors) {
   }
 }
 
+function validateSidebarManifest(manifest, errors) {
+  const { sidebar, sidePanel } = manifest;
+  if (sidebar === undefined && sidePanel === undefined) {
+    errors.push("a sidebar extension needs manifest.sidebar (a mode or sections), manifest.sidePanel, or both");
+  }
+  if (sidebar !== undefined && requireObject(sidebar, "manifest.sidebar", errors)) {
+    hasOnlyKeys(sidebar, new Set(["mode", "sections", "panel"]), "manifest.sidebar", errors);
+    const hasSections = Array.isArray(sidebar.sections) && sidebar.sections.length > 0;
+    if (sidebar.mode === undefined && !hasSections) {
+      errors.push("manifest.sidebar needs a mode, sections, or both");
+    }
+    if (sidebar.mode !== undefined && requireObject(sidebar.mode, "manifest.sidebar.mode", errors)) {
+      hasOnlyKeys(sidebar.mode, new Set(["title", "icon"]), "manifest.sidebar.mode", errors);
+      requireNonEmptyString(sidebar.mode.title, "manifest.sidebar.mode.title", errors);
+      if ("icon" in sidebar.mode) requireSvgPath(sidebar.mode.icon, "manifest.sidebar.mode.icon", errors);
+    }
+    if ("sections" in sidebar) {
+      if (!Array.isArray(sidebar.sections)) {
+        errors.push("manifest.sidebar.sections must be an array");
+      } else {
+        const blocks = new Set();
+        for (const [index, section] of sidebar.sections.entries()) {
+          const at = `manifest.sidebar.sections[${index}]`;
+          if (!requireObject(section, at, errors)) continue;
+          hasOnlyKeys(section, new Set(["block", "where"]), at, errors);
+          if (requireNonEmptyString(section.block, `${at}.block`, errors)) {
+            if (blocks.has(section.block)) errors.push(`${at}.block repeats ${JSON.stringify(section.block)}`);
+            blocks.add(section.block);
+          }
+          if (section.where !== "projectsTop" && section.where !== "projectsBottom") {
+            errors.push(`${at}.where must be projectsTop or projectsBottom`);
+          }
+        }
+      }
+    }
+    if ("panel" in sidebar) requireJsonPath(sidebar.panel, "manifest.sidebar.panel", errors);
+  }
+  if (sidePanel !== undefined && requireObject(sidePanel, "manifest.sidePanel", errors)) {
+    hasOnlyKeys(sidePanel, new Set(["title", "icon", "scope", "panel"]), "manifest.sidePanel", errors);
+    requireNonEmptyString(sidePanel.title, "manifest.sidePanel.title", errors);
+    if ("icon" in sidePanel) requireSvgPath(sidePanel.icon, "manifest.sidePanel.icon", errors);
+    if ("scope" in sidePanel && sidePanel.scope !== "global" && sidePanel.scope !== "session") {
+      errors.push("manifest.sidePanel.scope must be global or session");
+    }
+    if ("panel" in sidePanel) requireJsonPath(sidePanel.panel, "manifest.sidePanel.panel", errors);
+  }
+  if ("server" in manifest) {
+    if (isObject(manifest.server) && Object.hasOwn(manifest.server, "url")) {
+      errors.push("manifest.server of a sidebar extension is a command or a static folder, not a url");
+    } else {
+      validateServer(manifest.server, errors);
+    }
+  }
+}
+
+function requireRelativePath(value, at, errors) {
+  if (!requireNonEmptyString(value, at, errors)) return false;
+  if (value.startsWith("/") || value.split(/[\\/]/).includes("..")) {
+    errors.push(`${at} must stay inside the extension folder`);
+    return false;
+  }
+  return true;
+}
+
+function requireSvgPath(value, at, errors) {
+  if (requireRelativePath(value, at, errors) && !value.toLowerCase().endsWith(".svg")) {
+    errors.push(`${at} must reference an SVG file`);
+  }
+}
+
+function requireJsonPath(value, at, errors) {
+  if (requireRelativePath(value, at, errors) && !value.toLowerCase().endsWith(".json")) {
+    errors.push(`${at} must reference a JSON file`);
+  }
+}
+
 export function validateManifest(manifest, options = {}) {
   const errors = [];
   if (!requireObject(manifest, "manifest", errors)) return errors;
 
   const isTerminal = manifest.kind === "terminal-pane";
-  const allowedFields = isTerminal ? TERMINAL_FIELDS : WEB_FIELDS;
+  const isSidebar = manifest.kind === "sidebar";
+  const allowedFields = isTerminal ? TERMINAL_FIELDS : isSidebar ? SIDEBAR_FIELDS : WEB_FIELDS;
   hasOnlyKeys(manifest, allowedFields, "manifest", errors);
 
   for (const field of ["name", "title", "description", "version", "author", "icon"]) {
@@ -346,8 +438,10 @@ export function validateManifest(manifest, options = {}) {
 
   if (isTerminal) {
     validateTerminal(manifest.terminal, errors);
+  } else if (isSidebar) {
+    validateSidebarManifest(manifest, errors);
   } else {
-    if ("kind" in manifest) errors.push('manifest.kind must be exactly "terminal-pane" when present');
+    if ("kind" in manifest) errors.push('manifest.kind must be "terminal-pane" or "sidebar" when present');
     validateUniqueStringArray(
       manifest.placements,
       "manifest.placements",
@@ -388,9 +482,50 @@ export function validateManifestFile(manifestPath) {
     return [`${absolutePath}: ${error.message}`];
   }
 
-  return validateManifest(manifest, { folderName: basename(dirname(absolutePath)) }).map(
-    (error) => `${absolutePath}: ${error}`,
-  );
+  const errors = validateManifest(manifest, { folderName: basename(dirname(absolutePath)) });
+  if (errors.length === 0 && manifest.kind === "sidebar") {
+    errors.push(...validateSidebarFiles(manifest, dirname(absolutePath)));
+  }
+  return errors.map((error) => `${absolutePath}: ${error}`);
+}
+
+/** The panel files and icons a sidebar extension ships, checked as Ghostex checks them at install. */
+function validateSidebarFiles(manifest, extensionDir) {
+  const errors = [];
+  const declared = new Set(manifest.permissions ?? []);
+  const readPanel = (relativePath, at) => {
+    const path = join(extensionDir, relativePath);
+    if (!existsSync(path)) {
+      errors.push(`${at} ${relativePath} does not exist`);
+      return null;
+    }
+    let document;
+    try {
+      document = JSON.parse(readFileSync(path, "utf8"));
+    } catch (error) {
+      errors.push(`${relativePath}: ${error.message}`);
+      return null;
+    }
+    const panelErrors = validatePanelDocument(document, { permissions: declared });
+    errors.push(...panelErrors.map((error) => `${relativePath}: ${error}`));
+    return panelErrors.length === 0 ? document : null;
+  };
+  for (const [icon, at] of [
+    [manifest.sidebar?.mode?.icon, "manifest.sidebar.mode.icon"],
+    [manifest.sidePanel?.icon, "manifest.sidePanel.icon"],
+  ]) {
+    if (icon && !existsSync(join(extensionDir, icon))) errors.push(`${at} ${icon} does not exist`);
+  }
+  if (manifest.sidebar?.panel) {
+    const document = readPanel(manifest.sidebar.panel, "manifest.sidebar.panel");
+    for (const section of manifest.sidebar.sections ?? []) {
+      if (document && !document.blocks.some((block) => block.id === section.block)) {
+        errors.push(`manifest.sidebar.sections names block ${JSON.stringify(section.block)}, which ${manifest.sidebar.panel} doesn't have`);
+      }
+    }
+  }
+  if (manifest.sidePanel?.panel) readPanel(manifest.sidePanel.panel, "manifest.sidePanel.panel");
+  return errors;
 }
 
 function defaultManifestPaths() {
@@ -409,6 +544,27 @@ function defaultManifestPaths() {
 }
 
 function main() {
+  const panelFlag = process.argv.indexOf("--panel");
+  if (panelFlag !== -1) {
+    // node tooling/validate.mjs --panel panel.json [--permissions a,b]: one panel document.
+    const panelPath = process.argv[panelFlag + 1];
+    const permissionsFlag = process.argv.indexOf("--permissions");
+    const permissions =
+      permissionsFlag === -1 ? PERMISSIONS : new Set((process.argv[permissionsFlag + 1] ?? "").split(",").filter(Boolean));
+    let errors;
+    try {
+      errors = validatePanelDocument(JSON.parse(readFileSync(resolve(panelPath), "utf8")), { permissions });
+    } catch (error) {
+      errors = [error.message];
+    }
+    if (errors.length > 0) {
+      for (const error of errors) console.error(`${panelPath}: ${error}`);
+      process.exitCode = 1;
+    } else {
+      console.log(`Validated panel ${panelPath}.`);
+    }
+    return;
+  }
   const manifestPaths = process.argv.slice(2);
   const paths = manifestPaths.length > 0 ? manifestPaths : defaultManifestPaths();
   if (paths.length === 0) {
