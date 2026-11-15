@@ -21,6 +21,7 @@ const PERMISSIONS = new Set([
   "agents.start",
   "agents.message",
   "sessions.message",
+  "agents.note",
 ]);
 const PREFERENCE_TYPES = new Set([
   "textfield",
@@ -42,6 +43,7 @@ const COMMON_FIELDS = new Set([
   "preferences",
   "permissions",
   "skill",
+  "agentNote",
 ]);
 const WEB_FIELDS = new Set([
   ...COMMON_FIELDS,
@@ -439,6 +441,15 @@ export function validateManifest(manifest, options = {}) {
   }
   if ("preferences" in manifest) validatePreferences(manifest.preferences, errors);
   if ("skill" in manifest) validateSkill(manifest.skill, errors);
+  if ("agentNote" in manifest) {
+    const note = manifest.agentNote;
+    if (typeof note !== "string" || !note.trim() || [...note].length > 400 || note.includes("\n")) {
+      errors.push("manifest.agentNote must be one line of 1 to 400 characters");
+    }
+    if (!Array.isArray(manifest.permissions) || !manifest.permissions.includes("agents.note")) {
+      errors.push("manifest.agentNote needs the agents.note permission");
+    }
+  }
 
   if (isTerminal) {
     validateTerminal(manifest.terminal, errors);

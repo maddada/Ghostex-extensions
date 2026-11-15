@@ -26,7 +26,7 @@ const KEYS = {
   checklist: ["editable", "items"],
   map: ["root", "groups"],
   progress: ["value", "max", "label"],
-  text: ["text"],
+  text: ["text", "editable"],
   buttons: ["items"],
   empty: ["subtitle", "icon", "action"],
   web: ["path", "height"],
@@ -276,6 +276,7 @@ export function validatePanelDocument(document, { permissions = new Set() } = {}
       case "text":
         if (typeof block.text !== "string") fail(`${at}/text must be a string`);
         else if ([...block.text].length > TEXT_MAX) fail(`${at}/text is longer than ${TEXT_MAX} characters`);
+        if (block.editable !== undefined && typeof block.editable !== "boolean") fail(`${at}/editable must be true or false`);
         break;
       case "buttons":
         if (!Array.isArray(block.items) || block.items.length === 0 || block.items.length > MENU_MAX) {

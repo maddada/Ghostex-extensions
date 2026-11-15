@@ -98,10 +98,18 @@
               "sessions.open",
               "agents.start",
               "agents.message",
-              "sessions.message"
+              "sessions.message",
+              "agents.note"
             ]
           },
-          "description": "Host capabilities requested by the extension and shown for install consent. projects.read, sessions.read, sessions.open, agents.start, agents.message (an agent may message the extension about its own thread) and sessions.message (after a tap on a thread's panel, the extension may send that thread one short message) are the scoped permissions of sidebar extensions: they reach only the extension API (/api/ext/v1) and the panel actions Ghostex runs."
+          "description": "Host capabilities requested by the extension and shown for install consent. projects.read, sessions.read, sessions.open, agents.start, agents.message (an agent may message the extension about its own thread) sessions.message (after a tap on a thread's panel, the extension may send that thread one short message) and agents.note (its agentNote joins the note ordinary agent sessions get when they start) are the scoped permissions of sidebar extensions: they reach only the extension API (/api/ext/v1) and the panel actions Ghostex runs."
+        },
+        "agentNote": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400,
+          "pattern": "^[^\\n]+$",
+          "description": "One short line Ghostex adds to the note ordinary agent sessions (not coordinators or their threads) get when they start or resume, while the extension is installed, on and granted agents.note (Ghostex 11.8 and newer). Needs the agents.note permission."
         },
         "skill": {
           "type": "object",

@@ -521,6 +521,10 @@
                 "type": "string",
                 "maxLength": 4000,
                 "description": "A small Markdown subset: paragraphs, bold, italic, code, links, lists."
+              },
+              "editable": {
+                "type": "boolean",
+                "description": "The user may rewrite the text in place (Ghostex 11.8 and newer); Ghostex applies the edit and sends the extension a textEdited event."
               }
             }
           }
