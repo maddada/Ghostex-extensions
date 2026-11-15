@@ -15,6 +15,10 @@
 // - Turns are counted from the thread's activity (working, then not), for "Updated 2 turns ago".
 // - Refresh asks the thread, in one short message, to update its brief.
 // - A forked thread starts with a copy of its parent's brief, marked as copied.
+// - The objective is editable in the panel; the user's objective stays until they change it.
+// - Only ordinary sessions keep a brief: a coordinator and a coordinator's thread are refused
+//   (Ghostex's sessions list says which is which), since the coordinator's Work panel tracks them.
+// - The Briefs sidebar mode lists every session with a brief, its objective and its done count.
 import { createServer } from "node:http";
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -35,6 +39,10 @@ const CAPS = { next: 10, done: 10, parked: 5, blocked: 10 };
 const TEXT_MAX = 200;
 const OBJECTIVE_MAX = 300;
 const STALE_TURNS = 3;
+/** The sidebar mode's list: at most this many sessions show before "N more". */
+const BRIEFS_SHOWN = 20;
+const NOT_ORDINARY =
+  "Thread brief is for ordinary sessions. This one is a coordinator or a coordinator's thread, whose work the coordinator's Work panel already tracks, so it keeps no brief.";
 const STATUSES = {
   working: { label: "Working", dot: "yellow" },
   waiting: { label: "Waiting on you", dot: "blue" },
@@ -72,6 +80,12 @@ async function call(method, route, body) {
 
 const panelRoute = (ref) => `panel?surface=sidePanel&session=${encodeURIComponent(ref)}`;
 
+/** Each live session's role from Ghostex's sessions list: coordinator, thread or session. */
+const roles = new Map();
+/** The sessions Ghostex lists right now, so the Briefs list leaves out closed ones. */
+const liveSessions = new Set();
+const isOrdinary = (ref) => (roles.get(ref) ?? "session") === "session";
+
 // ---- drawing ----------------------------------------------------------------------------------
 
 function clock(iso) {
@@ -93,11 +107,13 @@ function documentFor(ref, brief) {
   const projectId = ref.split(":")[0];
   const status = STATUSES[brief.status] ?? STATUSES.working;
   const stale = (brief.turnsSinceUpdate ?? 0) >= STALE_TURNS;
-  const objective = [brief.objective || "No objective yet."];
-  if (brief.previousObjective) objective.push("", `*Was: ${brief.previousObjective}*`);
-  if (brief.forkedFrom) objective.push("", "*Copied from the thread this one was forked from.*");
+  const notes = [];
+  if (brief.previousObjective) notes.push(`*Was: ${brief.previousObjective}*`);
+  if (brief.forkedFrom) notes.push("*Copied from the thread this one was forked from.*");
   const blocks = [
-    { id: "objective", type: "text", title: "Objective", text: objective.join("\n") },
+    // Editable: a click rewrites it in place (textEdited), and the user's wording stays.
+    { id: "objective", type: "text", title: "Objective", editable: true, text: brief.objective || "No objective yet." },
+    ...(notes.length ? [{ id: "objective-notes", type: "text", text: notes.join("\n\n") }] : []),
     {
       id: "status",
       type: "rows",
@@ -170,6 +186,91 @@ async function draw(ref) {
   const brief = store.briefs[ref];
   if (!brief) return;
   await call("PUT", panelRoute(ref), { document: documentFor(ref, brief) });
+  drawBriefsSoon();
+}
+
+/** A coordinator's or a thread's panel, written only after a tap there asked it for a brief. */
+async function drawNotOrdinary(ref) {
+  const thread = roles.get(ref) === "thread";
+  await call("PUT", panelRoute(ref), {
+    document: {
+      schema: 1,
+      blocks: [
+        {
+          id: "not-ordinary",
+          type: "empty",
+          title: thread ? "Its coordinator tracks this thread" : "This is a coordinator",
+          subtitle: thread
+            ? "Where this thread stands is on its item in the coordinator's Work panel."
+            : "Its work and its threads are in the Work panel.",
+          icon: "coordinator-crown",
+        },
+      ],
+    },
+  });
+}
+
+// ---- the Briefs sidebar mode ------------------------------------------------------------------
+
+const counted = (brief) => {
+  const total = brief.next.length + brief.done.length + brief.blocked.length;
+  return total ? `${brief.done.length}/${total}` : "";
+};
+
+function briefsDocument() {
+  const refs = Object.keys(store.briefs)
+    .filter((ref) => liveSessions.has(ref) && isOrdinary(ref))
+    .sort((left, right) => String(store.briefs[right].updatedAt).localeCompare(String(store.briefs[left].updatedAt)));
+  if (!refs.length) {
+    return {
+      schema: 1,
+      blocks: [
+        {
+          id: "none",
+          type: "empty",
+          title: "No briefs yet",
+          subtitle: "Agent sessions write one as they work. Open Thread brief in a session's side panel to see it.",
+          icon: "list-check",
+        },
+      ],
+    };
+  }
+  return {
+    schema: 1,
+    blocks: [
+      {
+        id: "briefs",
+        type: "rows",
+        title: "Sessions with a brief",
+        show: Math.min(BRIEFS_SHOWN, refs.length),
+        items: refs.map((ref) => {
+          const brief = store.briefs[ref];
+          const blocked = brief.blocked.length ? ` Blocked: ${brief.blocked.length}.` : "";
+          return {
+            id: ref.replace(/[^A-Za-z0-9_-]/g, "-"),
+            session: ref,
+            subtitle: `${brief.objective || "No objective yet."}${blocked}`.slice(0, 200),
+            trailing: counted(brief) || undefined,
+          };
+        }),
+      },
+    ],
+  };
+}
+
+let briefsTimer;
+let briefsDrawn = "";
+/** Redraws the Briefs list a moment after the briefs or the sessions change, once. */
+function drawBriefsSoon() {
+  clearTimeout(briefsTimer);
+  briefsTimer = setTimeout(() => {
+    const document = briefsDocument();
+    const text = JSON.stringify(document);
+    if (text === briefsDrawn) return;
+    call("PUT", "panel?surface=sidebar", { document })
+      .then(() => (briefsDrawn = text))
+      .catch((error) => console.error(error.message));
+  }, 500);
 }
 
 // ---- the user's edits -------------------------------------------------------------------------
@@ -204,6 +305,21 @@ async function takeUserEdits(ref) {
   await draw(ref);
 }
 
+/** The user rewrote the objective in the panel: it is theirs until they change it again. */
+async function takeObjectiveEdit(ref, text) {
+  const brief = store.briefs[ref];
+  const objective = typeof text === "string" ? text.trim().replace(/\s+/g, " ").slice(0, OBJECTIVE_MAX) : "";
+  if (!brief || !objective || objective === brief.objective) return;
+  if (brief.objective) brief.previousObjective = brief.objective;
+  brief.objective = objective;
+  brief.objectiveByUser = true;
+  brief.revision += 1;
+  brief.updatedBy = "user";
+  brief.updatedAt = new Date().toISOString();
+  save();
+  await draw(ref);
+}
+
 // ---- the agent's messages ---------------------------------------------------------------------
 
 function publicBrief(ref, brief) {
@@ -212,7 +328,7 @@ function publicBrief(ref, brief) {
       session: ref,
       revision: 0,
       exists: false,
-      note: "No brief yet. Draft one from the thread's first message and send it with update.",
+      note: "No brief yet. Once this session has a task, draft one from the user's request and send it with update (the thread-brief skill says how): an objective, then next up, done, blocked and parked.",
     };
   }
   const item = ({ id, text, source, userEdited, evidence, waitingOn }) => ({
@@ -228,6 +344,7 @@ function publicBrief(ref, brief) {
     exists: true,
     revision: brief.revision,
     objective: brief.objective,
+    ...(brief.objectiveByUser ? { objectiveByUser: true } : {}),
     status: brief.status,
     next: brief.next.map(item),
     done: brief.done.map(item),
@@ -306,11 +423,16 @@ async function update(ref, data) {
     blocked: brief?.blocked ?? [],
     parked: brief?.parked ?? [],
     forkedFrom: brief?.forkedFrom,
+    objectiveByUser: brief?.objectiveByUser,
   };
   if (data.objective !== undefined) {
     const objective = cleanText(data.objective, OBJECTIVE_MAX, "objective");
-    if (next.objective && objective !== next.objective) next.previousObjective = next.objective;
-    next.objective = objective;
+    // The user's objective stays until they change it: the agent asks instead.
+    if (brief?.objectiveByUser && objective !== next.objective) kept.push("objective");
+    else {
+      if (next.objective && objective !== next.objective) next.previousObjective = next.objective;
+      next.objective = objective;
+    }
   }
   if (data.status !== undefined) {
     if (!STATUSES[data.status]) throw new Refusal(400, "status is working, waiting, blocked or done.");
@@ -335,12 +457,19 @@ async function update(ref, data) {
   return {
     saved: true,
     revision: store.briefs[ref].revision,
-    ...(kept.length ? { keptUserText: kept, note: "The user changed these items; their text was kept." } : {}),
+    ...(kept.length
+      ? {
+          keptUserText: kept,
+          note: "The user wrote these; their text was kept. If the user's objective no longer fits, ask them in your reply.",
+        }
+      : {}),
   };
 }
 
 async function agentMessage(event) {
   const ref = event.session;
+  if (!roles.has(ref)) await noteActivity().catch(() => {});
+  if (!isOrdinary(ref)) throw new Refusal(403, NOT_ORDINARY);
   if (event.name === "read") return publicBrief(ref, store.briefs[ref]);
   if (event.name === "update") return update(ref, event.data ?? {});
   throw new Refusal(400, `Unknown message ${event.name}: send read or update.`);
@@ -352,8 +481,12 @@ async function agentMessage(event) {
 async function noteActivity() {
   const { sessions } = await call("GET", "sessions");
   let changed = false;
+  const before = [...liveSessions].sort().join(",");
+  liveSessions.clear();
   for (const session of sessions) {
     const ref = session.session;
+    liveSessions.add(ref);
+    roles.set(ref, session.role ?? "session");
     const was = store.activity[ref];
     const now = session.activity ?? "";
     if (was === now) continue;
@@ -375,12 +508,18 @@ async function noteActivity() {
     }
   }
   if (changed) save();
+  if (changed || before !== [...liveSessions].sort().join(",")) drawBriefsSoon();
 }
 
 const REFRESH = "Please update your thread brief with the thread-brief skill: read it, then send what changed.";
 const DRAFT = "Please write your thread brief with the thread-brief skill, starting from my first message in this thread.";
 
 async function refresh(ref) {
+  if (!roles.has(ref)) await noteActivity().catch(() => {});
+  if (!isOrdinary(ref)) {
+    await drawNotOrdinary(ref);
+    return;
+  }
   await call("POST", "sessionMessage", { session: ref, text: store.briefs[ref] ? REFRESH : DRAFT });
 }
 
@@ -402,6 +541,9 @@ async function followEvents() {
       if (event.type === "sessionsChanged") await noteActivity().catch((error) => console.error(error.message));
       if (event.type === "checklistEdited" && event.session) {
         await takeUserEdits(event.session).catch((error) => console.error(error.message));
+      }
+      if (event.type === "textEdited" && event.session && event.blockId === "objective") {
+        await takeObjectiveEdit(event.session, event.text).catch((error) => console.error(error.message));
       }
     }
   }
@@ -452,7 +594,9 @@ createServer(async (request, response) => {
 }).listen(port, "127.0.0.1", () => {
   // Redraw every kept brief: the panel store and this store agree after a restart or an update.
   for (const ref of Object.keys(store.briefs)) draw(ref).catch(() => {});
-  noteActivity().catch(() => {});
+  noteActivity()
+    .catch(() => {})
+    .finally(drawBriefsSoon);
   const follow = () =>
     followEvents()
       .catch((error) => console.error(error.message))

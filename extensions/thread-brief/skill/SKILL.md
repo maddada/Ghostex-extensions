@@ -1,6 +1,6 @@
 ---
 name: thread-brief
-description: Keeps this thread's brief (objective, status, next up, done, blocked, parked) current in Ghostex's Thread brief side panel. Use at the end of a turn in which something material changed, when the user asks you to update or write your thread brief, or when they ask what this thread is for and what is left.
+description: Keeps this session's brief (objective, status, next up, done, blocked, parked) current in Ghostex's Thread brief side panel. Use when Ghostex says this session has a thread brief, at the end of a turn in which something material changed, when the user asks you to update or write your thread brief, or when they ask what this session is for and what is left. Not for coordinators or their threads.
 ---
 
 # Thread brief
@@ -9,6 +9,16 @@ Ghostex shows this thread's brief in the side panel (the Thread brief view), so 
 see in a few seconds what the thread is for, what is done, what is left, what is blocked and
 what was parked. You keep it current. You reach only your own thread's brief: Ghostex tells the
 extension which thread you are.
+
+Only ordinary sessions keep a brief. If you are a coordinator, or a coordinator started you as
+one of its threads, skip this skill: the coordinator's Work panel tracks that work, and the
+extension refuses your messages.
+
+## When to write the first one
+
+When Ghostex tells you this session has a thread brief, write it once the session has a real
+task (not for a greeting or a quick question): draft the objective from the user's request and
+the steps you can see, then keep it current as below.
 
 ## When to update it
 
@@ -64,7 +74,9 @@ With no brief yet, draft the objective from the user's first message in this thr
 
 ## Keep it scannable
 
-- Objective: one sentence. Change it only when the scope changes.
+- Objective: one sentence. Change it only when the scope changes. When the user wrote it
+  (`"objectiveByUser": true`), it stays theirs: Ghostex keeps their wording, and if it no longer
+  fits, ask them in your reply instead.
 - Status: `working`, `waiting` (waiting on the user), `blocked` or `done`.
 - At most 10 items in next up, 10 in done (drop the oldest), 10 in blocked, 5 in parked.
 - Each item is one short line (200 characters at most), in the user's words where you can.

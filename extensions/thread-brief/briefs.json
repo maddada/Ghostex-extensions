@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ghostex-sidebar-panel.schema.json",
+  "schema": 1,
+  "blocks": [
+    {
+      "id": "none",
+      "type": "empty",
+      "title": "No briefs yet",
+      "subtitle": "Agent sessions write one as they work. Open Thread brief in a session's side panel to see it.",
+      "icon": "list-check"
+    }
+  ]
+}

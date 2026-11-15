@@ -6,8 +6,8 @@
       "id": "empty",
       "type": "empty",
       "title": "No brief yet",
-      "subtitle": "Ask this thread to write down its objective, what's next and what's done.",
-      "icon": "clipboard-list"
+      "subtitle": "Sessions write their objective, what's next and what's done here once they have a task. Coordinators and their threads keep theirs in the coordinator's Work panel.",
+      "icon": "list-check"
     },
     {
       "id": "actions",
