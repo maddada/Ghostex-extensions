@@ -136,10 +136,12 @@ createServer((request, response) => {
   response.writeHead(404).end();
 }).listen(port, "127.0.0.1", () => {
   // Ghostex sends sessionsChanged when a session's work changes too, so nothing polls.
-  drawSoon();
-  const follow = () =>
-    followEvents()
+  // A reconnect may have missed sessionsChanged: each (re)connection redraws once.
+  const follow = () => {
+    drawSoon();
+    return followEvents()
       .catch((error) => console.error(error.message))
       .finally(() => setTimeout(follow, 2000));
+  };
   follow();
 });
