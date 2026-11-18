@@ -1,5 +1,16 @@
 # Changelog
 
+## [Work items: work items for any session] - {PR_MERGE_DATE}
+
+- Thread brief is now Work items. Ordinary sessions keep their own work items with Ghostex's own
+  commands (`ghostex work item …`), in the same Work panel, dock rows and phone sheet as a
+  coordinator's, under a Topic you can rewrite with a click.
+- A Work button in the window's header opens the panel; the Briefs list is now the Work list.
+- The skill is now **work-items**, and it is in place only while the extension is on.
+- Each session's brief becomes its work items once, and the old file is kept.
+- The brief's side panel, its Status, Refresh and "out of date" are gone, and so are the
+  permissions they needed (agents.message, sessions.message, agents.start).
+
 ## [Starts on its own, Briefs list, editable objective] - {PR_MERGE_DATE}
 
 - Sessions start their brief on their own while Thread brief is on: it adds one line to what

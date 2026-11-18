@@ -5,8 +5,8 @@
     {
       "id": "none",
       "type": "empty",
-      "title": "No briefs yet",
-      "subtitle": "Agent sessions write one as they work. Open Thread brief in a session's side panel to see it.",
+      "title": "No work items yet",
+      "subtitle": "Sessions add theirs as they work. Open a session's Work panel from the Work button in the window's header.",
       "icon": "list-check"
     }
   ]

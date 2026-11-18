@@ -1,72 +1,46 @@
-# Thread brief
+# Work items
 
-Each session's brief in the side panel, so you know where it stands in a few seconds without
-reading the transcript: what it is for, its status, what's next, what's done, what's blocked and
-what was parked. The session's own agent keeps it current. Needs Ghostex 11.8 or newer.
+Ordinary sessions keep their own work items, the way a coordinator does: one item per line of
+work, what each one asks of you, and what is finished, in the same Work panel. Needs a Ghostex
+with work items for any session (`ghostex work --help` lists the commands); older ones keep
+working as before and ignore it.
 
-- **It starts on its own**: while Thread brief is on, every agent session Ghostex starts or
-  resumes is told it has a brief, and writes one once it has a task. Turn Thread brief off or
-  uninstall it and the next start or resume is told nothing; no session is touched.
-- **Ordinary sessions only**: a coordinator and a coordinator's threads keep no brief, since the
-  coordinator's Work panel already tracks them.
-- **Open it**: pick Thread brief in the side panel's view list. Each session has its own brief.
-- **Briefs**: the button in the sidebar's top row lists every session with a brief, its
-  objective and how many of its steps are done (3/7). Click one to open it. On the phone, the
-  same list is behind the extension's button in the sessions list's header.
-- **Objective**: one sentence. Click it to rewrite it; yours stays until you change it, and the
-  agent asks before suggesting another. When the agent changes it, the old one shows under it.
-- **Status**: Working, Waiting on you, Blocked or Done, with when it was last updated
-  ("Updated by the agent 2 turns ago, at 14:05"). After 3 turns without an update it says it's
-  out of date.
-- **Refresh**: asks the session, in one short message, to update its brief. With no brief yet,
-  **Ask for a brief** has it draft one from your first message.
-- **Next up**: tick, rename, add or delete steps; the first five show and the rest fold.
-  Ticked steps move to **Done** (folded, newest first).
-- **Blocked**: each blocked step and what it waits on.
-- **Parked**: out-of-scope finds; click one to start a new session with it as the draft.
+- **Turn it on, and that's it**: while Work items is on, every ordinary agent session Ghostex
+  starts or resumes is told it keeps work items, and its **work-items** skill is in place. Turn
+  it off and no session is told anything, the skill is taken away, and sessions work exactly as
+  before.
+- **The Work button**: in the window's header, beside Session details. It opens the session's
+  Work panel beside the chat (or as a card when the window is narrow), with a count of what waits
+  on you. Work and Session details share that spot, one at a time.
+- **The Work panel**: the session's items by who has the ball: Needs you, Blocked, In progress,
+  Waiting, Later and Finished today. At the top, the **Topic**: what the session is about, in one
+  line. Click it to rewrite it; yours stays until you change it.
+- **What it asks you**: shows as a row above the chat box, with its answers, Reply and Dismiss,
+  as a coordinator's asks do. On the phone too.
+- **The Work list**: the **Work** button in the sidebar's top row lists every session with work
+  items, its Topic, how many are open and how many wait on you. Click one to open it.
+- **Coordinators** keep theirs as before, and a coordinator's threads keep none of their own:
+  the coordinator's Work panel tracks them.
 
-Your changes are saved at once, and the agent rereads the brief before it writes, so your
-wording wins. The brief is kept on this computer, by session, and survives resume, restart and
-compaction. A forked session starts with a copy of its parent's brief.
+## From Thread brief
+
+Work items is what Thread brief became (0.3.0). When this version is installed and on, Ghostex
+converts every session's brief once: the objective becomes the Topic, Next up items Later (up
+next), Blocked items Waiting on what they waited on, Parked items Later (parked), and Done items
+Finished. The old file is kept as `briefs.converted.json` in the extension's data folder.
 
 ## The skill
 
-Installing Thread brief offers its **thread-brief** skill for your coding agents. Install it:
-it tells the agent when and how to keep the brief (only when something material changed, within
-10 next, 10 done, 10 blocked and 5 parked items). Without it, an agent can still read its brief
-with `ghostex extensions message thread-brief read`, which says what to send.
+Installing Work items offers its **work-items** skill for your coding agents. It tells an agent
+when and how to keep its items with `ghostex work item` and `ghostex work topic`. It is in place
+only while Work items is on.
 
 ## Permissions
 
-- `sessions.read`: sees when each session works (to count turns), which ones are coordinators
-  and threads, and which session a fork came from.
-- `sessions.open`: opens a session when you click it in the Briefs list.
-- `agents.message`: hears from your agents about their own session's brief.
-- `sessions.message`: when you tap Refresh, sends that session one short message.
-- `agents.start`: starts a new session from a parked item when you click it.
-- `agents.note`: adds one line to what new agent sessions are told when they start, so they
-  keep their brief without being asked.
+- `sessions.read`: lists your sessions with their work items, for the Work list.
+- `sessions.open`: opens a session when you click it in the Work list.
+- `agents.note`: adds one line to what new agent sessions are told when they start, so they keep
+  their work items without being asked.
 
-Thread brief runs a small Node server while it is on; it talks only to Ghostex on this computer.
-
-## Want the objectives in your Projects list too?
-
-Thread brief keeps them in its Briefs list. To see each session's objective in your Projects
-list instead, copy this to an agent and it will build you a small sidebar extension of your own:
-
-```text
-Build me a Ghostex sidebar extension called "Objectives" that adds a section at the top of my
-Projects list: one row per session that has a Thread brief, showing the session (so Ghostex draws
-its name and live status), its objective as the subtitle and its done count (like 3/7) at the end.
-Start from the sidebar template in https://github.com/maddada/Ghostex-extensions
-(templates/sidebar-extension). Read the briefs from Thread brief's briefs.json in Ghostex's
-extensions data folder (~/.local/share/ghostex/extensions/data/thread-brief/briefs.json on macOS
-and Linux), and redraw the section when that file changes. Ask for sessions.read and
-sessions.open only. Then install it from the folder for me to try.
-```
-
-## Not yet
-
-The coordinator roll-up and a progress count on the sidebar's session rows are left out, and
-the phone shows the Briefs list but not a session's whole brief (the phone has no side panel
-views). Next up can't be reordered by dragging yet.
+Work items runs a small Node server while it is on, only to draw the Work list; it talks only to
+Ghostex on this computer.
