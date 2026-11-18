@@ -2,8 +2,9 @@
 
 Ordinary sessions keep their own work items, the way a coordinator does: one item per line of
 work, what each one asks of you, and what is finished, in the same Work panel. Needs a Ghostex
-with work items for any session (`ghostex work --help` lists the commands); older ones keep
-working as before and ignore it.
+with work items for any session (`ghostex work --help` lists the commands). On an older one, the
+Work list says "Update Ghostex to use Work items", and agents skip the skill (the extension
+catalog has no minimum Ghostex version to keep it from installing there).
 
 - **Turn it on, and that's it**: while Work items is on, every ordinary agent session Ghostex
   starts or resumes is told it keeps work items, and its **work-items** skill is in place. Turn

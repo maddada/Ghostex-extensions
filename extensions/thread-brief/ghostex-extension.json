@@ -33,5 +33,5 @@
     "name": "work-items",
     "path": "skill"
   },
-  "agentNote": "This session keeps its own work items in Ghostex's Work panel (the Work button in the window's header). Once you have a real task, keep them current with the work-items skill: `ghostex work item add`, `now`, `step`, `ask`, `done`, and `ghostex work topic` for the one line at the top of the panel."
+  "agentNote": "This session keeps its own work items in Ghostex's Work panel (the Work button in the window's header). Once you have a real task, keep them current with the work-items skill: `ghostex work item add`, `now`, `step`, `ask`, `done`, and `ghostex work topic` for the one line at the top of the panel. If `ghostex work` is not a command here (an older Ghostex), skip this."
 }

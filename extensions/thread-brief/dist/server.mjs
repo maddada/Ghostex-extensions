@@ -5,7 +5,9 @@
 // `ghostex work item …` (the work-items skill), in the same Work panel, dock rows and store as a
 // coordinator's. This server only draws the Work sidebar list: every session with work items,
 // its Topic, how many are open, and how many wait on you, from the sessions the extension API
-// lists (each with its `work` in short). A click opens the session.
+// lists (each with its `work` in short), redrawn when Ghostex says sessions changed (a session's
+// work changing counts). A click opens the session. A Ghostex too old to list `work` gets "Update
+// Ghostex to use Work items".
 //
 // Before 0.3.0 this was Thread brief, which kept a brief per session in its own store and side
 // panel. Ghostex converts those briefs into work items once when this version is installed and on
@@ -22,8 +24,6 @@ const token = process.env.GHOSTEX_API_TOKEN;
 const headers = { authorization: `Bearer ${token}`, "content-type": "application/json" };
 /** The list shows this many sessions before "N more". */
 const SHOWN = 20;
-/** Work items change without a sessions event, so the list is read again this often too. */
-const POLL_MS = 15_000;
 
 async function call(method, route, body) {
   const response = await fetch(`${api}/${route}`, { method, headers, body: body && JSON.stringify(body) });
@@ -34,7 +34,22 @@ async function call(method, route, body) {
   return answer;
 }
 
+/** A Ghostex from before work items for any session lists sessions without `work`. */
+const UPDATE_GHOSTEX = {
+  schema: 1,
+  blocks: [
+    {
+      id: "update",
+      type: "empty",
+      title: "Update Ghostex to use Work items",
+      subtitle: "This Ghostex keeps no work items for ordinary sessions yet. Update it, and sessions show their work items here.",
+      icon: "list-check",
+    },
+  ],
+};
+
 function workDocument(sessions) {
+  if (sessions.length && sessions.every((session) => !("work" in session))) return UPDATE_GHOSTEX;
   const rows = sessions
     .filter((session) => session.role === "session" && session.work && (session.work.open > 0 || session.work.topic))
     .sort((left, right) => String(right.lastActiveAt).localeCompare(String(left.lastActiveAt)));
@@ -61,7 +76,7 @@ function workDocument(sessions) {
         title: "Sessions with work items",
         show: Math.min(SHOWN, rows.length),
         items: rows.map((session) => {
-          const { topic, open, waiting } = session.work;
+          const { topic, open, forYou: waiting } = session.work;
           const forYou = waiting ? ` ${waiting} for you.` : "";
           return {
             id: session.session.replace(/[^A-Za-z0-9_-]/g, "-"),
@@ -120,8 +135,8 @@ createServer((request, response) => {
   }
   response.writeHead(404).end();
 }).listen(port, "127.0.0.1", () => {
+  // Ghostex sends sessionsChanged when a session's work changes too, so nothing polls.
   drawSoon();
-  setInterval(drawSoon, POLL_MS);
   const follow = () =>
     followEvents()
       .catch((error) => console.error(error.message))

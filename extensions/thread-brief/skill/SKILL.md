@@ -14,6 +14,9 @@ Only ordinary sessions keep their own. If you are a coordinator, follow your pla
 a coordinator started you as one of its threads, skip this skill: your coordinator's Work panel
 tracks your work, and `ghostex needs-you add` puts what you need from the user before them.
 
+If `ghostex work --help` says `work` is not a command, this Ghostex is older than work items
+for any session: skip this skill.
+
 ## 1. When
 
 Once the session has a real task (not for a greeting or a quick question), add an item for it.
