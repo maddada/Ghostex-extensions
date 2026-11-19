@@ -25,8 +25,14 @@ jobs:
         run: node tooling/validate.mjs
       - name: Verify reproducible distributions
         run: node tooling/verify-dist.mjs
+      - name: Download what the store release has now
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p previous-store
+          gh release download store --dir previous-store --pattern 'catalog-v2.json' --pattern '*.zip' --pattern '*.zip.sha256' || true
       - name: Build catalog and archives
-        run: node tooling/build-catalog.mjs
+        run: node tooling/build-catalog.mjs --previous previous-store
       - name: Publish rolling store release
         env:
           GH_TOKEN: ${{ github.token }}

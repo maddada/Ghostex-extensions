@@ -6,8 +6,8 @@
   button in the window's header and the Work panel are unchanged.
 - It runs no server any more, and no longer asks for the See your sessions and Open projects and
   sessions permissions that only the list needed.
-- Needs a Ghostex that accepts an extension with nothing in the sidebar (the Ghostex release after 11.11.0
-  that includes it); on an older one the update is refused and 0.3.0 stays.
+- It is published only in the store catalog newer Ghostex reads (`catalog-v3.json`). Ghostex 11.8.0
+  to 11.11.0 keep reading the older catalog and stay on 0.3.0, and are not offered this version.
 
 ## [Work items: work items for any session] - {PR_MERGE_DATE}
 

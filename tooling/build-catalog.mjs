@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -219,21 +219,71 @@ function catalogEntry(extensionDir, mergeDate) {
   };
 }
 
+// An extension that draws nothing in the sidebar (kind "sidebar" without sidebar or sidePanel, like
+// Work items 0.3.1) fails validation in Ghostex 11.8.0 to 11.11.0, and those read a catalog in one
+// piece, so one such entry would make them drop the whole catalog and fall back to catalog.json.
+export function drawsNothing(entry) {
+  return entry.kind === 'sidebar' && entry.sidebar === undefined && entry.sidePanel === undefined;
+}
+
+// What the store release published last (its catalog-v2.json and the zips beside it), read from the
+// directory named by --previous or PREVIOUS_STORE_DIR, or null.
+function readPreviousStore() {
+  const flag = process.argv.indexOf('--previous');
+  const directory = flag >= 0 ? process.argv[flag + 1] : process.env.PREVIOUS_STORE_DIR;
+  if (!directory) return null;
+  const file = join(resolve(directory), 'catalog-v2.json');
+  if (!existsSync(file)) return null;
+  try {
+    return { directory: resolve(directory), catalog: JSON.parse(readFileSync(file, 'utf8')) };
+  } catch {
+    return null;
+  }
+}
+
+// catalog-v2.json keeps, for an extension that now draws nothing, the version it last published
+// there (which those Ghostex can read), with its zip carried over; an extension that was never
+// there is left out of it.
+function carriedForward(entry, previous) {
+  const before = previous?.catalog?.extensions?.find((candidate) => candidate.name === entry.name);
+  if (!before || drawsNothing(before) || !existsSync(join(previous.directory, before.zip))) return null;
+  copyFileSync(join(previous.directory, before.zip), join(outputRoot, before.zip));
+  const sum = join(previous.directory, `${before.zip}.sha256`);
+  if (existsSync(sum)) copyFileSync(sum, join(outputRoot, `${before.zip}.sha256`));
+  return before;
+}
+
 export function buildCatalog() {
   const mergeDate = resolveMergeDate();
+  const previous = readPreviousStore();
   rmSync(outputRoot, { force: true, recursive: true });
   mkdirSync(outputRoot, { recursive: true });
-  // Ghostex 11.7 and older read catalog.json in one piece and reject all of it when one entry has a
-  // kind they don't know, so sidebar extensions (Ghostex 11.8+) go only into catalog-v2.json, the
-  // catalog newer Ghostex reads (gxserver's DEFAULT_EXTENSIONS_CATALOG_URL), which lists every
-  // extension. Both are uploaded to the rolling store release.
+  // Three catalogs go to the rolling store release, for what each Ghostex can read:
+  // - catalog.json, for 11.7 and older, which read it in one piece and reject all of it when one
+  //   entry has a kind they don't know: no sidebar extensions.
+  // - catalog-v2.json, for 11.8.0 to 11.11.0: sidebar extensions, but none that draws nothing.
+  //   Such an extension stays at the version it last published here, or is left out.
+  // - catalog-v3.json (gxserver's DEFAULT_EXTENSIONS_CATALOG_URL): every extension at its newest.
   const everything = extensionDirectories().map((extensionDir) => catalogEntry(extensionDir, mergeDate));
-  const extensions = everything.filter((entry) => entry.kind !== 'sidebar');
-  const catalog = { schemaVersion: 1, publishedAt: mergeDate, extensions };
+  const catalog = {
+    schemaVersion: 1,
+    publishedAt: mergeDate,
+    extensions: everything.filter((entry) => entry.kind !== 'sidebar'),
+  };
   writeFileSync(join(outputRoot, 'catalog.json'), `${JSON.stringify(catalog, null, 2)}\n`);
-  const catalogV2 = { schemaVersion: 1, publishedAt: mergeDate, extensions: everything };
+  const v2 = [];
+  for (const entry of everything) {
+    if (!drawsNothing(entry)) v2.push(entry);
+    else {
+      const kept = carriedForward(entry, previous);
+      if (kept) v2.push(kept);
+    }
+  }
+  const catalogV2 = { schemaVersion: 1, publishedAt: mergeDate, extensions: v2 };
   writeFileSync(join(outputRoot, 'catalog-v2.json'), `${JSON.stringify(catalogV2, null, 2)}\n`);
-  return catalogV2;
+  const catalogV3 = { schemaVersion: 1, publishedAt: mergeDate, extensions: everything };
+  writeFileSync(join(outputRoot, 'catalog-v3.json'), `${JSON.stringify(catalogV3, null, 2)}\n`);
+  return catalogV3;
 }
 
 function main() {

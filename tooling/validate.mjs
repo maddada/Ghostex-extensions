@@ -327,6 +327,9 @@ function validateTerminal(terminal, errors) {
 function validateSidebarManifest(manifest, errors) {
   const { sidebar, sidePanel } = manifest;
   // With neither, the extension draws nothing and only brings its skill or agentNote (Work items).
+  if (sidebar === undefined && sidePanel === undefined && manifest.skill === undefined && manifest.agentNote === undefined) {
+    errors.push("a sidebar extension needs manifest.sidebar (a mode or sections), manifest.sidePanel, a skill or an agentNote");
+  }
   if (sidebar !== undefined && requireObject(sidebar, "manifest.sidebar", errors)) {
     hasOnlyKeys(sidebar, new Set(["mode", "sections", "panel"]), "manifest.sidebar", errors);
     const hasSections = Array.isArray(sidebar.sections) && sidebar.sections.length > 0;

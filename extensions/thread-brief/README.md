@@ -2,9 +2,12 @@
 
 Ordinary sessions keep their own work items, the way a coordinator does: one item per line of
 work, what each one asks of you, and what is finished, in the same Work panel. Needs a Ghostex
-with work items for any session (`ghostex work --help` lists the commands). On an older one,
-agents skip the skill, and the manifest, which draws nothing in the sidebar, is refused at install
-(the extension catalog has no minimum Ghostex version to keep it from showing there).
+with work items for any session (`ghostex work --help` lists the commands). Version 0.3.1 draws
+nothing in the sidebar, which only a newer Ghostex accepts, so it is published only in the store
+catalog that Ghostex reads first (`catalog-v3.json`). Ghostex 11.8.0 to 11.11.0 read the older
+catalog, which keeps Work items at 0.3.0 (with its Work list in the sidebar): they stay on it and
+are not offered 0.3.1. Going back to one of those with 0.3.1 installed breaks its list of installed extensions
+until Work items is uninstalled or Ghostex is updated again.
 
 - **Turn it on, and that's it**: while Work items is on, every ordinary agent session Ghostex
   starts or resumes is told it keeps work items, and its **work-items** skill is in place. Turn
