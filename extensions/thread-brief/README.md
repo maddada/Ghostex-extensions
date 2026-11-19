@@ -2,9 +2,9 @@
 
 Ordinary sessions keep their own work items, the way a coordinator does: one item per line of
 work, what each one asks of you, and what is finished, in the same Work panel. Needs a Ghostex
-with work items for any session (`ghostex work --help` lists the commands). On an older one, the
-Work list says "Update Ghostex to use Work items", and agents skip the skill (the extension
-catalog has no minimum Ghostex version to keep it from installing there).
+with work items for any session (`ghostex work --help` lists the commands). On an older one,
+agents skip the skill, and the manifest, which draws nothing in the sidebar, is refused at install
+(the extension catalog has no minimum Ghostex version to keep it from showing there).
 
 - **Turn it on, and that's it**: while Work items is on, every ordinary agent session Ghostex
   starts or resumes is told it keeps work items, and its **work-items** skill is in place. Turn
@@ -18,8 +18,8 @@ catalog has no minimum Ghostex version to keep it from installing there).
   line. Click it to rewrite it; yours stays until you change it.
 - **What it asks you**: shows as a row above the chat box, with its answers, Reply and Dismiss,
   as a coordinator's asks do. On the phone too.
-- **The Work list**: the **Work** button in the sidebar's top row lists every session with work
-  items, its Topic, how many are open and how many wait on you. Click one to open it.
+- **Nothing in the sidebar**: Work items adds no button or list to the sidebar; Briefs and the
+  Work list it replaced are gone.
 - **Coordinators** keep theirs as before, and a coordinator's threads keep none of their own:
   the coordinator's Work panel tracks them.
 
@@ -38,10 +38,7 @@ only while Work items is on.
 
 ## Permissions
 
-- `sessions.read`: lists your sessions with their work items, for the Work list.
-- `sessions.open`: opens a session when you click it in the Work list.
 - `agents.note`: adds one line to what new agent sessions are told when they start, so they keep
   their work items without being asked.
 
-Work items runs a small Node server while it is on, only to draw the Work list; it talks only to
-Ghostex on this computer.
+Work items runs no server and draws nothing of its own.

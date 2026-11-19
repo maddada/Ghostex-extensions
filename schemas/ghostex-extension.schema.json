@@ -268,21 +268,9 @@
     },
     "sidebarExtension": {
       "type": "object",
-      "description": "Sidebar content drawn by Ghostex from a panel document (schemas/ghostex-sidebar-panel.schema.json): its own sidebar mode, sections in the Projects list, and/or a side panel view. Ghostex 11.8 and newer.",
+      "description": "Sidebar content drawn by Ghostex from a panel document (schemas/ghostex-sidebar-panel.schema.json): its own sidebar mode, sections in the Projects list, and/or a side panel view. With none of them it draws nothing and only brings what the rest of its manifest asks for (a skill, an agentNote), like Work items. Ghostex 11.8 and newer; declaring none of them needs a Ghostex from 2026-11-19 on.",
       "required": [
         "kind"
-      ],
-      "anyOf": [
-        {
-          "required": [
-            "sidebar"
-          ]
-        },
-        {
-          "required": [
-            "sidePanel"
-          ]
-        }
       ],
       "not": {
         "anyOf": [

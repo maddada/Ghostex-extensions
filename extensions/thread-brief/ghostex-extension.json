@@ -2,7 +2,7 @@
   "$schema": "../../schemas/ghostex-extension.schema.json",
   "name": "thread-brief",
   "title": "Work items",
-  "description": "Ordinary sessions keep their own work items, like a coordinator: a Work button in the header, the Work panel with a Topic, what they ask you above the chat box, and a Work list of every session with work items.",
+  "description": "Ordinary sessions keep their own work items, like a coordinator: a Work button in the header, the Work panel with a Topic, and what they ask you above the chat box.",
   "version": "0.3.0",
   "author": "Ghostex",
   "icon": "icon.svg",
@@ -10,23 +10,7 @@
     "Productivity"
   ],
   "kind": "sidebar",
-  "sidebar": {
-    "mode": {
-      "title": "Work"
-    },
-    "panel": "work.json"
-  },
-  "server": {
-    "command": "node dist/server.mjs {port}",
-    "cwd": ".",
-    "readiness": {
-      "httpGet": "/health",
-      "timeoutSeconds": 30
-    }
-  },
   "permissions": [
-    "sessions.read",
-    "sessions.open",
     "agents.note"
   ],
   "skill": {
