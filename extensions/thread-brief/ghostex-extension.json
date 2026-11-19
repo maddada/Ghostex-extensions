@@ -3,7 +3,7 @@
   "name": "thread-brief",
   "title": "Work items",
   "description": "Ordinary sessions keep their own work items, like a coordinator: a Work button in the header, the Work panel with a Topic, and what they ask you above the chat box.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Ghostex",
   "icon": "icon.svg",
   "categories": [
