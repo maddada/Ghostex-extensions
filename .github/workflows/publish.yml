@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # catalog-v2.json builds an extension that draws nothing from its pinned commit (tooling/v2-pins.json).
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -25,14 +28,8 @@ jobs:
         run: node tooling/validate.mjs
       - name: Verify reproducible distributions
         run: node tooling/verify-dist.mjs
-      - name: Download what the store release has now
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p previous-store
-          gh release download store --dir previous-store --pattern 'catalog-v2.json' --pattern '*.zip' --pattern '*.zip.sha256' || true
       - name: Build catalog and archives
-        run: node tooling/build-catalog.mjs --previous previous-store
+        run: node tooling/build-catalog.mjs
       - name: Publish rolling store release
         env:
           GH_TOKEN: ${{ github.token }}

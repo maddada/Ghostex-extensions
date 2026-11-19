@@ -1,0 +1,6 @@
+{
+  "about": "catalog-v2.json is read by Ghostex 11.8.0 to 11.11.0, which refuse an extension that draws nothing in the sidebar (kind sidebar with no sidebar or sidePanel). For each extension that does, name the git commit of the last version they can read; build-catalog.mjs builds its catalog-v2.json entry from that commit and fails without one. null leaves a new extension out of catalog-v2.json on purpose. Keep the commit reachable from main (merge, do not squash, or tag it).",
+  "pins": {
+    "thread-brief": "81c94d207d20b5d07dd978ac1fa3c2cfe7da7a80"
+  }
+}

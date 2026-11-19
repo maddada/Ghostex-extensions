@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { validateManifest } from './validate.mjs';
@@ -158,16 +159,18 @@ function extensionDirectories() {
     .sort();
 }
 
-function screenshotPaths(extensionDir) {
+function screenshotPaths(extensionDir, logicalDir = extensionDir) {
   const metadataDir = join(extensionDir, 'metadata');
   return listFiles(metadataDir)
     .filter(({ archivePath }) =>
       screenshotExtensions.has(archivePath.slice(archivePath.lastIndexOf('.')).toLowerCase())
     )
-    .map(({ absolutePath }) => normalizeRelativePath(relative(repositoryRoot, absolutePath)));
+    .map(({ absolutePath }) =>
+      normalizeRelativePath(relative(repositoryRoot, join(logicalDir, relative(extensionDir, absolutePath))))
+    );
 }
 
-function catalogEntry(extensionDir, mergeDate) {
+function catalogEntry(extensionDir, mergeDate, logicalDir = extensionDir) {
   const id = basename(extensionDir);
   const manifestPath = readRequiredFile(extensionDir, 'ghostex-extension.json');
   const readmePath = readRequiredFile(extensionDir, 'README.md');
@@ -210,12 +213,12 @@ function catalogEntry(extensionDir, mergeDate) {
 
   return {
     ...manifest,
-    readme: normalizeRelativePath(relative(repositoryRoot, readmePath)),
-    changelog: normalizeRelativePath(relative(repositoryRoot, changelogPath)),
-    screenshots: screenshotPaths(extensionDir),
+    readme: normalizeRelativePath(relative(repositoryRoot, join(logicalDir, 'README.md'))),
+    changelog: normalizeRelativePath(relative(repositoryRoot, join(logicalDir, 'CHANGELOG.md'))),
+    screenshots: screenshotPaths(extensionDir, logicalDir),
     zip: zipName,
     sha256,
-    sourceUrl: `${sourceBaseUrl}/${normalizeRelativePath(relative(repositoryRoot, extensionDir))}`,
+    sourceUrl: `${sourceBaseUrl}/${normalizeRelativePath(relative(repositoryRoot, logicalDir))}`,
   };
 }
 
@@ -226,43 +229,50 @@ export function drawsNothing(entry) {
   return entry.kind === 'sidebar' && entry.sidebar === undefined && entry.sidePanel === undefined;
 }
 
-// What the store release published last (its catalog-v2.json and the zips beside it), read from the
-// directory named by --previous or PREVIOUS_STORE_DIR, or null.
-function readPreviousStore() {
-  const flag = process.argv.indexOf('--previous');
-  const directory = flag >= 0 ? process.argv[flag + 1] : process.env.PREVIOUS_STORE_DIR;
-  if (!directory) return null;
-  const file = join(resolve(directory), 'catalog-v2.json');
-  if (!existsSync(file)) return null;
-  try {
-    return { directory: resolve(directory), catalog: JSON.parse(readFileSync(file, 'utf8')) };
-  } catch {
-    return null;
+// catalog-v2.json's entry for an extension that draws nothing: the version at its pinned commit
+// (tooling/v2-pins.json), built the same way as any entry. Throws when it cannot, so a wrong
+// catalog-v2.json is never published; a null pin leaves the extension out on purpose.
+function pinnedV2Entry(entry, mergeDate) {
+  const pins = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'v2-pins.json'), 'utf8')).pins ?? {};
+  if (!(entry.name in pins)) {
+    throw new Error(
+      `${entry.name} draws nothing in the sidebar, so Ghostex 11.8.0 to 11.11.0 cannot read it: pin the commit of its last readable version in tooling/v2-pins.json (or null to leave it out of catalog-v2.json).`
+    );
   }
-}
-
-// catalog-v2.json keeps, for an extension that now draws nothing, the version it last published
-// there (which those Ghostex can read), with its zip carried over; an extension that was never
-// there is left out of it.
-function carriedForward(entry, previous) {
-  const before = previous?.catalog?.extensions?.find((candidate) => candidate.name === entry.name);
-  if (!before || drawsNothing(before) || !existsSync(join(previous.directory, before.zip))) return null;
-  copyFileSync(join(previous.directory, before.zip), join(outputRoot, before.zip));
-  const sum = join(previous.directory, `${before.zip}.sha256`);
-  if (existsSync(sum)) copyFileSync(sum, join(outputRoot, `${before.zip}.sha256`));
-  return before;
+  const ref = pins[entry.name];
+  if (ref === null) return null;
+  const folder = join(tmpdir(), `ghostex-v2-pin-${entry.name}-${process.pid}`);
+  rmSync(folder, { force: true, recursive: true });
+  mkdirSync(folder, { recursive: true });
+  try {
+    const archive = spawnSync('git', ['archive', '--format=tar', ref, `extensions/${entry.name}`], {
+      cwd: repositoryRoot,
+      maxBuffer: 256 * 1024 * 1024,
+    });
+    if (archive.status !== 0) {
+      throw new Error(`git archive ${ref} extensions/${entry.name} failed: ${String(archive.stderr).trim()} (is the commit fetched? the publish workflow checks out with fetch-depth: 0)`);
+    }
+    const unpack = spawnSync('tar', ['-x', '-C', folder], { input: archive.stdout });
+    if (unpack.status !== 0) throw new Error(`Could not unpack ${ref}: ${String(unpack.stderr).trim()}`);
+    const pinned = catalogEntry(join(folder, 'extensions', entry.name), mergeDate, join(extensionsRoot, entry.name));
+    if (pinned.name !== entry.name || drawsNothing(pinned) || pinned.version === entry.version) {
+      throw new Error(`${entry.name} at ${ref} (${pinned.version}) is not an older version Ghostex 11.8.0 to 11.11.0 can read.`);
+    }
+    return pinned;
+  } finally {
+    rmSync(folder, { force: true, recursive: true });
+  }
 }
 
 export function buildCatalog() {
   const mergeDate = resolveMergeDate();
-  const previous = readPreviousStore();
   rmSync(outputRoot, { force: true, recursive: true });
   mkdirSync(outputRoot, { recursive: true });
   // Three catalogs go to the rolling store release, for what each Ghostex can read:
   // - catalog.json, for 11.7 and older, which read it in one piece and reject all of it when one
   //   entry has a kind they don't know: no sidebar extensions.
-  // - catalog-v2.json, for 11.8.0 to 11.11.0: sidebar extensions, but none that draws nothing.
-  //   Such an extension stays at the version it last published here, or is left out.
+  // - catalog-v2.json, for 11.8.0 to 11.11.0: sidebar extensions, but an extension that draws
+  //   nothing is built from its pinned commit (tooling/v2-pins.json).
   // - catalog-v3.json (gxserver's DEFAULT_EXTENSIONS_CATALOG_URL): every extension at its newest.
   const everything = extensionDirectories().map((extensionDir) => catalogEntry(extensionDir, mergeDate));
   const catalog = {
@@ -275,8 +285,8 @@ export function buildCatalog() {
   for (const entry of everything) {
     if (!drawsNothing(entry)) v2.push(entry);
     else {
-      const kept = carriedForward(entry, previous);
-      if (kept) v2.push(kept);
+      const pinned = pinnedV2Entry(entry, mergeDate);
+      if (pinned) v2.push(pinned);
     }
   }
   const catalogV2 = { schemaVersion: 1, publishedAt: mergeDate, extensions: v2 };
