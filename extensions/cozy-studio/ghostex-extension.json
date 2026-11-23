@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "cozy-studio",
+  "title": "Cozy Studio",
+  "description": "Watch your local Cozy Studio image jobs, ChatGPT usage and unorganized Library images in the sidebar, start or stop Studio, and hand organizing to an agent.",
+  "version": "0.1.0",
+  "author": "gvastethecreator",
+  "icon": "icon.svg",
+  "categories": [
+    "Productivity",
+    "Developer Tools"
+  ],
+  "kind": "sidebar",
+  "sidebar": {
+    "mode": {
+      "title": "Cozy Studio"
+    },
+    "sections": [
+      {
+        "block": "summary",
+        "where": "projectsTop"
+      }
+    ],
+    "panel": "panel.json"
+  },
+  "sidePanel": {
+    "title": "Cozy Studio",
+    "scope": "global",
+    "panel": "panel.json"
+  },
+  "server": {
+    "command": "node dist/server.mjs {port}",
+    "cwd": ".",
+    "readiness": {
+      "httpGet": "/health",
+      "timeoutSeconds": 30
+    }
+  },
+  "permissions": [
+    "network",
+    "agents.start"
+  ]
+}

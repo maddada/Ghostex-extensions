@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ghostex-sidebar-panel.schema.json",
+  "schema": 1,
+  "title": "Cozy Studio",
+  "tabs": [
+    { "id": "jobs", "title": "Jobs", "icon": "photo" },
+    { "id": "library", "title": "Library", "icon": "books" },
+    { "id": "studio", "title": "Studio", "icon": "heart-rate-monitor" }
+  ],
+  "blocks": [
+    {
+      "id": "summary",
+      "type": "rows",
+      "tab": "jobs",
+      "items": [
+        { "id": "studio", "icon": "icon.svg", "dot": "gray", "title": "Cozy Studio", "subtitle": "Connecting…", "action": { "openUrl": "http://127.0.0.1:17223/" } }
+      ]
+    },
+    { "id": "jobs-notice", "type": "empty", "tab": "jobs", "title": "Connecting to Cozy Studio…", "subtitle": "Reading http://127.0.0.1:17223", "icon": "loader2" },
+    { "id": "library-notice", "type": "empty", "tab": "library", "title": "Connecting to Cozy Studio…", "subtitle": "Reading http://127.0.0.1:17223", "icon": "loader2" },
+    { "id": "studio-notice", "type": "empty", "tab": "studio", "title": "Connecting to Cozy Studio…", "subtitle": "Reading http://127.0.0.1:17223", "icon": "loader2" }
+  ]
+}
