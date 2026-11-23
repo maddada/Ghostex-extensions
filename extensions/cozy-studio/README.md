@@ -6,7 +6,9 @@ to review, your ChatGPT usage and the Library images that still have no tags or
 collection. On Windows it also starts, restarts and stops Studio, and can keep
 it running. Ghostex draws
 it with its own rows, so it matches both themes and also shows on the Ghostex
-phone app. Needs Ghostex 11.8 or newer and Cozy Studio on this computer.
+phone app. Needs Ghostex 11.8 or newer and Cozy Studio 0.3.0 or newer on this
+computer: the clean Stop, the disk and database figures and stuck jobs come
+from that release.
 
 ![Jobs tab](metadata/jobs.png)
 
@@ -80,7 +82,7 @@ On Windows, the panel controls a Studio that runs from its Git checkout with
   started with `bun run dev` and no jobs in flight). Otherwise it stops and
   starts Studio.
 - **Stop** asks Studio to shut down the way Ctrl+C does (`POST
-  /api/updates/stop`, in Studio newer than 0.2.0): it records the jobs it
+  /api/updates/stop`, in Studio 0.3.0 or newer): it records the jobs it
   interrupts and stops what it started, and its launcher ends the UI. If Studio
   is still up 15 seconds later, or has no such route, Stop ends Studio's
   process tree: the `scripts/dev.ts` launcher above the backend on port 17223
@@ -136,7 +138,7 @@ Settings do). **Update and restart** appears when Studio says it can update
 (`POST /api/updates/apply`): Studio fast-forwards its checkout, installs
 dependencies and restarts itself through `bun run dev`. Studio refuses while
 its checkout has local changes, and the block shows its reason instead of the
-button. With jobs queued or running, Studio newer than 0.2.0 offers **Update
+button. With jobs queued or running, Studio 0.3.0 or newer offers **Update
 anyway** (`canForceUpdate`). The panel then asks first and says how many jobs
 the update interrupts. When you confirm, it sends `force: true`, and Studio's
 restart puts the running jobs back in the queue. After the restart Studio
@@ -172,7 +174,7 @@ seconds of its start.
 
 ## How it stays light on Studio
 
-With a Cozy Studio newer than 0.2.0:
+With Cozy Studio 0.3.0 or newer:
 
 - The jobs summary (`studio_jobs` with `summary: true` through
   `POST /api/mcp/call`, about 2 KB: counts, batches in progress, failures of
