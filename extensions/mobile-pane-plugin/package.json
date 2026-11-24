@@ -1,0 +1,12 @@
+{
+  "name": "mobile-pane-plugin",
+  "private": true,
+  "type": "module",
+  "description": "Ghostex extension: mirror and control Android devices and iOS Simulators.",
+  "dependencies": {
+    "serve-sim": "0.1.49"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  }
+}

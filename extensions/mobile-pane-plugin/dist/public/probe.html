@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobile Pane Probe</title>
+<style>
+  :root { --bg: #f7f7f8; --fg: #18181b; --muted: #71717a; --card: #fff; --line: #e4e4e7; --ok: #15803d; --bad: #b91c1c; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0e0e10; --fg: #f4f4f5; --muted: #a1a1aa; --card: #18181b; --line: #27272a; --ok: #4ade80; --bad: #f87171; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font: 14px/1.5 system-ui, sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  p.sub { color: var(--muted); margin: 0 0 16px; }
+  ul { list-style: none; padding: 0; margin: 0 0 16px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  li { display: flex; gap: 12px; justify-content: space-between; padding: 8px 12px; border-top: 1px solid var(--line); }
+  li:first-child { border-top: 0; }
+  li span:last-child { text-align: right; color: var(--muted); overflow-wrap: anywhere; }
+  .ok::before { content: "✅ "; } .bad::before { content: "❌ "; } .wait::before { content: "⏳ "; }
+  canvas { width: 100%; max-width: 480px; aspect-ratio: 16/9; border-radius: 10px; background: #000; display: block; }
+  pre { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow: auto; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Mobile Pane — capability probe</h1>
+<p class="sub"><span id="status">Running checks…</span> <button onclick="location.reload()">Run again</button></p>
+<ul id="checks"></ul>
+<canvas id="screen"></canvas>
+<pre id="raw"></pre>
+<script>
+const report = { page: {}, worker: null, ws: null, fetchStream: null, raf: null, env: null };
+const checks = document.getElementById("checks");
+const pct = (xs, p) => xs.slice().sort((a, b) => a - b)[Math.min(xs.length - 1, Math.floor(xs.length * p))];
+const round = (n) => (n == null ? n : Math.round(n * 100) / 100);
+
+function row(label, ok, detail = "") {
+  const li = document.createElement("li");
+  li.innerHTML = `<span class="${ok === null ? "wait" : ok ? "ok" : "bad"}"></span><span></span>`;
+  li.firstChild.append(label);
+  li.lastChild.textContent = detail;
+  checks.append(li);
+}
+
+function pageInfo() {
+  let iframe;
+  try { iframe = window.top !== window; } catch { iframe = "cross-origin"; }
+  Object.assign(report.page, {
+    origin: location.origin, secureContext: isSecureContext, iframe, dpr: devicePixelRatio,
+    viewport: `${innerWidth}x${innerHeight}`, userAgent: navigator.userAgent,
+    videoDecoder: "VideoDecoder" in window,
+    transferControlToOffscreen: "transferControlToOffscreen" in HTMLCanvasElement.prototype,
+  });
+  row("Secure context", isSecureContext, location.origin);
+  row("WebCodecs (page)", report.page.videoDecoder);
+  row("canvas.transferControlToOffscreen", report.page.transferControlToOffscreen);
+}
+
+function workerProbe() {
+  return new Promise((resolve) => {
+    let worker;
+    try { worker = new Worker("/probe-worker.js"); } catch (e) { report.worker = { error: e.message }; return resolve(); }
+    const timer = setTimeout(() => { report.worker = { error: "timeout" }; resolve(); }, 15000);
+    worker.onerror = (e) => { clearTimeout(timer); report.worker = { error: e.message || "worker error" }; resolve(); };
+    worker.onmessage = ({ data }) => { clearTimeout(timer); report.worker = data; resolve(); };
+    const canvas = document.getElementById("screen");
+    const off = report.page.transferControlToOffscreen ? canvas.transferControlToOffscreen() : null;
+    worker.postMessage({ canvas: off }, off ? [off] : []);
+  }).then(() => {
+    const w = report.worker;
+    row("Worker", !!w.workerOk, w.error || "");
+    row("WebCodecs in worker", !!w.videoDecoder);
+    row("H.264 hardware decode supported", w.h264High === true, String(w.h264High));
+    row("H.264 decode (any backend)", w.h264AnyBackend === true, String(w.h264AnyBackend));
+    for (const [label, rt] of [["Round trip, hardware decoder", w.roundTripHardware], ["Round trip, software decoder", w.roundTripSoftware]]) {
+      row(label, !!rt && !rt.error && !rt.decodeError && rt.decoded === rt.frames,
+        rt ? (rt.error || rt.decodeError || `${rt.decoded}/${rt.frames} frames, decode p50 ${round(rt.decodeLatencyMs.p50)} ms, p95 ${round(rt.decodeLatencyMs.p95)} ms`) : "skipped");
+    }
+  });
+}
+
+function wsProbe() {
+  return new Promise((resolve) => {
+    const url = `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`;
+    let ws;
+    try { ws = new WebSocket(url); } catch (e) { report.ws = { url, error: e.message }; return resolve(); }
+    ws.binaryType = "arraybuffer";
+    const timer = setTimeout(() => { report.ws = { url, error: "timeout", ...report.ws }; ws.close(); resolve(); }, 15000);
+    const rtts = [];
+    let sentAt = 0, phase = "rtt", burst = { n: 120, size: 100_000, got: 0, ages: [], start: 0 };
+    const ping = () => { sentAt = performance.now(); ws.send(new Uint8Array(64)); };
+    ws.onerror = () => { clearTimeout(timer); report.ws = { url, error: "connection failed" }; resolve(); };
+    ws.onopen = ping;
+    ws.onmessage = ({ data }) => {
+      if (phase === "rtt") {
+        rtts.push(performance.now() - sentAt);
+        if (rtts.length < 50) return ping();
+        phase = "burst";
+        burst.start = performance.now();
+        return ws.send(JSON.stringify({ type: "burst", n: burst.n, size: burst.size }));
+      }
+      if (typeof data === "string") {
+        const secs = (performance.now() - burst.start) / 1000;
+        clearTimeout(timer);
+        report.ws = { url, rttMs: { p50: round(pct(rtts, 0.5)), p95: round(pct(rtts, 0.95)) },
+          burst: { frames: burst.got, MBps: round((burst.got * burst.size) / 1e6 / secs), frameAgeMs: { p50: round(pct(burst.ages, 0.5)), p95: round(pct(burst.ages, 0.95)) } } };
+        ws.close();
+        return resolve();
+      }
+      burst.got++;
+      burst.ages.push(performance.timeOrigin + performance.now() - new Float64Array(data, 0, 1)[0]);
+    };
+  }).then(() => {
+    const r = report.ws;
+    row("WebSocket", !r.error, r.error || `RTT p50 ${r.rttMs.p50} ms, p95 ${r.rttMs.p95} ms`);
+    if (r.burst) row("WS throughput (100 KB frames)", r.burst.MBps > 20, `${r.burst.MBps} MB/s, frame age p95 ${r.burst.frameAgeMs.p95} ms`);
+  });
+}
+
+async function fetchStreamProbe() {
+  try {
+    const start = performance.now();
+    const res = await fetch("/stream?n=50&size=100000");
+    const reader = res.body.getReader();
+    let bytes = 0, chunks = 0;
+    for (;;) { const { done, value } = await reader.read(); if (done) break; bytes += value.length; chunks++; }
+    report.fetchStream = { bytes, chunks, MBps: round(bytes / 1e6 / ((performance.now() - start) / 1000)) };
+    row("fetch stream (fallback)", bytes === 5_000_000, `${report.fetchStream.MBps} MB/s`);
+  } catch (e) {
+    report.fetchStream = { error: e.message };
+    row("fetch stream (fallback)", false, e.message);
+  }
+}
+
+function rafProbe() {
+  return new Promise((resolve) => {
+    let n = 0; const start = performance.now();
+    const tick = (t) => { n++; if (t - start < 1000) requestAnimationFrame(tick); else { report.raf = { fps: Math.round((n * 1000) / (t - start)) }; row("Display refresh (rAF)", true, `${report.raf.fps} fps`); resolve(); } };
+    requestAnimationFrame(tick);
+  });
+}
+
+async function envProbe() {
+  try {
+    report.env = await (await fetch("/env")).json();
+    const e = report.env;
+    row("Server runs on", true, `${e.platform}, node ${e.node}`);
+    row("adb", !!e.adb, e.adb ? `${Array.isArray(e.adbDevices) ? e.adbDevices.length : 0} device(s)` : "not found");
+    row("Android emulator", !!e.emulator, e.emulator ? `${Array.isArray(e.avds) ? e.avds.length : 0} AVD(s)` : "not found");
+    row("iOS Simulator (simctl)", !!e.simulators, e.simulators ? `${e.simulators.available} available, ${e.simulators.booted} booted` : "n/a");
+  } catch (e) {
+    report.env = { error: e.message };
+    row("Server /env", false, e.message);
+  }
+}
+
+function whenVisible() {
+  return new Promise((resolve) => {
+    const check = () => (document.visibilityState === "visible" && innerWidth > 50 ? resolve() : setTimeout(check, 200));
+    check();
+  });
+}
+
+(async () => {
+  await whenVisible();
+  pageInfo();
+  await workerProbe();
+  await wsProbe();
+  await fetchStreamProbe();
+  await rafProbe();
+  await envProbe();
+  document.getElementById("raw").textContent = JSON.stringify(report, null, 2);
+  try {
+    const saved = await (await fetch("/report", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(report) })).json();
+    document.getElementById("status").textContent = `Done. Report saved to ${saved.file}`;
+  } catch (e) {
+    document.getElementById("status").textContent = `Done, but saving the report failed: ${e.message}`;
+  }
+})();
+</script>
+</body>
+</html>
