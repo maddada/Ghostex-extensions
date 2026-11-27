@@ -40,7 +40,40 @@
   #devicesPanel .name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   #devicesPanel .state { color: var(--muted); font-size: 12px; }
   #devicesPanel .error { color: var(--bad); font-size: 12px; }
+  #devicesPanel .setting { display: flex; gap: 8px; align-items: center; padding: 8px 6px 4px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
   #devicesPanel p { margin: 6px; color: var(--muted); }
+  #devicesPanel p.error { color: var(--bad); }
+  #devicesPanel input { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; }
+  .wifiBar, #codeForm { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px; }
+  #codeForm select, #pairAddress { flex: 1 1 100%; }
+  #codeForm[hidden] { display: none; }
+  #pairCode { flex: 1; letter-spacing: 0.2em; }
+  #qrBox { margin: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; text-align: center; }
+  #qrBox ol { text-align: left; margin: 8px 0; padding-left: 20px; }
+  #qrImg svg { display: block; margin: 0 auto; border-radius: 6px; }
+  /* Run panel: a bottom drawer; the stage shrinks and the device rescales with it. */
+  #runPanel { max-height: 45vh; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--bar); }
+  #runPanel.tall { height: 45vh; }
+  #runPanel[hidden] { display: none; }
+  #runPanel .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 12px; min-width: 0; }
+  #runPanel .row + .row { border-top: 1px solid var(--line); }
+  #runPanel input { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; }
+  #runPanel button:disabled { opacity: 0.45; }
+  #runPath { flex: 1 1 240px; }
+  #runArgs { flex: 1 1 160px; }
+  #runPanel .meta { color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+  #runPanel .phase { color: var(--muted); white-space: nowrap; }
+  #runPanel .grow { flex: 1 1 220px; }
+  #runOptions:empty { display: none; }
+  #runPanel .projectInfo { display: flex; flex: 1 1 100%; gap: 6px; align-items: center; min-width: 0; }
+  #runPanel .projectInfo[hidden] { display: none; }
+  #runProject { flex: 1; }
+  #runNote, #runError { margin: 0; padding: 0 12px 8px; }
+  #runError { color: var(--bad); }
+  #runClear { margin-left: auto; }
+  #runLog { flex: 1 1 60px; min-height: 60px; margin: 0; padding: 8px 12px; overflow: auto; font: 12px/1.35 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bg); }
+  #runLog .err { color: var(--bad); }
+  #runLog .info { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -48,6 +81,7 @@
   <select id="targets" aria-label="Device"></select>
   <button id="refresh" title="Refresh devices" aria-label="Refresh devices">↻</button>
   <button popovertarget="devicesPanel" title="Start or stop emulators and simulators">Devices</button>
+  <button id="runToggle" aria-expanded="false" aria-controls="runPanel" title="Run a Flutter or Android project on this device">Run</button>
   <span class="group">
     <button data-action="back" data-only="android" title="Back (right click)" aria-label="Back">◁</button>
     <button data-action="home" title="Home" aria-label="Home">○</button>
@@ -60,13 +94,41 @@
   <span id="hud"></span>
 </header>
 <main id="stage"></main>
-<div id="devicesPanel" popover></div>
+<section id="runPanel" hidden></section>
+<div id="devicesPanel" popover>
+  <h2>Android phones over Wi-Fi</h2>
+  <div class="wifiBar">
+    <button id="qrStart">Pair with QR</button>
+    <button id="codeToggle" aria-expanded="false" aria-controls="codeForm">Pair with code</button>
+  </div>
+  <div id="qrBox" hidden>
+    <div id="qrImg"></div>
+    <ol>
+      <li>On the phone: Settings › Developer options › Wireless debugging (same Wi-Fi as this Mac).</li>
+      <li>Tap Pair device with QR code and scan this.</li>
+    </ol>
+    <p id="qrStatus" role="status"></p>
+    <button id="qrCancel">Cancel</button>
+  </div>
+  <form id="codeForm" hidden>
+    <select id="pairTarget" aria-label="Phone showing a pairing code"></select>
+    <input id="pairAddress" placeholder="IP address:port, from the phone" aria-label="IP address and port" autocomplete="off" spellcheck="false">
+    <input id="pairCode" placeholder="6-digit code" aria-label="Pairing code" inputmode="numeric" maxlength="6" autocomplete="off">
+    <button id="pairSubmit">Pair &amp; connect</button>
+    <p>On the phone: Wireless debugging › Pair device with pairing code. Leave the code empty to connect an already paired phone by the IP address &amp; Port on its Wireless debugging screen.</p>
+  </form>
+  <p id="wifiError" class="error" role="alert" hidden></p>
+  <div id="wifiList"></div>
+  <div id="emuList"></div>
+  <label class="setting"><input type="checkbox" id="shutdownIdle"> Shut down emulators when a project is done</label>
+</div>
 <textarea id="ime" aria-label="Keyboard input for the device" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
 <script type="module">
 import {
   ACTION, KEY, META_CTRL_ON, touch, scroll, key, text, setClipboard,
   iosTouch, iosTouch2, iosButton, iosKey, iosScroll, iosSwipeHome, HID_USAGE, POINTER_VIRTUAL_FINGER,
 } from "/control.js";
+import { initRun } from "/run.js";
 
 const $ = (id) => document.getElementById(id);
 const stage = $("stage");
@@ -98,13 +160,13 @@ async function loadTargets(preferKey) {
   const ready = targets.filter((t) => t.ready);
   if (!ready.length) {
     stop();
-    setStatus("No device running. Start one from Devices, or plug in a phone and ↻.");
+    setStatus("No device running. Start one from Devices, connect a phone over Wi-Fi there, or plug in a phone and ↻.");
     if (!$("devicesPanel").matches(":popover-open")) $("devicesPanel").showPopover();
     return;
   }
   const pick = ready.find((t) => t.key === preferKey) ?? ready.find((t) => t.key === current?.key) ?? ready[0];
   $("targets").value = pick.key;
-  if (pick.key !== current?.key) start(pick);
+  if (pick.key !== current?.key || !worker) start(pick);
 }
 
 function stop() {
@@ -175,6 +237,8 @@ function start(target, opts = {}) {
     } else if (data.type === "error") {
       setStatus(data.message, true);
     } else if (data.type === "closed") {
+      worker?.terminate(); // ↻ or picking the device starts it again
+      worker = null;
       setStatus("Stream closed. Pick the device or ↻ to reconnect.", true);
     }
   };
@@ -264,13 +328,14 @@ function renderPanel(avds, sims) {
         : stopTarget(`ios:${s.udid}`, () => postJson("/sims/shutdown", { udid: s.udid })),
     ));
   }
-  $("devicesPanel").replaceChildren(...items);
+  $("emuList").replaceChildren(...items);
 }
 
 async function refreshPanel() {
   clearTimeout(panelTimer);
-  const [avds, sims] = await Promise.all([fetch("/avds").then((r) => r.json()), fetch("/sims").then((r) => r.json())]);
+  const [avds, sims, wifi] = await Promise.all(["/avds", "/sims", "/wifi"].map((p) => fetch(p).then((r) => r.json())));
   renderPanel(avds, sims);
+  await renderWifi(wifi);
   let readyKey = null;
   if (waitingFor?.startsWith("avd:")) {
     const a = avds.find((x) => `avd:${x.name}` === waitingFor && x.state === "running");
@@ -289,7 +354,130 @@ async function refreshPanel() {
   }
 }
 
+// ---- Android phones over Wi-Fi (wireless debugging; see wifi.mjs) -----------------
+
+async function showPhone(serial) {
+  $("devicesPanel").hidePopover();
+  await loadTargets(`android:${serial}`);
+}
+
+// The "No route to host" hint (see wifi.mjs) gets a Restart adb button.
+function hintText(el, message) {
+  el.textContent = message ?? "";
+  if (!/Local Network/.test(message ?? "")) return;
+  const b = Object.assign(document.createElement("button"), { textContent: "Restart adb" });
+  b.onclick = async () => {
+    b.disabled = true;
+    b.textContent = "Restarting…";
+    try {
+      await postJson("/wifi/restart-adb", {});
+      wifiError(null);
+      await refreshPanel();
+    } catch (e) {
+      wifiError(e.message);
+    }
+  };
+  el.append(" ", b);
+}
+
+function wifiError(message) {
+  hintText($("wifiError"), message);
+  $("wifiError").hidden = !message;
+}
+
+let shownQr = null, shownPairing = null;
+async function renderWifi({ phones, pairing, qr }) {
+  const note = (t) => Object.assign(document.createElement("p"), { textContent: t });
+  const rows = phones.map((p) => row(
+    p.model ?? p.name,
+    `${p.serial ? "Connected" : p.paired ? "Paired" : "Not paired with this Mac yet"} · ${p.address}`,
+    false,
+    p.serial ? "Show" : "Connect",
+    async () => {
+      wifiError(null);
+      try {
+        await showPhone(p.serial ?? (await postJson("/wifi/connect", { name: p.name })).serial);
+      } catch (e) {
+        wifiError(e.message);
+        throw e;
+      }
+    },
+  ));
+  if (!phones.length) rows.push(note("No phone found. Turn on Wireless debugging on the phone, on the same Wi-Fi as this Mac. Still nothing? Turn on Ghostex in System Settings › Privacy & Security › Local Network."));
+  $("wifiList").replaceChildren(...rows);
+
+  // Phones showing a pairing code. Rebuilt only on change: that would close an open dropdown.
+  const pairKey = JSON.stringify(pairing);
+  if (pairKey !== shownPairing) {
+    shownPairing = pairKey;
+    const pick = $("pairTarget").value;
+    $("pairTarget").replaceChildren(new Option("Type the address by hand", ""), ...pairing.map((p) => new Option(`${p.name} · ${p.address}`, p.name)));
+    $("pairTarget").value = pairing.some((p) => p.name === pick) ? pick : pairing[0]?.name ?? "";
+    $("pairAddress").hidden = !!$("pairTarget").value;
+  }
+
+  $("qrBox").hidden = !qr;
+  if (!qr) return void (shownQr = null);
+  if (shownQr !== qr.payload) {
+    const { qrSvg } = await import("/qr.js");
+    $("qrImg").innerHTML = qrSvg(qr.payload);
+    $("qrImg").firstChild.setAttribute("aria-label", `QR code for pairing, service ${qr.name}`);
+    shownQr = qr.payload;
+  }
+  $("qrStatus").className = qr.state === "error" ? "error" : "";
+  hintText($("qrStatus"),
+    qr.state === "waiting" ? `Waiting for the phone…${qr.seen.length ? ` Seen on the network: ${qr.seen.join(", ")}` : ""}`
+    : qr.state === "pairing" ? "Pairing…"
+    : qr.state === "connecting" ? "Paired. Connecting…"
+    : qr.state === "connected" ? "Connected."
+    : qr.error);
+  $("qrCancel").textContent = qr.state === "error" ? "Close" : "Cancel";
+  if (qr.state === "connected") {
+    await postJson("/wifi/qr/cancel", {});
+    await showPhone(qr.serial);
+  }
+}
+
+$("qrStart").onclick = async () => {
+  wifiError(null);
+  try {
+    await postJson("/wifi/qr", {});
+    await refreshPanel();
+    $("qrBox").scrollIntoView({ block: "nearest" });
+  } catch (e) {
+    wifiError(e.message);
+  }
+};
+$("qrCancel").onclick = () => postJson("/wifi/qr/cancel", {}).then(refreshPanel, (e) => wifiError(e.message));
+$("codeToggle").onclick = () => {
+  $("codeForm").hidden = !$("codeForm").hidden;
+  $("codeToggle").setAttribute("aria-expanded", String(!$("codeForm").hidden));
+};
+$("pairTarget").onchange = () => ($("pairAddress").hidden = !!$("pairTarget").value);
+$("codeForm").onsubmit = async (e) => {
+  e.preventDefault();
+  wifiError(null);
+  const name = $("pairTarget").value, address = $("pairAddress").value.trim(), code = $("pairCode").value.trim();
+  if (name && !code) return wifiError("Type the 6-digit code the phone shows.");
+  $("pairSubmit").disabled = true;
+  const label = $("pairSubmit").textContent;
+  $("pairSubmit").textContent = code ? "Pairing…" : "Connecting…";
+  try {
+    const { serial } = await postJson("/wifi/connect", { ...(name ? { name } : { address }), ...(code ? { code } : {}) });
+    $("pairCode").value = "";
+    await showPhone(serial);
+  } catch (err) {
+    wifiError(err.message);
+  } finally {
+    $("pairSubmit").disabled = false;
+    $("pairSubmit").textContent = label;
+  }
+};
+
 $("devicesPanel").addEventListener("toggle", (e) => e.newState === "open" && refreshPanel().catch((err) => setStatus(err.message, true)));
+// Stored by the server (the agent CLI reads it too), not in localStorage.
+fetch("/settings").then((r) => r.json()).then((s) => ($("shutdownIdle").checked = s.shutdownIdle), () => {});
+$("shutdownIdle").onchange = (e) => postJson("/settings", { shutdownIdle: e.target.checked }).catch((err) => { e.target.checked = !e.target.checked; setStatus(err.message, true); });
 
 // ---- input -------------------------------------------------------------------
 
@@ -585,6 +773,7 @@ $("targets").onchange = () => loadTargets($("targets").value).catch((e) => setSt
 $("refresh").onclick = () => loadTargets().catch((e) => setStatus(e.message, true));
 // Hidden pane: stop decoding but keep the connection; on return ask for a keyframe.
 document.addEventListener("visibilitychange", () => worker?.postMessage({ type: document.hidden ? "pause" : "resume" }));
+initRun({ getTarget: () => current });
 loadTargets().catch((e) => setStatus(e.message, true));
 </script>
 </body>

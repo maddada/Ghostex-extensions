@@ -9,6 +9,11 @@ import { acceptWebSocket } from "./ws.mjs";
 import { androidSdk, listDevices, listAvds, startAvd, stopAvd, run, startScrcpy, rotatePhone, CONTROL_RESET_VIDEO } from "./android.mjs";
 import { listSims, bootSim, shutdownSim, startSimStream, ALLOWED_INPUT_TAGS } from "./ios.mjs";
 import { grpcEndpoint, startGrpcStream } from "./emulator-grpc.mjs";
+import { wifiState, connectPhone, startQr, cancelQr, restartAdb } from "./wifi.mjs";
+import { detectProject, listVariants, recentProjects, rememberProject } from "./project.mjs";
+import { startRun, stopRun, reloadRun, runState, installFlutter, runningSerial } from "./runner.mjs";
+import { sweep } from "./device-lock.mjs";
+import { getSettings, saveSettings, shutdownDevice } from "./idle-shutdown.mjs";
 
 const port = Number.parseInt(process.argv[2] ?? "", 10);
 if (!Number.isInteger(port) || port < 1) {
@@ -24,6 +29,8 @@ const STATIC = {
   "/probe.html": ["probe.html", "text/html; charset=utf-8"],
   "/probe-worker.js": ["probe-worker.js", "text/javascript; charset=utf-8"],
   "/touchtest.html": ["touchtest.html", "text/html; charset=utf-8"],
+  "/qr.js": ["qr.js", "text/javascript; charset=utf-8"],
+  "/run.js": ["run.js", "text/javascript; charset=utf-8"],
 };
 const now = () => performance.timeOrigin + performance.now();
 // Any web page can open a WebSocket or POST to 127.0.0.1, so only our own page may stream,
@@ -391,6 +398,106 @@ const server = createServer(async (request, response) => {
       await stopAvd(JSON.parse(await readBody(request)).serial);
       return json(response, 200, { ok: true });
     }
+    if (url.pathname === "/settings") return json(response, 200, request.method === "POST" ? await saveSettings(DATA_DIR, JSON.parse(await readBody(request))) : await getSettings(DATA_DIR));
+    if (url.pathname === "/wifi") return json(response, 200, await wifiState());
+    if (url.pathname === "/wifi/qr" && request.method === "POST") return json(response, 200, startQr());
+    if (url.pathname === "/wifi/qr/cancel" && request.method === "POST") return json(response, 200, cancelQr() ?? { ok: true });
+    if (url.pathname === "/wifi/connect" && request.method === "POST") return json(response, 200, await connectPhone(JSON.parse(await readBody(request))));
+    if (url.pathname === "/wifi/restart-adb" && request.method === "POST") return json(response, 200, (await restartAdb(), { ok: true }));
+    if (url.pathname === "/run/projects") {
+      await mkdir(DATA_DIR, { recursive: true });
+      const recents = await recentProjects(DATA_DIR);
+      let suggested = null;
+      if (process.env.GHOSTEX_PROJECT_PATH) {
+        try {
+          const p = await detectProject(process.env.GHOSTEX_PROJECT_PATH);
+          suggested = p.path;
+        } catch {
+          suggested = null;
+        }
+      }
+      return json(response, 200, { recents, suggested });
+    }
+    if (url.pathname === "/run/variants" && request.method === "POST") {
+      await mkdir(DATA_DIR, { recursive: true });
+      let body;
+      try {
+        body = JSON.parse(await readBody(request));
+      } catch {
+        return json(response, 400, { error: "Invalid JSON body" });
+      }
+      if (!body?.path) return json(response, 400, { error: "Missing project path" });
+      let project;
+      try {
+        project = await detectProject(body.path);
+      } catch (err) {
+        return json(response, 400, { error: err.message });
+      }
+      const variants = await listVariants(project, DATA_DIR, { refresh: Boolean(body.refresh) });
+      await rememberProject(DATA_DIR, project);
+      return json(response, 200, { project, variants });
+    }
+    if (url.pathname === "/run/start" && request.method === "POST") {
+      await mkdir(DATA_DIR, { recursive: true });
+      let body;
+      try {
+        body = JSON.parse(await readBody(request));
+      } catch {
+        return json(response, 400, { error: "Invalid JSON body" });
+      }
+      try {
+        return json(response, 200, await startRun(body, DATA_DIR));
+      } catch (err) {
+        return json(response, 400, { error: err.message });
+      }
+    }
+    if (url.pathname === "/run/stop" && request.method === "POST") {
+      await stopRun();
+      return json(response, 200, { ok: true });
+    }
+    if (url.pathname === "/run/reload" && request.method === "POST") {
+      let body;
+      try {
+        body = JSON.parse(await readBody(request));
+      } catch {
+        return json(response, 400, { error: "Invalid JSON body" });
+      }
+      try {
+        await reloadRun(Boolean(body?.full));
+        return json(response, 200, { ok: true });
+      } catch (err) {
+        return json(response, 400, { error: err.message });
+      }
+    }
+    if (url.pathname === "/run/state") {
+      const since = Number(url.searchParams.get("since")) || 0;
+      return json(response, 200, runState(since));
+    }
+    if (url.pathname === "/run/install-flutter" && request.method === "POST") {
+      await mkdir(DATA_DIR, { recursive: true });
+      let body;
+      try {
+        body = JSON.parse(await readBody(request));
+      } catch {
+        return json(response, 400, { error: "Invalid JSON body" });
+      }
+      const version = body?.version;
+      if (!version || typeof version !== "string") {
+        return json(response, 400, { error: "Missing or invalid Flutter version" });
+      }
+      let project;
+      try {
+        project = await detectProject(body.path);
+      } catch (e) {
+        return json(response, 400, { error: e.message });
+      }
+      const pinned = project.flutterSdk?.pinned ?? null;
+      if (pinned !== version) {
+        return json(response, 400, { error: `Requested Flutter version ${version} does not match pinned version ${pinned}` });
+      }
+      const res = await installFlutter(version);
+      return json(response, 200, res ?? { ok: true });
+    }
     if (url.pathname === "/env") return json(response, 200, await hostEnv());
     if (url.pathname === "/stream") {
       const n = Math.min(Number(url.searchParams.get("n")) || 50, 500);
@@ -437,4 +544,8 @@ server.on("upgrade", (request, socket) => {
   else probeEcho(ws);
 });
 
+// Locks of owners that never released go stale after 3 minutes with nobody to notice: look every 30 s.
+setInterval(() => {
+  getSettings(DATA_DIR).then((s) => s.shutdownIdle && sweep(DATA_DIR, shutdownDevice, (id) => id === runningSerial())).catch(() => {});
+}, 30000).unref?.(); // a failed sweep just tries again in 30 s
 server.listen(port, "127.0.0.1", () => console.log(`mobile-pane on http://127.0.0.1:${port}`));

@@ -1,11 +1,14 @@
 // Actions for coding agents: look at and drive a device without the viewer open.
 // Coordinates are normalized 0..1 on both platforms; `ui` returns element centers in the same units,
 // so an agent can pass them straight to `tap`.
+import { execFile } from "node:child_process";
 import { mkdir, access } from "node:fs/promises";
 import { join } from "node:path";
 import { androidSdk, listDevices, run, displayRotation } from "./android.mjs";
 import { listSims, simInput, simAccessibility, simPasteboard } from "./ios.mjs";
 import { iosSwipeHome } from "./public/control.js";
+import { acquire, holders, projectOf, release as freeLocks } from "./device-lock.mjs";
+import { shutdownIfOn } from "./idle-shutdown.mjs";
 
 const ANDROID_KEYS = { home: 3, back: 4, enter: 66, delete: 67, recents: 187, power: 26, volume_up: 24, volume_down: 25 };
 const IOS_BUTTONS = { home: "home", recents: "app_switcher", lock: "lock", power: "side_button", siri: "siri" };
@@ -20,8 +23,27 @@ const unit = (v, name) => {
   return v;
 };
 
-export async function devices() {
-  return settled(await listedDevices());
+/** Each device also shows `lock: {project, since}` while a project holds it (see device-lock.mjs). */
+export async function devices(_args, dataDir) {
+  const [all, locks] = await Promise.all([settled(await listedDevices()), dataDir ? holders(dataDir) : {}]);
+  return all.map((d) => (locks[d.device] ? { ...d, lock: locks[d.device] } : d));
+}
+
+/** Actions that change the device take the lock first; another project's lock makes this wait (`wait` seconds, default 600). */
+async function hold(t, args, dataDir) {
+  await acquire(dataDir, t.device, await projectOf(), { wait: args.wait });
+}
+
+/** Opens the Mobile Pane view beside the agent's chat. Fire-and-forget: older Ghostex, no `ghostex` on PATH, a declined toast or no Ghostex session all just do nothing. */
+export function openPane(onDone = () => {}) {
+  try {
+    execFile("ghostex", ["extensions", "open", "mobile-pane-plugin", "--background"], { timeout: 5000, stdio: "ignore" }, onDone).on("error", () => {}).unref();
+  } catch {}
+}
+
+export async function release({ device }, dataDir) {
+  const t = device ? await target(device) : null;
+  return { released: await freeLocks(dataDir, await projectOf(), t?.device, await shutdownIfOn(dataDir)) };
 }
 
 // A simulator booted before this process started reads "booting" until its quick bootstatus check
@@ -44,7 +66,7 @@ async function listedDevices() {
 
 /** `device` may be a serial, udid or (part of) a name; without it, the only ready device. */
 async function target(device) {
-  const ready = (await devices()).filter((d) => d.state === "ready");
+  const ready = (await settled(await listedDevices())).filter((d) => d.state === "ready");
   if (!device) {
     if (ready.length === 1) return ready[0];
     throw new Error(ready.length ? `several devices are ready, pass "device": ${ready.map((d) => d.device).join(", ")}` : "no device is ready");
@@ -86,10 +108,12 @@ export async function screenshot({ device }, dataDir) {
   return { device: t.device, platform: t.platform, path };
 }
 
-export async function tap({ device, x, y }) {
+export async function tap(args, dataDir) {
+  const { device, x, y } = args;
   const t = await target(device);
   unit(x, "x");
   unit(y, "y");
+  await hold(t, args, dataDir);
   if (t.platform === "ios") {
     await simInput(t.device, [json(0x03, { type: "begin", x, y }), 50, json(0x03, { type: "end", x, y })]);
   } else {
@@ -99,10 +123,12 @@ export async function tap({ device, x, y }) {
   return { ok: true };
 }
 
-export async function swipe({ device, x1, y1, x2, y2, ms = 300 }) {
+export async function swipe(args, dataDir) {
+  const { device, x1, y1, x2, y2, ms = 300 } = args;
   const t = await target(device);
   [x1, y1, x2, y2].forEach((v, i) => unit(v, ["x1", "y1", "x2", "y2"][i]));
   ms = Math.min(Math.max(Number(ms) || 300, 50), 5000);
+  await hold(t, args, dataDir);
   if (t.platform === "ios") {
     const steps = Math.max(2, Math.round(ms / 16));
     const frames = [json(0x03, { type: "begin", x: x1, y: y1 })];
@@ -117,9 +143,11 @@ export async function swipe({ device, x1, y1, x2, y2, ms = 300 }) {
   return { ok: true };
 }
 
-export async function type({ device, text }) {
+export async function type(args, dataDir) {
+  const { device, text } = args;
   const t = await target(device);
   if (typeof text !== "string" || !text || text.length > 2000) throw new Error("text must be 1 to 2000 characters");
+  await hold(t, args, dataDir);
   if (t.platform === "ios") {
     // Paste instead of key presses: any characters, and no keyboard-layout guessing.
     await simPasteboard(t.device, text);
@@ -133,8 +161,10 @@ export async function type({ device, text }) {
   return { ok: true };
 }
 
-export async function key({ device, key: name }) {
+export async function key(args, dataDir) {
+  const { device, key: name } = args;
   const t = await target(device);
+  await hold(t, args, dataDir);
   if (t.platform === "ios") {
     // Home as a bottom-edge swipe also leaves the App Switcher; SE models have a real Home button.
     if (name === "home" && !/\bSE\b/.test(t.name)) await simInput(t.device, iosSwipeHome().map((f) => (typeof f === "number" ? f : Buffer.from(f))));
@@ -148,10 +178,13 @@ export async function key({ device, key: name }) {
   return { ok: true };
 }
 
-export async function install({ device, path }) {
+export async function install(args, dataDir) {
+  const { device, path } = args;
   const t = await target(device);
   if (typeof path !== "string" || !path.startsWith("/")) throw new Error("path must be an absolute path");
   await access(path);
+  await hold(t, args, dataDir);
+  openPane();
   if (t.platform === "ios") {
     if (!/\.app\/?$/.test(path)) throw new Error("iOS Simulator installs a built .app folder");
     const r = await run("xcrun", ["simctl", "install", t.device, path], 300000);
@@ -163,9 +196,12 @@ export async function install({ device, path }) {
   return { ok: true };
 }
 
-export async function launch({ device, app }) {
+export async function launch(args, dataDir) {
+  const { device, app } = args;
   const t = await target(device);
   if (typeof app !== "string" || !/^[A-Za-z0-9._-]+$/.test(app)) throw new Error("app must be a package name or bundle id");
+  await hold(t, args, dataDir);
+  openPane();
   if (t.platform === "ios") {
     const r = await run("xcrun", ["simctl", "launch", t.device, app], 60000);
     if (!r.ok) throw new Error(r.stderr || "simctl launch failed");
@@ -212,7 +248,7 @@ export async function ui({ device }) {
 
 /** What an agent can ask for; returned by the `help` message. */
 export const HELP = {
-  devices: "List devices: [{device, platform, name, state}]. Pass `device` (id or part of the name) to the others when more than one is ready.",
+  devices: "List devices: [{device, platform, name, state, lock?}]; lock = the project using it. Pass `device` (id or part of the name) to the others when more than one is ready.",
   screenshot: "{device?} → {path} of a PNG you can read.",
   ui: "{device?} → visible elements with text: [{role, text, x, y, w, h}], x/y = center, 0..1.",
   tap: "{device?, x, y} with x, y from 0 to 1 (e.g. an element's center from ui).",
@@ -221,6 +257,6 @@ export const HELP = {
   key: "{device?, key}: home, back (Android), recents, enter, delete, … ",
   install: "{device?, path}: absolute path to an .apk (Android) or a built .app folder (iOS Simulator).",
   launch: "{device?, app}: package name (Android) or bundle id (iOS).",
-};
+  release: "{device?} → {released: [device ids]}. Call it when you finish testing so other projects can use the device. An emulator or Simulator nobody else is waiting for is shut down (never a real phone). tap, swipe, type, key, install and launch lock the device for your project; another project's agent waits (up to `wait` seconds, default 600) until you release or stop acting for 3 minutes.",};
 
-export const ACTIONS = { devices, screenshot, tap, swipe, type, key, install, launch, ui };
+export const ACTIONS = { devices, screenshot, tap, swipe, type, key, install, launch, ui, release };

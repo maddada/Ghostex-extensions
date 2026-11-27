@@ -3,7 +3,7 @@
   "name": "mobile-pane-plugin",
   "title": "Mobile Pane",
   "description": "Mirror and control Android devices, Android emulators and iOS Simulators in a Ghostex view.",
-  "version": "0.9.0",
+  "version": "0.9.4",
   "author": "Afiv Dicky Efendy",
   "icon": "icon.svg",
   "categories": [

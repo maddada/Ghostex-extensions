@@ -1,0 +1,19 @@
+// Mobile Pane: prints one tab-separated line per installable variant of every Android app module:
+// MOBILE_PANE_VARIANT <module path> <variant> <flavor> <build type> <applicationId> <install task>
+// Needs AGP 7+ (androidComponents). Run with --no-configuration-cache.
+allprojects { p ->
+  p.plugins.withId('com.android.application') {
+    def variants = []
+    p.androidComponents.onVariants(p.androidComponents.selector().all()) { v -> variants << v }
+    def lines = []
+    p.gradle.projectsEvaluated {
+      variants.each { v ->
+        def task = 'install' + v.name.substring(0, 1).toUpperCase() + v.name.substring(1)
+        if (p.tasks.names.contains(task)) lines << [p.path, v.name, v.flavorName ?: '', v.buildType ?: '', v.applicationId, "${p.path == ':' ? '' : p.path}:${task}"]
+      }
+    }
+    p.tasks.register('mobilePaneVariants') {
+      doLast { lines.each { l -> println(['MOBILE_PANE_VARIANT', l[0], l[1], l[2], l[3], l[4].get(), l[5]].join('\t')) } }
+    }
+  }
+}
