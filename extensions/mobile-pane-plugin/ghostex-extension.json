@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/maddada/Ghostex-extensions/main/schemas/ghostex-extension.schema.json",
+  "name": "mobile-pane-plugin",
+  "title": "Mobile Pane",
+  "description": "Mirror and control Android devices, Android emulators and iOS Simulators in a Ghostex view.",
+  "version": "0.9.4",
+  "author": "Afiv Dicky Efendy",
+  "icon": "icon.svg",
+  "categories": [
+    "Developer Tools"
+  ],
+  "placements": [
+    "view"
+  ],
+  "defaultPlacement": "view",
+  "server": {
+    "command": "sh dist/start.sh {port}",
+    "cwd": ".",
+    "readiness": {
+      "httpGet": "/health",
+      "timeoutSeconds": 30
+    }
+  },
+  "permissions": [],
+  "skill": {
+    "name": "mobile-pane",
+    "path": "skill"
+  }
+}

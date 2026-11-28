@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Mobile Pane touch test</title>
+<style>
+  /* Opened on the device for the latency benchmark: every touch flips the whole screen
+     black ↔ white at once, no transition, so the first changed frame marks the reaction. */
+  html, body { margin: 0; height: 100%; background: #000; touch-action: none; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; overflow: hidden; }
+  body.on { background: #fff; }
+  /* Most fingers seen in one touch, for checking multi-touch (pinch) input. Grey reads on both colors. */
+  #fingers { position: fixed; left: 0; right: 0; bottom: 12%; text-align: center; font: 600 28px system-ui; color: #888; }
+</style>
+</head>
+<body>
+<div id="fingers"></div>
+<script>
+  const flip = (e) => { document.body.classList.toggle("on"); e.preventDefault(); };
+  let most = 0;
+  const count = (e) => { most = Math.max(most, e.touches.length); fingers.textContent = `fingers: ${most}`; };
+  addEventListener("touchstart", flip, { passive: false });
+  addEventListener("touchstart", count);
+  addEventListener("touchmove", count);
+  addEventListener("mousedown", flip);
+</script>
+</body>
+</html>

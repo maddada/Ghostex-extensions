@@ -1,0 +1,131 @@
+{
+  "name": "serve-sim",
+  "version": "0.1.49",
+  "type": "module",
+  "author": {
+    "name": "Evan Bacon",
+    "email": "baconbrix@gmail.com",
+    "url": "https://evanbacon.dev"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvanBacon/serve-sim.git",
+    "directory": "packages/serve-sim"
+  },
+  "homepage": "https://github.com/EvanBacon/serve-sim#readme",
+  "bugs": {
+    "url": "https://github.com/EvanBacon/serve-sim/issues"
+  },
+  "bin": {
+    "serve-sim": "dist/serve-sim.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist/serve-sim.js",
+    "dist/middleware.js",
+    "dist/middleware.cjs",
+    "dist/simcam/libSimCameraInjector.dylib",
+    "dist/simcam/serve-sim-camera-helper",
+    "dist/simax/serve-sim-ax-settings",
+    "src/auth-bootstrap.ts",
+    "src/ax.ts",
+    "src/ax-shared.ts",
+    "src/camera-helper.ts",
+    "src/debug.ts",
+    "src/device.ts",
+    "src/device-displays.ts",
+    "src/device-hub-input.ts",
+    "src/device-pose.ts",
+    "src/device-session.ts",
+    "src/devicekit-chrome.ts",
+    "src/diagnostics-redact.ts",
+    "src/doctor.ts",
+    "src/duo-frame-parser.ts",
+    "src/duo-preview.ts",
+    "src/duo-renderer.ts",
+    "src/duo-state.ts",
+    "src/event-log.ts",
+    "src/exec-ws.ts",
+    "src/helper-lifecycle.ts",
+    "src/host-rpc.ts",
+    "src/max-bitrate.ts",
+    "src/keyboard-modifiers.ts",
+    "src/key-sequencer.ts",
+    "src/metro-reload.ts",
+    "src/middleware.ts",
+    "src/native.ts",
+    "src/ports.ts",
+    "src/preview-initial-state.ts",
+    "src/recording.ts",
+    "src/request-trust.ts",
+    "src/runtime.ts",
+    "src/shell-quote.ts",
+    "src/simctl.ts",
+    "src/state.ts",
+    "src/ui-settings.ts",
+    "src/client/simulator/orientation.ts",
+    "src/client/types.ts",
+    "src/client/utils/permissions.ts",
+    "Sources/SimCameraInjector/SimCameraInjector.m",
+    "Sources/SimCameraInjector/SimCam*.h",
+    "Sources/SimCameraInjector/SimCam*.m",
+    "Sources/SimCameraInjector/include/SimCamShared.h",
+    "Sources/SimCameraInjector/build.sh",
+    "Sources/SimCameraHelper/main.m",
+    "Sources/SimCameraHelper/build.sh",
+    "Sources/SimAXSettings/sim-ax-settings.m",
+    "Sources/SimAXSettings/build.sh",
+    "scripts/serve-sim-arch.sh",
+    "dist/native/serve-sim-native.node",
+    "dist/simduo/serve-sim-duo-hid",
+    "dist/simduo/serve-sim-duo-render",
+    "Sources/SimDuoRenderer/*",
+    "Sources/SimDuoHID/*",
+    "Package.swift",
+    "Sources/SimNative/*.swift",
+    "Sources/SimNativeSupport/*.swift",
+    "Tests/SimNativeSupportTests/*.swift",
+    "Sources/SimNative/build.sh"
+  ],
+  "exports": {
+    "./middleware": {
+      "require": "./dist/middleware.cjs",
+      "import": "./dist/middleware.js",
+      "types": "./src/middleware.ts"
+    },
+    "./state": {
+      "import": "./src/state.ts",
+      "types": "./src/state.ts"
+    }
+  },
+  "scripts": {
+    "build": "bun run build.ts",
+    "dev": "bun run dev.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/debug": "^4.1.13",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/ws": "^8.18.1",
+    "bun-plugin-tailwind": "^0.1.2",
+    "commander": "^14.0.1",
+    "debug": "^4.4.3",
+    "happy-dom": "^20.14.5",
+    "lucide-react": "^1.20.0",
+    "node-swift": "1.5.1",
+    "preact": "^10.29.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.7",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "inspect-webkit": "^0.0.5",
+    "sonner": "^2.0.7",
+    "ws": "^8.21.0"
+  }
+}

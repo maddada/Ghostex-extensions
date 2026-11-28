@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobile Pane</title>
+<style>
+  :root { --bg: #f4f4f5; --fg: #18181b; --muted: #71717a; --bar: #ffffff; --line: #e4e4e7; --bad: #b91c1c; --focus: #2563eb; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0e0e10; --fg: #f4f4f5; --muted: #a1a1aa; --bar: #18181b; --line: #27272a; --bad: #f87171; --focus: #60a5fa; } }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font: 13px/1.4 system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 12px; background: var(--bar); border-bottom: 1px solid var(--line); }
+  select, button { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+  select { max-width: 100%; }
+  button { min-width: 30px; }
+  .group { display: flex; gap: 4px; }
+  body[data-platform="ios"] [data-only="android"], body[data-platform="android"] [data-only="ios"], body:not([data-platform]) .group { display: none; }
+  #status { color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+  #status.bad { color: var(--bad); }
+  #hud { margin-left: auto; color: var(--muted); font: 12px ui-monospace, monospace; white-space: nowrap; }
+  #stage { flex: 1; min-height: 0; display: grid; place-items: center; container-type: size; }
+  /* Device frame. Our own for every device: the streams carry only the screen (headless emulator,
+     simulator framebuffer), never an emulator skin. .device is fitted into the stage with container
+     units; its aspect ratio (--ar), bezel and radii come from layoutDevice(). */
+  .device { position: relative; container-type: size; aspect-ratio: var(--ar, 0.5); width: min(calc(100cqw - 24px), calc((100cqh - 24px) * var(--ar, 0.5))); }
+  .device .bezel { position: absolute; inset: 0; border-radius: var(--outer-r, 0); background: #111214; box-shadow: inset 0 0 0 0.6cqmin #2c2d30, inset 0 0 0 1cqmin #0a0a0b, 0 1.5cqmin 5cqmin rgb(0 0 0 / 0.35); }
+  .device .bezel::before, .device .bezel::after { content: ""; position: absolute; width: 0.9cqmin; border-radius: 0.5cqmin; background: #2a2b2e; }
+  .device .bezel::before { right: -0.9cqmin; top: 24%; height: 11%; }            /* power / side button */
+  .device .bezel::after { left: -0.9cqmin; top: 20%; height: 16%; }             /* volume */
+  .device.landscape .bezel::before, .device.landscape .bezel::after, .device.bare .bezel { display: none; }
+  .device canvas { position: absolute; inset: var(--bezel, 0); width: calc(100% - 2 * var(--bezel, 0px)); height: calc(100% - 2 * var(--bezel, 0px)); border-radius: var(--screen-r, 0); background: #000; touch-action: none; outline: none; }
+  .device.typing canvas { outline: 2px solid var(--focus); outline-offset: 2px; }
+  #ime { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; resize: none; pointer-events: none; }
+  #frame[aria-pressed="true"] { border-color: var(--focus); }
+  #devicesPanel { position: fixed; inset: 44px auto auto 12px; margin: 0; width: min(400px, calc(100vw - 24px)); max-height: calc(100vh - 60px); overflow: auto; padding: 6px; background: var(--bar); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.25); }
+  #devicesPanel h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 8px 6px 4px; }
+  #devicesPanel .row { display: flex; gap: 8px; align-items: center; padding: 6px; border-radius: 6px; }
+  #devicesPanel .row + .row { border-top: 1px solid var(--line); }
+  #devicesPanel .name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  #devicesPanel .state { color: var(--muted); font-size: 12px; }
+  #devicesPanel .error { color: var(--bad); font-size: 12px; }
+  #devicesPanel .setting { display: flex; gap: 8px; align-items: center; padding: 8px 6px 4px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+  #devicesPanel p { margin: 6px; color: var(--muted); }
+  #devicesPanel p.error { color: var(--bad); }
+  #devicesPanel input { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; }
+  .wifiBar, #codeForm { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px; }
+  #codeForm select, #pairAddress { flex: 1 1 100%; }
+  #codeForm[hidden] { display: none; }
+  #pairCode { flex: 1; letter-spacing: 0.2em; }
+  #qrBox { margin: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; text-align: center; }
+  #qrBox ol { text-align: left; margin: 8px 0; padding-left: 20px; }
+  #qrImg svg { display: block; margin: 0 auto; border-radius: 6px; }
+  /* Run panel: a bottom drawer; the stage shrinks and the device rescales with it. */
+  #runPanel { max-height: 45vh; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--bar); }
+  #runPanel.tall { height: 45vh; }
+  #runPanel[hidden] { display: none; }
+  #runPanel .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 12px; min-width: 0; }
+  #runPanel .row + .row { border-top: 1px solid var(--line); }
+  #runPanel input { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; }
+  #runPanel button:disabled { opacity: 0.45; }
+  #runPath { flex: 1 1 240px; }
+  #runArgs { flex: 1 1 160px; }
+  #runPanel .meta { color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+  #runPanel .phase { color: var(--muted); white-space: nowrap; }
+  #runPanel .grow { flex: 1 1 220px; }
+  #runOptions:empty { display: none; }
+  #runPanel .projectInfo { display: flex; flex: 1 1 100%; gap: 6px; align-items: center; min-width: 0; }
+  #runPanel .projectInfo[hidden] { display: none; }
+  #runProject { flex: 1; }
+  #runNote, #runError { margin: 0; padding: 0 12px 8px; }
+  #runError { color: var(--bad); }
+  #runClear { margin-left: auto; }
+  #runLog { flex: 1 1 60px; min-height: 60px; margin: 0; padding: 8px 12px; overflow: auto; font: 12px/1.35 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bg); }
+  #runLog .err { color: var(--bad); }
+  #runLog .info { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <select id="targets" aria-label="Device"></select>
+  <button id="refresh" title="Refresh devices" aria-label="Refresh devices">↻</button>
+  <button popovertarget="devicesPanel" title="Start or stop emulators and simulators">Devices</button>
+  <button id="runToggle" aria-expanded="false" aria-controls="runPanel" title="Run a Flutter or Android project on this device">Run</button>
+  <span class="group">
+    <button data-action="back" data-only="android" title="Back (right click)" aria-label="Back">◁</button>
+    <button data-action="home" title="Home" aria-label="Home">○</button>
+    <button data-action="recents" title="Recent apps" aria-label="Recent apps">▢</button>
+    <button data-action="rotate" title="Rotate" aria-label="Rotate">⟳</button>
+    <button id="frame" title="Show a device frame around the screen" aria-pressed="true">Frame</button>
+    <button id="bench" title="Measure input-to-screen latency: opens a test page on the device and taps it 20 times">Bench</button>
+  </span>
+  <span id="status">Loading devices…</span>
+  <span id="hud"></span>
+</header>
+<main id="stage"></main>
+<section id="runPanel" hidden></section>
+<div id="devicesPanel" popover>
+  <h2>Android phones over Wi-Fi</h2>
+  <div class="wifiBar">
+    <button id="qrStart">Pair with QR</button>
+    <button id="codeToggle" aria-expanded="false" aria-controls="codeForm">Pair with code</button>
+  </div>
+  <div id="qrBox" hidden>
+    <div id="qrImg"></div>
+    <ol>
+      <li>On the phone: Settings › Developer options › Wireless debugging (same Wi-Fi as this Mac).</li>
+      <li>Tap Pair device with QR code and scan this.</li>
+    </ol>
+    <p id="qrStatus" role="status"></p>
+    <button id="qrCancel">Cancel</button>
+  </div>
+  <form id="codeForm" hidden>
+    <select id="pairTarget" aria-label="Phone showing a pairing code"></select>
+    <input id="pairAddress" placeholder="IP address:port, from the phone" aria-label="IP address and port" autocomplete="off" spellcheck="false">
+    <input id="pairCode" placeholder="6-digit code" aria-label="Pairing code" inputmode="numeric" maxlength="6" autocomplete="off">
+    <button id="pairSubmit">Pair &amp; connect</button>
+    <p>On the phone: Wireless debugging › Pair device with pairing code. Leave the code empty to connect an already paired phone by the IP address &amp; Port on its Wireless debugging screen.</p>
+  </form>
+  <p id="wifiError" class="error" role="alert" hidden></p>
+  <div id="wifiList"></div>
+  <div id="emuList"></div>
+  <label class="setting"><input type="checkbox" id="shutdownIdle"> Shut down emulators when a project is done</label>
+</div>
+<textarea id="ime" aria-label="Keyboard input for the device" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+<script type="module">
+import {
+  ACTION, KEY, META_CTRL_ON, touch, scroll, key, text, setClipboard,
+  iosTouch, iosTouch2, iosButton, iosKey, iosScroll, iosSwipeHome, HID_USAGE, POINTER_VIRTUAL_FINGER,
+} from "/control.js";
+import { initRun } from "/run.js";
+
+const $ = (id) => document.getElementById(id);
+const stage = $("stage");
+let worker = null;
+let current = null; // { key, kind: "android" | "ios", id, label }
+let canvas = null;
+let video = null; // { width, height, orientation } as displayed (upright); input uses these units
+
+function setStatus(text, bad = false) {
+  $("status").textContent = text;
+  $("status").className = bad ? "bad" : "";
+}
+
+/** Binary messages go to the device; JSON strings are requests for the server. */
+function send(buf) {
+  worker?.postMessage({ type: "control", buf }, typeof buf === "string" ? [] : [buf]);
+}
+const request = (obj) => send(JSON.stringify(obj));
+
+// ---- targets & stream --------------------------------------------------------
+
+async function loadTargets(preferKey) {
+  const [devices, sims] = await Promise.all([fetch("/devices").then((r) => r.json()), fetch("/sims").then((r) => r.json())]);
+  const targets = [
+    ...devices.map((d) => ({ key: `android:${d.serial}`, kind: "android", id: d.serial, label: `${d.model} (${d.serial})`, ready: d.state === "device", note: d.state })),
+    ...sims.filter((s) => s.state !== "stopped").map((s) => ({ key: `ios:${s.udid}`, kind: "ios", id: s.udid, label: `${s.name} (${s.runtime})`, ready: s.state === "running", note: s.state })),
+  ];
+  $("targets").replaceChildren(...targets.map((t) => new Option(`${t.label}${t.ready ? "" : ` · ${t.note}`}`, t.key)));
+  const ready = targets.filter((t) => t.ready);
+  if (!ready.length) {
+    stop();
+    setStatus("No device running. Start one from Devices, connect a phone over Wi-Fi there, or plug in a phone and ↻.");
+    if (!$("devicesPanel").matches(":popover-open")) $("devicesPanel").showPopover();
+    return;
+  }
+  const pick = ready.find((t) => t.key === preferKey) ?? ready.find((t) => t.key === current?.key) ?? ready[0];
+  $("targets").value = pick.key;
+  if (pick.key !== current?.key || !worker) start(pick);
+}
+
+function stop() {
+  worker?.terminate();
+  worker = null;
+  current = null;
+  canvas = null;
+  video = null;
+  delete document.body.dataset.platform;
+  stage.replaceChildren();
+  $("hud").textContent = "";
+}
+
+let streamOpts = {}; // { transport, video, maxSize } of the running stream
+
+function start(target, opts = {}) {
+  stop();
+  current = target;
+  document.body.dataset.platform = target.kind;
+  setStatus(`Connecting to ${target.label}…`);
+  // A canvas can only be transferred once, so every stream gets a fresh one.
+  canvas = document.createElement("canvas");
+  const device = document.createElement("div");
+  device.className = "device";
+  device.append(Object.assign(document.createElement("div"), { className: "bezel" }), canvas);
+  canvas.setAttribute("aria-label", "Device screen. Click to interact, then type to send keys. Option+drag pinches.");
+  stage.append(device);
+  attachInput(canvas);
+  const offscreen = canvas.transferControlToOffscreen();
+  // Android: ask for no more pixels than the pane can show. iOS sends its native size.
+  const maxSize = paneMaxSize();
+  const params = new URLSearchParams(location.search); // ?transport=grpc|scrcpy, ?video=mjpeg force a path (testing)
+  streamOpts = { transport: opts.transport ?? params.get("transport"), video: opts.video ?? params.get("video"), maxSize };
+  const q = new URLSearchParams(target.kind === "ios" ? { sim: target.id } : { serial: target.id, maxSize });
+  if (streamOpts.transport && target.kind === "android") q.set("transport", streamOpts.transport);
+  if (streamOpts.video && target.kind === "ios") q.set("video", streamOpts.video);
+  const query = q.toString();
+  worker = new Worker("/viewer-worker.js");
+  worker.onmessage = ({ data }) => {
+    if (data.type === "session") {
+      // iOS landscape: frames stay portrait but are drawn turned, so the shown size is swapped.
+      const sideways = data.orientation === "landscape_left" || data.orientation === "landscape_right";
+      video = sideways ? { width: data.height, height: data.width, orientation: data.orientation } : { width: data.width, height: data.height, orientation: data.orientation };
+      layoutDevice();
+      setStatus(`${data.deviceName} · ${video.width}×${video.height}`);
+    } else if (data.type === "stats") {
+      const l = data.latencyMs;
+      $("hud").textContent = `${data.fps} fps · ${l.p50 ?? "–"}/${l.p95 ?? "–"} ms · ${Math.round(data.kbps / 1000 * 10) / 10} Mbps${data.dropped ? ` · drop ${data.dropped}` : ""}`;
+    } else if (data.type === "decoder-unsupported") {
+      // This engine can't decode H.264: reconnect with a stream that needs no decoder.
+      if (target.kind === "ios" && streamOpts.video !== "mjpeg") {
+        start(target, { ...streamOpts, video: "mjpeg" });
+        setStatus("No H.264 decoder here: showing JPEG frames instead (more bandwidth).");
+      } else if (/^emulator-/.test(target.id) && streamOpts.transport !== "grpc") {
+        start(target, { ...streamOpts, transport: "grpc" });
+        setStatus("No H.264 decoder here: using the emulator's raw frames instead.");
+      } else {
+        setStatus(`This view can't decode H.264 (${data.message}), and phones only stream H.264.`, true);
+      }
+    } else if (data.type === "clipboard") {
+      // The device copied text (Android clipboard sync, or iOS after Cmd+C/X): put it on the Mac clipboard.
+      navigator.clipboard.writeText(data.text).then(
+        () => setStatus(`Copied from the device: “${data.text.slice(0, 40)}${data.text.length > 40 ? "…" : ""}”`),
+        () => setStatus("The device copied text, but this view could not write the Mac clipboard.", true),
+      );
+    } else if (data.type === "bench-result") {
+      benchPending?.(data.result);
+    } else if (data.type === "error") {
+      setStatus(data.message, true);
+    } else if (data.type === "closed") {
+      worker?.terminate(); // ↻ or picking the device starts it again
+      worker = null;
+      setStatus("Stream closed. Pick the device or ↻ to reconnect.", true);
+    }
+  };
+  worker.postMessage({ type: "start", url: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/video?${query}`, canvas: offscreen }, [offscreen]);
+}
+
+// ---- stream size follows the pane ------------------------------------------------
+// Android streams at most the pane's pixel size (max_size); after the pane grows or shrinks by more
+// than a quarter, reconnect so it is neither blurry nor wastefully large. iOS always sends its native size.
+const paneMaxSize = () => Math.round(Math.max(stage.clientWidth, stage.clientHeight) * devicePixelRatio);
+let resizeTimer = null;
+new ResizeObserver(() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (current?.kind !== "android" || !streamOpts.maxSize) return;
+    const ratio = paneMaxSize() / streamOpts.maxSize;
+    if (ratio > 1.25 || ratio < 0.75) start(current, streamOpts);
+  }, 600);
+}).observe(stage);
+
+// ---- Devices panel (Android emulators + iOS Simulators) ------------------------
+
+let panelTimer = null;
+let waitingFor = null; // "avd:<name>" or "ios:<udid>": show it as soon as it has booted
+
+async function postJson(path, body) {
+  const r = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error ?? r.statusText);
+  return data;
+}
+
+function row(title, stateText, isError, buttonText, onClick) {
+  const el = document.createElement("div");
+  el.className = "row";
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = title;
+  const state = document.createElement("div");
+  state.className = isError ? "error" : "state";
+  state.textContent = stateText;
+  name.append(state);
+  const button = document.createElement("button");
+  button.textContent = buttonText;
+  button.onclick = async () => {
+    button.disabled = true;
+    try {
+      await onClick();
+    } catch (e) {
+      setStatus(e.message, true);
+    }
+    refreshPanel();
+  };
+  el.append(name, button);
+  return el;
+}
+
+const stateLabel = (s) =>
+  s.state === "running" ? `Running${s.serial ? ` · ${s.serial}` : ""}${s.bootSeconds ? ` · booted in ${s.bootSeconds} s` : ""}`
+  : s.state === "booting" ? `Booting…${s.since ? ` ${Math.round((Date.now() - s.since) / 1000)} s` : ""}`
+  : s.error ?? "Stopped";
+
+async function stopTarget(key, doStop) {
+  if (current?.key === key) stop();
+  await doStop();
+  setTimeout(() => loadTargets().catch(() => {}), 1500);
+}
+
+function renderPanel(avds, sims) {
+  const heading = (t) => Object.assign(document.createElement("h2"), { textContent: t });
+  const note = (t) => Object.assign(document.createElement("p"), { textContent: t });
+  const items = [heading("Android emulators")];
+  if (!avds.length) items.push(note("None. Create one in Android Studio › Device Manager."));
+  for (const a of avds) {
+    items.push(row(a.name.replaceAll("_", " "), stateLabel(a), !!a.error, a.state === "stopped" ? "Start" : "Stop", () =>
+      a.state === "stopped"
+        ? ((waitingFor = `avd:${a.name}`), postJson("/avds/start", { name: a.name }))
+        : stopTarget(`android:${a.serial}`, () => postJson("/avds/stop", { serial: a.serial })),
+    ));
+  }
+  items.push(heading("iOS Simulators"));
+  if (!sims.length) items.push(note("None (needs macOS with Xcode)."));
+  for (const s of sims) {
+    items.push(row(`${s.name} · ${s.runtime}`, stateLabel(s), !!s.error, s.state === "stopped" ? "Start" : "Stop", () =>
+      s.state === "stopped"
+        ? ((waitingFor = `ios:${s.udid}`), postJson("/sims/boot", { udid: s.udid }))
+        : stopTarget(`ios:${s.udid}`, () => postJson("/sims/shutdown", { udid: s.udid })),
+    ));
+  }
+  $("emuList").replaceChildren(...items);
+}
+
+async function refreshPanel() {
+  clearTimeout(panelTimer);
+  const [avds, sims, wifi] = await Promise.all(["/avds", "/sims", "/wifi"].map((p) => fetch(p).then((r) => r.json())));
+  renderPanel(avds, sims);
+  await renderWifi(wifi);
+  let readyKey = null;
+  if (waitingFor?.startsWith("avd:")) {
+    const a = avds.find((x) => `avd:${x.name}` === waitingFor && x.state === "running");
+    if (a) readyKey = `android:${a.serial}`;
+  } else if (waitingFor && sims.some((x) => `ios:${x.udid}` === waitingFor && x.state === "running")) {
+    readyKey = waitingFor;
+  }
+  if (readyKey) {
+    waitingFor = null;
+    $("devicesPanel").hidePopover();
+    await loadTargets(readyKey);
+  }
+  // Poll only while the panel is open or something is booting.
+  if ($("devicesPanel").matches(":popover-open") || [...avds, ...sims].some((x) => x.state === "booting")) {
+    panelTimer = setTimeout(() => refreshPanel().catch(() => {}), 1000);
+  }
+}
+
+// ---- Android phones over Wi-Fi (wireless debugging; see wifi.mjs) -----------------
+
+async function showPhone(serial) {
+  $("devicesPanel").hidePopover();
+  await loadTargets(`android:${serial}`);
+}
+
+// The "No route to host" hint (see wifi.mjs) gets a Restart adb button.
+function hintText(el, message) {
+  el.textContent = message ?? "";
+  if (!/Local Network/.test(message ?? "")) return;
+  const b = Object.assign(document.createElement("button"), { textContent: "Restart adb" });
+  b.onclick = async () => {
+    b.disabled = true;
+    b.textContent = "Restarting…";
+    try {
+      await postJson("/wifi/restart-adb", {});
+      wifiError(null);
+      await refreshPanel();
+    } catch (e) {
+      wifiError(e.message);
+    }
+  };
+  el.append(" ", b);
+}
+
+function wifiError(message) {
+  hintText($("wifiError"), message);
+  $("wifiError").hidden = !message;
+}
+
+let shownQr = null, shownPairing = null;
+async function renderWifi({ phones, pairing, qr }) {
+  const note = (t) => Object.assign(document.createElement("p"), { textContent: t });
+  const rows = phones.map((p) => row(
+    p.model ?? p.name,
+    `${p.serial ? "Connected" : p.paired ? "Paired" : "Not paired with this Mac yet"} · ${p.address}`,
+    false,
+    p.serial ? "Show" : "Connect",
+    async () => {
+      wifiError(null);
+      try {
+        await showPhone(p.serial ?? (await postJson("/wifi/connect", { name: p.name })).serial);
+      } catch (e) {
+        wifiError(e.message);
+        throw e;
+      }
+    },
+  ));
+  if (!phones.length) rows.push(note("No phone found. Turn on Wireless debugging on the phone, on the same Wi-Fi as this Mac. Still nothing? Turn on Ghostex in System Settings › Privacy & Security › Local Network."));
+  $("wifiList").replaceChildren(...rows);
+
+  // Phones showing a pairing code. Rebuilt only on change: that would close an open dropdown.
+  const pairKey = JSON.stringify(pairing);
+  if (pairKey !== shownPairing) {
+    shownPairing = pairKey;
+    const pick = $("pairTarget").value;
+    $("pairTarget").replaceChildren(new Option("Type the address by hand", ""), ...pairing.map((p) => new Option(`${p.name} · ${p.address}`, p.name)));
+    $("pairTarget").value = pairing.some((p) => p.name === pick) ? pick : pairing[0]?.name ?? "";
+    $("pairAddress").hidden = !!$("pairTarget").value;
+  }
+
+  $("qrBox").hidden = !qr;
+  if (!qr) return void (shownQr = null);
+  if (shownQr !== qr.payload) {
+    const { qrSvg } = await import("/qr.js");
+    $("qrImg").innerHTML = qrSvg(qr.payload);
+    $("qrImg").firstChild.setAttribute("aria-label", `QR code for pairing, service ${qr.name}`);
+    shownQr = qr.payload;
+  }
+  $("qrStatus").className = qr.state === "error" ? "error" : "";
+  hintText($("qrStatus"),
+    qr.state === "waiting" ? `Waiting for the phone…${qr.seen.length ? ` Seen on the network: ${qr.seen.join(", ")}` : ""}`
+    : qr.state === "pairing" ? "Pairing…"
+    : qr.state === "connecting" ? "Paired. Connecting…"
+    : qr.state === "connected" ? "Connected."
+    : qr.error);
+  $("qrCancel").textContent = qr.state === "error" ? "Close" : "Cancel";
+  if (qr.state === "connected") {
+    await postJson("/wifi/qr/cancel", {});
+    await showPhone(qr.serial);
+  }
+}
+
+$("qrStart").onclick = async () => {
+  wifiError(null);
+  try {
+    await postJson("/wifi/qr", {});
+    await refreshPanel();
+    $("qrBox").scrollIntoView({ block: "nearest" });
+  } catch (e) {
+    wifiError(e.message);
+  }
+};
+$("qrCancel").onclick = () => postJson("/wifi/qr/cancel", {}).then(refreshPanel, (e) => wifiError(e.message));
+$("codeToggle").onclick = () => {
+  $("codeForm").hidden = !$("codeForm").hidden;
+  $("codeToggle").setAttribute("aria-expanded", String(!$("codeForm").hidden));
+};
+$("pairTarget").onchange = () => ($("pairAddress").hidden = !!$("pairTarget").value);
+$("codeForm").onsubmit = async (e) => {
+  e.preventDefault();
+  wifiError(null);
+  const name = $("pairTarget").value, address = $("pairAddress").value.trim(), code = $("pairCode").value.trim();
+  if (name && !code) return wifiError("Type the 6-digit code the phone shows.");
+  $("pairSubmit").disabled = true;
+  const label = $("pairSubmit").textContent;
+  $("pairSubmit").textContent = code ? "Pairing…" : "Connecting…";
+  try {
+    const { serial } = await postJson("/wifi/connect", { ...(name ? { name } : { address }), ...(code ? { code } : {}) });
+    $("pairCode").value = "";
+    await showPhone(serial);
+  } catch (err) {
+    wifiError(err.message);
+  } finally {
+    $("pairSubmit").disabled = false;
+    $("pairSubmit").textContent = label;
+  }
+};
+
+$("devicesPanel").addEventListener("toggle", (e) => e.newState === "open" && refreshPanel().catch((err) => setStatus(err.message, true)));
+// Stored by the server (the agent CLI reads it too), not in localStorage.
+fetch("/settings").then((r) => r.json()).then((s) => ($("shutdownIdle").checked = s.shutdownIdle), () => {});
+$("shutdownIdle").onchange = (e) => postJson("/settings", { shutdownIdle: e.target.checked }).catch((err) => { e.target.checked = !e.target.checked; setStatus(err.message, true); });
+
+// ---- input -------------------------------------------------------------------
+
+// ---- device frame ---------------------------------------------------------------
+// Fractions of the frame's short side: bezel width and screen corner radius per device family.
+const FRAMES = { iphone: { bezel: 0.035, radius: 0.135 }, ipad: { bezel: 0.045, radius: 0.05 }, android: { bezel: 0.03, radius: 0.085 } };
+let frameOn = true;
+try { frameOn = localStorage.getItem("mobile-pane.frame") !== "off"; } catch {}
+
+function layoutDevice() {
+  const device = canvas?.parentElement;
+  if (!device || !video) return;
+  const spec = current.kind === "ios" ? (/iPad/i.test(current.label) ? FRAMES.ipad : FRAMES.iphone) : FRAMES.android;
+  const f = frameOn ? spec.bezel : 0;
+  // Outer box from the screen: short side S, screen short side (1 - 2f)S, long side grows by the same bezels.
+  const longOverShort = Math.max(video.width, video.height) / Math.min(video.width, video.height);
+  const outer = (1 - 2 * f) * longOverShort + 2 * f;
+  const portrait = video.height >= video.width;
+  device.style.setProperty("--ar", portrait ? 1 / outer : outer);
+  device.style.setProperty("--bezel", `${f * 100}cqmin`);
+  device.style.setProperty("--screen-r", frameOn ? `${spec.radius * (1 - 2 * f) * 100}cqmin` : "0");
+  device.style.setProperty("--outer-r", `${(spec.radius * (1 - 2 * f) + f) * 100}cqmin`);
+  device.classList.toggle("landscape", !portrait);
+  device.classList.toggle("bare", !frameOn);
+  $("frame").setAttribute("aria-pressed", String(frameOn));
+}
+
+$("frame").onclick = () => {
+  frameOn = !frameOn;
+  try { localStorage.setItem("mobile-pane.frame", frameOn ? "on" : "off"); } catch {}
+  layoutDevice();
+};
+
+/** Pointer position → video-frame pixels (the canvas is exactly the screen; the letterbox math is kept for safety). */
+function toVideo(e, clamp) {
+  if (!video) return null;
+  const r = canvas.getBoundingClientRect();
+  const s = Math.min(r.width / video.width, r.height / video.height);
+  const x = (e.clientX - r.left - (r.width - video.width * s) / 2) / s;
+  const y = (e.clientY - r.top - (r.height - video.height * s) / 2) / s;
+  const inside = x >= 0 && y >= 0 && x < video.width && y < video.height;
+  if (!inside && !clamp) return null;
+  return [Math.min(video.width - 1, Math.max(0, x)), Math.min(video.height - 1, Math.max(0, y))];
+}
+
+const ios = () => current?.kind === "ios";
+
+/** Upright normalized point → the simulator's native portrait frame (serve-sim's remap). */
+function toNative(x, y) {
+  switch (video.orientation) {
+    case "landscape_left": return [y, 1 - x];
+    case "landscape_right": return [1 - y, x];
+    case "portrait_upside_down": return [1 - x, 1 - y];
+    default: return [x, y];
+  }
+}
+
+/** Upright normalized vector → the native portrait frame (derivative of toNative). */
+function toNativeVec(dx, dy) {
+  switch (video.orientation) {
+    case "landscape_left": return [dy, -dx];
+    case "landscape_right": return [-dy, dx];
+    case "portrait_upside_down": return [-dx, -dy];
+    default: return [dx, dy];
+  }
+}
+
+// Option+drag = pinch/rotate with a second finger mirrored around the screen center (like scrcpy).
+let pinching = false;
+
+function sendTouch(phase, p) {
+  const fx = p[0] / video.width, fy = p[1] / video.height;
+  if (ios()) {
+    if (pinching) send(iosTouch2(phase, ...toNative(fx, fy), ...toNative(1 - fx, 1 - fy)));
+    else send(iosTouch(phase, ...toNative(fx, fy)));
+    return;
+  }
+  const action = { begin: ACTION.DOWN, move: ACTION.MOVE, end: ACTION.UP }[phase];
+  send(touch(action, p[0], p[1], video.width, video.height));
+  if (pinching) send(touch(action, video.width - 1 - p[0], video.height - 1 - p[1], video.width, video.height, POINTER_VIRTUAL_FINGER));
+}
+
+const pressKey = (code, meta = 0) => {
+  send(key(ACTION.DOWN, code, 0, meta));
+  send(key(ACTION.UP, code, 0, meta));
+};
+
+const ACTIONS = {
+  back: () => pressKey(KEY.BACK),
+  home: async () => {
+    if (!ios()) return pressKey(KEY.HOME);
+    // Phones with a Home button (SE) open Control Center on a bottom-edge swipe; others go home with it.
+    if (/\bSE\b/.test(current.label)) return send(iosButton("home"));
+    for (const step of iosSwipeHome()) {
+      if (typeof step === "number") await new Promise((r) => setTimeout(r, step));
+      else send(step);
+    }
+  },
+  recents: () => (ios() ? send(iosButton("app_switcher")) : pressKey(KEY.APP_SWITCH)),
+  rotate: () => request({ type: "rotate" }),
+};
+
+const SPECIAL_KEYS = {
+  Enter: KEY.ENTER, Backspace: KEY.DEL, Tab: KEY.TAB, Escape: KEY.ESCAPE, Delete: KEY.FORWARD_DEL,
+  ArrowUp: KEY.DPAD_UP, ArrowDown: KEY.DPAD_DOWN, ArrowLeft: KEY.DPAD_LEFT, ArrowRight: KEY.DPAD_RIGHT,
+  Home: KEY.MOVE_HOME, End: KEY.MOVE_END, PageUp: KEY.PAGE_UP, PageDown: KEY.PAGE_DOWN,
+};
+
+function androidKeyFor(e) {
+  if (SPECIAL_KEYS[e.key]) return [SPECIAL_KEYS[e.key], 0];
+  // Ctrl+letter (select all, copy, …) goes as a keycode.
+  if (e.ctrlKey && !e.metaKey && /^[a-z]$/i.test(e.key)) return [KEY.A + e.key.toLowerCase().charCodeAt(0) - 97, META_CTRL_ON];
+  return null;
+}
+
+// Mac editing shortcuts sent to the device; other Cmd shortcuts stay with Ghostex.
+// Cmd+V is handled by the paste event, which carries the Mac clipboard.
+const EDIT_SHORTCUTS = new Set(["a", "c", "x", "z"]);
+
+function editShortcut(e) {
+  const letter = e.key.toLowerCase();
+  if (ios()) {
+    const usage = HID_USAGE[e.code];
+    send(iosKey("down", HID_USAGE.MetaLeft));
+    send(iosKey("down", usage));
+    send(iosKey("up", usage));
+    send(iosKey("up", HID_USAGE.MetaLeft));
+    // The simulator does not report clipboard changes: read its pasteboard after a copy or cut.
+    if (letter === "c" || letter === "x") setTimeout(() => request({ type: "copy" }), 300);
+  } else {
+    pressKey(KEY.A + letter.charCodeAt(0) - 97, META_CTRL_ON); // Android: Ctrl, and clipboard_autosync reports copies
+  }
+}
+
+/** Pointer, wheel and context menu on the screen canvas. Keys go through #ime (below). */
+function attachInput(el) {
+  let down = false;
+  el.addEventListener("pointerdown", (e) => {
+    $("ime").focus({ preventScroll: true });
+    if (e.button === 2) return !ios() && ACTIONS.back(); // right click = back on Android, like scrcpy
+    if (e.button !== 0) return;
+    const p = toVideo(e, false);
+    if (!p) return;
+    down = true;
+    pinching = e.altKey;
+    try { el.setPointerCapture(e.pointerId); } catch {} // synthetic events have no capturable pointer
+    sendTouch("begin", p);
+  });
+  el.addEventListener("pointermove", (e) => {
+    // Chrome already delivers at most one pointermove per frame, so no extra coalescing.
+    if (down) sendTouch("move", toVideo(e, true));
+  });
+  const up = (e) => {
+    if (!down) return;
+    down = false;
+    sendTouch("end", toVideo(e, true));
+    pinching = false;
+  };
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", up);
+  el.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  el.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const p = toVideo(e, true);
+    if (!p) return;
+    // Lines (mouse wheel notches) count as ~40 px.
+    const px = e.deltaMode === 1 ? 40 : 1;
+    if (ios()) {
+      const r = canvas.getBoundingClientRect();
+      const s = Math.min(r.width / video.width, r.height / video.height);
+      const [dx, dy] = toNativeVec((e.deltaX * px) / (video.width * s), (e.deltaY * px) / (video.height * s));
+      send(iosScroll(dx, dy, ...toNative(p[0] / video.width, p[1] / video.height)));
+    } else {
+      send(scroll(p[0], p[1], video.width, video.height, (-e.deltaX * px) / 40, (-e.deltaY * px) / 40));
+    }
+  }, { passive: false });
+}
+
+// Keyboard: a hidden textarea holds focus while the screen is in use, so input methods work:
+// composed text (Japanese, Chinese, emoji picker, dictation) arrives in compositionend / input events.
+{
+  const ime = $("ime");
+  const sendText = (value) => {
+    if (!value || !current) return;
+    if (ios()) request({ type: "paste", text: value });
+    // scrcpy injects only characters the device keyboard map has (ASCII); others go by clipboard paste.
+    else if (/[^\x20-\x7e]/.test(value)) send(setClipboard(value, true));
+    else send(text(value));
+  };
+  ime.addEventListener("focus", () => canvas?.parentElement?.classList.add("typing"));
+  ime.addEventListener("blur", () => canvas?.parentElement?.classList.remove("typing"));
+  ime.addEventListener("keydown", (e) => {
+    if (!current || e.isComposing || e.keyCode === 229) return; // the input method owns this key
+    if (e.metaKey) {
+      if (EDIT_SHORTCUTS.has(e.key.toLowerCase()) && !e.shiftKey) {
+        editShortcut(e);
+        e.preventDefault();
+      }
+      return;
+    }
+    if (ios()) {
+      const usage = HID_USAGE[e.code];
+      if (usage == null) return;
+      send(iosKey("down", usage));
+    } else {
+      const k = androidKeyFor(e);
+      if (k) send(key(ACTION.DOWN, k[0], e.repeat ? 1 : 0, k[1]));
+      else if (e.key.length === 1 && !e.ctrlKey && !e.altKey) send(text(e.key));
+      else return;
+    }
+    e.preventDefault();
+  });
+  ime.addEventListener("keyup", (e) => {
+    if (!current || e.isComposing || e.metaKey) return;
+    if (ios()) {
+      const usage = HID_USAGE[e.code];
+      if (usage == null) return;
+      send(iosKey("up", usage));
+    } else {
+      const k = androidKeyFor(e);
+      if (!k) return;
+      send(key(ACTION.UP, k[0], 0, k[1]));
+    }
+    e.preventDefault();
+  });
+  ime.addEventListener("compositionend", (e) => {
+    sendText(e.data);
+    ime.value = "";
+  });
+  // Text that arrives without key events we handled (emoji picker, dictation, autocomplete).
+  ime.addEventListener("input", (e) => {
+    if (!e.isComposing && e.inputType === "insertText") sendText(e.data);
+    if (!e.isComposing) ime.value = "";
+  });
+  ime.addEventListener("paste", (e) => {
+    const value = e.clipboardData?.getData("text");
+    e.preventDefault();
+    if (!value || !current) return;
+    if (ios()) request({ type: "paste", text: value });
+    else send(setClipboard(value, true));
+  });
+}
+
+// ---- latency benchmark ---------------------------------------------------------
+
+let benchPending = null;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const pctOf = (xs, q) => (xs.length ? Math.round(xs.slice().sort((a, b) => a - b)[Math.min(xs.length - 1, Math.floor(xs.length * q))] * 10) / 10 : null);
+
+async function runBench(taps = 20) {
+  const target = current;
+  if (!target || !video) return;
+  $("bench").disabled = true;
+  try {
+    setStatus("Bench: opening the test page on the device…");
+    await postJson("/bench/open", { kind: target.kind, id: target.id });
+    await sleep(3500);
+    const results = [];
+    for (let i = 0; i < taps && current === target; i++) {
+      const p = [video.width / 2, video.height / 2];
+      const down = ios() ? iosTouch("begin", ...toNative(0.5, 0.5)) : touch(ACTION.DOWN, p[0], p[1], video.width, video.height);
+      const result = await new Promise((resolve) => {
+        benchPending = resolve;
+        worker.postMessage({ type: "bench-tap", buf: down }, [down]);
+      });
+      benchPending = null;
+      sendTouch("end", p);
+      results.push(result);
+      setStatus(`Bench: tap ${i + 1}/${taps}${result ? ` · ${Math.round(result.totalMs)} ms` : " · no change seen"}`);
+      await sleep(350 + Math.random() * 250); // random phase against vsync
+    }
+    const ok = results.filter(Boolean);
+    const summary = {
+      platform: target.kind, device: target.label, size: `${video.width}x${video.height}`, taps: results.length, measured: ok.length,
+      totalMs: { p50: pctOf(ok.map((r) => r.totalMs), 0.5), p95: pctOf(ok.map((r) => r.totalMs), 0.95), min: pctOf(ok.map((r) => r.totalMs), 0) },
+      deviceMs: { p50: pctOf(ok.filter((r) => r.deviceMs != null).map((r) => r.deviceMs), 0.5) },
+      viewerMs: { p50: pctOf(ok.filter((r) => r.viewerMs != null).map((r) => r.viewerMs), 0.5) },
+      samples: ok.map((r) => Math.round(r.totalMs)),
+    };
+    await postJson("/bench", summary).catch(() => {});
+    setStatus(`Input → screen: p50 ${summary.totalMs.p50} ms, p95 ${summary.totalMs.p95} ms (${ok.length}/${results.length} taps; device ${summary.deviceMs.p50} ms + viewer ${summary.viewerMs.p50} ms)`);
+  } catch (e) {
+    setStatus(`Bench failed: ${e.message}`, true);
+  } finally {
+    $("bench").disabled = false;
+  }
+}
+
+$("bench").onclick = () => runBench();
+document.querySelectorAll("[data-action]").forEach((b) => (b.onclick = () => ACTIONS[b.dataset.action]()));
+$("targets").onchange = () => loadTargets($("targets").value).catch((e) => setStatus(e.message, true));
+$("refresh").onclick = () => loadTargets().catch((e) => setStatus(e.message, true));
+// Hidden pane: stop decoding but keep the connection; on return ask for a keyframe.
+document.addEventListener("visibilitychange", () => worker?.postMessage({ type: document.hidden ? "pause" : "resume" }));
+initRun({ getTarget: () => current });
+loadTargets().catch((e) => setStatus(e.message, true));
+</script>
+</body>
+</html>
